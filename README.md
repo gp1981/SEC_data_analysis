@@ -1,26 +1,41 @@
 # SEC Data Analysis
 
 ## Overview
+
 This repository contains R scripts for retrieving and analyzing company data from the U.S. Securities and Exchange Commission (SEC) filings. It provides a framework to access information about publicly traded companies and perform data analysis based on their SEC filings.
 
 ## Purpose
+
 The primary purpose of this project is to retrieve company data from SEC filings and analyze it for educational and research purposes. Please note that the scripts provided here are not intended for making investment decisions, and their use is at your own risk.
 
-## Quarto Book
+## Files
 
-We are developing a Quarto book as part of this project. You can access the book at the following link:
+1. **main_script.R**: The main script that orchestrates data retrieval and analysis.
+   - **Author**: gp1981
+   - **Disclaimer**: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
+  
+2. **code/Functions/data_retrieval.R**: Contains the script to retrieve company data from SEC filings.
+   - **Author**: gp1981
+   - **Disclaimer**: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
-[SEC Data Analysis Quarto Book](#) - Link to your rendered book (will be replaced with the actual link)
+3. **code/Functions/data_analysis.R**: Contains the script for processing and analyzing SEC data.
+   - **Author**: gp1981
+   - **Disclaimer**: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
+
+4. **code/Functions/data_visualization.R**: Contains the script for processing, analyzing and visualizing SEC data.
+   - **Author**: gp1981
+   - **Disclaimer**: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
+  
+5. **code/Functions/utils.R**: Contains the script of utilities functions for processing, analyzing and visualizing SEC data.
+   - **Author**: gp1981
+   - **Disclaimer**: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
 ## Getting Started
-
-To get started with this project and render the Quarto book on your local machine, follow these steps:
 
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/gp1981/SEC-Data-Analysis.git
-
+   git clone https://github.com/gp1981/SEC_Data_Analysis.git
 
 2. Install the required R libraries by running the following command:
 
@@ -31,6 +46,29 @@ To get started with this project and render the Quarto book on your local machin
    install.packages("dplyr")
 
 3. Run the main_script.R script to retrieve and analyze SEC data.
+
+## Quarto Book
+
+We are developing a Quarto book as part of this project. You can access the book at the following link:
+
+[SEC Data Analysis Quarto Book](#) - Link to your rendered book (will be replaced with the actual link)
+
+## Rendering the Quarto Book Locally
+
+If you want to render the Quarto book on your local machine, proceed with the following additional steps:
+
+
+4.  **Install Quarto**: If you haven't already, you'll need to install Quarto. You can install it using the following command:
+
+    ```bash 
+    npm install -g quarto
+
+5.  **Render the Quarto Book**: Navigate to the /quarto directory and use the Quarto CLI to render the book::
+
+    ```bash 
+    cd quarto quarto render 
+
+The rendered book will be available in the [docs](./docs) directory. Alternatively, in the [quarto](./quarto) directory you can open the index.qmd file and click "Render"
 
 ## Contribution
 
