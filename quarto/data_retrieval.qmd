@@ -1,0 +1,70 @@
+# Data Retrieval
+
+title: "Data Retrieval"
+output: github_document
+---
+
+## Import Required Libraries {#sec-import-libraries}
+
+In this chapter, we will explore the process of retrieving financial data from the U.S. Securities and Exchange Commission (SEC) filings. To do this, we will use R and several libraries that facilitate data retrieval and analysis.
+
+To start, we need to import the required libraries. These libraries provide functions and tools that enable us to interact with the SEC's data and perform data analysis.
+
+```{r Libraries, message=FALSE}
+library(tidyverse)  # A collection of packages for data manipulation and visualization
+library(httr)       # An R interface to the 'curl' package, allowing HTTP requests
+library(jsonlite)   # A lightweight JSON encoder and decoder for R
+````
+
+## Sourcing Required Files
+
+The data retrieval process is orchestrated using a set of functions located in separate R script files. We'll be sourcing these files in the main script (main_script.R) to access the functions for retrieving, processing, and analyzing SEC data.
+
+Let's start by sourcing these files in your main_script.R. Here's how you can do it:
+
+````{r Functions_source_book, message=FALSE}
+source("../code/Functions/data_retrieval.R")   # Sourcing the data retrieval functions
+source("../code/Functions/data_analysis.R")    # Sourcing the data analysis functions
+source("../code/Functions/data_visualization.R")  # Sourcing the data visualization functions
+source("../code/Functions/utils.R")           # Sourcing utility functions
+````
+
+This sets the stage for retrieving and working with SEC data efficiently.
+
+## Retrieve Data from SEC {#sec-retrieve-data}
+
+Now that we have imported the necessary libraries and sourced the required files, we can move on to retrieving financial data from the SEC. In this example, we will focus on one company, Apple Inc. (AAPL), as the target for our data retrieval.
+
+### Define User Headers {#sec-user-headers}
+To access the SEC API, we need to define user headers. These headers will be used for making HTTP requests to the SEC servers. We can set our user agent as an example:
+
+```{r headers_book, output=TRUE}
+# Define user headers
+headers <- c('User-Agent' = 'email@address.com')
+print(headers)
+```
+It's essential to set user headers as a standard practice when accessing web APIs to identify the source of the requests.
+
+## Retrieve Company List {#sec-company-list}
+Our first step in data retrieval is to obtain the list of companies available on the SEC. This list contains essential information, including the Central Index Key (CIK), which uniquely identifies each company that files reports with the SEC. We'll make an HTTP request to fetch this list:
+
+```{r company_list_book, eval=TRUE}
+# Retrieve company list
+company_List <- retrieve_Company_List(headers)
+head(company_List)
+```
+
+## Selecting a Company: Apple Inc. (AAPL) 
+For our analysis, we'll use Apple Inc. (AAPL) as the company of interest. The CIK for Apple Inc. is 0000320193.
+
+Let's now select Apple Inc. by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the company_Data object for further analysis:
+
+````{r company_selecte_book, eval=TRUE}
+# Select Apple Inc. (AAPL) by CIK
+cik <- "0000320193"  # CIK for Apple Inc.
+company_Data <- retrieve_Company_Data(headers, cik)
+
+# this the first row of the company list as a quick check
+company_List[1,] %>% print()
+````
+By following these steps, we've imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for Apple Inc.

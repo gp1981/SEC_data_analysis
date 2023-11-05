@@ -1,0 +1,29 @@
+project:
+  type: book
+
+book:
+  title: "Business Analysis Using SEC Data of Public Companies"
+  author: "gp1981"
+  date: "11/4/2023"
+  chapters:
+  - index.qmd
+  - data_retrieval.qmd
+  - data_exploration.qmd
+  - data_analysis.qmd
+  - data_visualization.qmd
+  - advanced_topics.qmd
+  - case_studies.qmd
+
+bibliography: references.bib
+
+format:
+  html:
+    theme: cosmo
+  pdf:
+    documentclass: scrreprt
+
+editor: visual
+
+output:
+  dir: "../docs"
+
