@@ -34,3 +34,6 @@ docs/
 
 # But keep /docs in the repository
 !/docs/
+# Ignore the output of rendering
+/quarto/_book/
+.quarto

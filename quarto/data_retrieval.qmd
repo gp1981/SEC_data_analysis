@@ -22,12 +22,12 @@ The data retrieval process is orchestrated using a set of functions located in s
 
 Let's start by sourcing these files in your main_script.R. Here's how you can do it:
 
-````{r Functions_source_book, message=FALSE}
+```{r Functions_source_book, message=FALSE}
 source("../code/Functions/data_retrieval.R")   # Sourcing the data retrieval functions
 source("../code/Functions/data_analysis.R")    # Sourcing the data analysis functions
 source("../code/Functions/data_visualization.R")  # Sourcing the data visualization functions
 source("../code/Functions/utils.R")           # Sourcing utility functions
-````
+```
 
 This sets the stage for retrieving and working with SEC data efficiently.
 
