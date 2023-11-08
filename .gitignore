@@ -13,6 +13,7 @@
 # Output files from R CMD check
 /*.Rcheck/
 .Rproj.user/
+.DS_Store
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf

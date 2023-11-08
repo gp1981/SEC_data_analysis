@@ -10,7 +10,7 @@ In this chapter, we will explore the process of retrieving financial data from t
 
 To start, we need to import the required libraries. These libraries provide functions and tools that enable us to interact with the SEC's data and perform data analysis.
 
-```{r Libraries, message=FALSE}
+```{r Libraries_quarto, message=FALSE}
 library(tidyverse)  # A collection of packages for data manipulation and visualization
 library(httr)       # An R interface to the 'curl' package, allowing HTTP requests
 library(jsonlite)   # A lightweight JSON encoder and decoder for R
@@ -68,3 +68,4 @@ company_Data <- retrieve_Company_Data(headers, cik)
 company_List[1,] %>% print()
 ````
 By following these steps, we've imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for Apple Inc.
+

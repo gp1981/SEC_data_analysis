@@ -1,1 +1,19 @@
 # Data Exploration
+
+title: "Data Exploration"
+output: github_document
+---
+
+# Explore Data Retrieved from SEC
+
+Now that we have successfully retrieved financial data from the SEC for Apple Inc. (AAPL), let's delve into the details of the data. We'll explore various components, including metadata, facts, and concepts.
+
+## Company Metadata
+
+The company metadata provides general information about the company. This includes details such as the company name, fiscal year end date, and other essential information.
+
+```{r explore_metadata_book, eval=TRUE}
+# Assuming you have successfully retrieved company_Data
+company_Metadata <- company_Data$company_Metadata
+str(company_Metadata) %>% print(max.level = 1)
+```
