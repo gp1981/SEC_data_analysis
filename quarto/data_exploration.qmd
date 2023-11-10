@@ -1,19 +1,76 @@
-# Data Exploration
+```{r load_libraries_book, eval=FALSE, echo = FALSE, warning=FALSE}
+# Include the shared setup file
+source("setup.qmd")
+```
 
-title: "Data Exploration"
-output: github_document
----
+# Explore data retrieved from SEC
 
-# Explore Data Retrieved from SEC
+In this section, we will explore the structure of the SEC data retrieved from the API. The data is organized in a structured format compliant with SEC reporting standards. Understanding this structure is crucial for effective analysis.
 
-Now that we have successfully retrieved financial data from the SEC for Apple Inc. (AAPL), let's delve into the details of the data. We'll explore various components, including metadata, facts, and concepts.
+First, let's retrieve the objects that we need for the data exploration:
 
-## Company Metadata
+```{r load_object1_book, eval=TRUE}
+# Load company_Data
+company_Data <- readRDS("company_data.RDS")
+cik <- readRDS("cik.RDS")
+```
 
-The company metadata provides general information about the company. This includes details such as the company name, fiscal year end date, and other essential information.
+## Structure of the SEC data: XBRL
 
-```{r explore_metadata_book, eval=TRUE}
-# Assuming you have successfully retrieved company_Data
+The structure the data retrieved from SEC API is a structured financial data in compliance with SEC reporting standards.The SEC data is organized in XBRL (eXtensible Business Reporting Language), which is a structured, machine-readable format. It ensures consistency and comparability of financial data across different companies and filings.
+
+In practice, if you want to analyze specific financial metrics like "Assets," you would navigate through the structure to access the corresponding "fact" under the relevant "concept." This allows you to extract and work with financial data for analysis or reporting. The structure includes:
+
+-   **`cik`**: This is the Central Index Key (CIK) of the company. It's a unique identifier assigned to each company that files reports with the U.S. Securities and Exchange Commission (SEC).
+
+-   **`entityName`**: This is the name of the company, in this case, "Apple Inc."
+
+-   **`facts`**: This is the main container for financial data. Within "facts," you have two main sections:
+
+    -   **`dei`**: This section contains financial data related to Document and Entity Information (DEI). DEI data includes basic company information, such as the entity's common stock shares outstanding and the entity's public float.
+
+    -   **`us-gaap`**: This section contains financial data that follows the U.S. Generally Accepted Accounting Principles (GAAP). It includes a wide range of financial concepts, which are organized as a list of financial items.
+
+Within these sections, you'll find the actual financial data represented as a list of items. Each item has specific attributes that describe the financial information:
+
+-   **Concept**: A "concept" represents a specific financial measure or item. For example, "Assets" or "AccountsPayable" are concepts. Each concept has an associated label and a data type.
+
+-   **Facts**: Under each concept, you have "facts." These are the actual numerical values or data associated with the concept. For example, "Assets" will have a fact that represents the total assets value for the company. Facts typically have attributes like "value," "unitRef," and "contextRef."
+
+-   **Attributes**: Facts may have additional attributes that provide context for the data, such as the reporting period, currency unit, or the precision of the data.
+
+To analyze and work with this data effectively, you would typically need to select specific concepts and facts that are relevant to your analysis, and you may also need to transform or pivot the data into a more tabular format for further processing and visualization.
+
+We split the data in `company_Data` into separate Lists: `company_Metadata`, `company_Facts`, `company_Concept`
+
+```{r split_company_Data_book, eval=TRUE}
+# Split the lists in company_Data
 company_Metadata <- company_Data$company_Metadata
-str(company_Metadata) %>% print(max.level = 1)
+company_Facts <- company_Data$company_Facts
+company_Concept <- company_Data$company_Concept
+```
+
+##### Uderstanding 'company_Data'
+
+You can visualize the structure in textual format:
+
+```{r str_company_Data_book, eval=TRUE, message=FALSE}
+library(magrittr)
+# Visualize structure of the company_Metadata
+str(company_Metadata) %>% print()
+```
+
+Let's create now a first dataframe:
+
+```{r Explore Data_book}
+# Create a DataFrame with relevant data
+company_df <- data.frame(
+  CIK = cik,
+  Name = company_Metadata$name,
+  FiscalYearEnd = company_Metadata$fiscalYearEnd,
+  AssetsLabel = company_Facts$facts$`us-gaap`$Assets$label,
+  AssetsDescription = company_Facts$facts$`us-gaap`$Assets$description
+  # Add more relevant fields here
+)
+print(company_df)
 ```

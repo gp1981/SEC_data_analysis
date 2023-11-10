@@ -69,3 +69,8 @@ company_List[1,] %>% print()
 ````
 By following these steps, we've imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for Apple Inc.
 
+```{r save_object1_book, eval=TRUE}
+# Load company_Data
+saveRDS(company_Data, file = "company_Data.RDS") 
+saveRDS(cik, file = "cik.RDS")
+```

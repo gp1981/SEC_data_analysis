@@ -36,6 +36,8 @@ docs/
 # But keep /docs in the repository
 !/docs/
 # Ignore the output of rendering
+*.html
 /quarto/_book/
 .quarto
 /quarto/index_files/
+*.RDS
