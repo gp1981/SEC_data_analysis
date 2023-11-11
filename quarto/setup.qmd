@@ -3,3 +3,6 @@ library(httr)
 library(jsonlite)
 library(DiagrammeR)
 library(magrittr)
+library(tibble)
+library(knitr)
+

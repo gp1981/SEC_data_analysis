@@ -1,29 +1,32 @@
 project:
-  type: book
+  type: website
 
-book:
+website:
   title: "Business Analysis Using SEC Data of Public Companies"
-  author: "gp1981"
-  date: "11/4/2023"
-  chapters:
-  - index.qmd
-  - data_retrieval.qmd
-  - data_exploration.qmd
-  - data_analysis.qmd
-  - data_visualization.qmd
-  - advanced_topics.qmd
-  - case_studies.qmd
+  navbar: 
+    tools:
+    - icon: github
+      menu:
+      - text: Source code
+        url: https://github.com/gp1981/SEC_data_analysis
+  sidebar: 
+    style: "docked"
+    search: true
+    contents: 
+      - index.qmd
+      - data_retrieval.qmd
+      - data_exploration.qmd
+      - data_analysis.qmd
+      - data_visualization.qmd
+      - advanced_topics.qmd
+      - case_studies.qmd
 
-bibliography: references.bib
-
+    
 format:
   html:
     theme: cosmo
-  pdf:
-    documentclass: scrreprt
-
-editor: visual
+    css: styles.css
+    toc: true
 
 output:
   dir: "../docs"
-

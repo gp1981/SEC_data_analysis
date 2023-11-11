@@ -41,3 +41,4 @@ docs/
 .quarto
 /quarto/index_files/
 *.RDS
+*_site

@@ -1,15 +1,17 @@
-```{r load_libraries_book, eval=FALSE, echo = FALSE, warning=FALSE}
-# Include the shared setup file
-source("setup.qmd")
-```
-
 # Explore data retrieved from SEC
 
 In this section, we will explore the structure of the SEC data retrieved from the API. The data is organized in a structured format compliant with SEC reporting standards. Understanding this structure is crucial for effective analysis.
 
-First, let's retrieve the objects that we need for the data exploration:
+First, we load the various libraries.
 
-```{r load_object1_book, eval=TRUE}
+```{r load_libraries, eval=FALSE, echo = FALSE, warning=FALSE}
+# Include the shared setup file
+source("setup.qmd")
+```
+
+Next, let's retrieve the objects that we need for the data exploration:
+
+```{r load_object1, eval=TRUE}
 # Load company_Data
 company_Data <- readRDS("company_data.RDS")
 cik <- readRDS("cik.RDS")
@@ -43,26 +45,29 @@ To analyze and work with this data effectively, you would typically need to sele
 
 We split the data in `company_Data` into separate Lists: `company_Metadata`, `company_Facts`, `company_Concept`
 
-```{r split_company_Data_book, eval=TRUE}
+```{r split_company_Data, eval=TRUE}
 # Split the lists in company_Data
 company_Metadata <- company_Data$company_Metadata
 company_Facts <- company_Data$company_Facts
 company_Concept <- company_Data$company_Concept
 ```
 
-##### Uderstanding 'company_Data'
+### Uderstanding 'company_Data'
 
-You can visualize the structure in textual format:
+You can see the structure in textual format:
 
-```{r str_company_Data_book, eval=TRUE, message=FALSE}
+```{r str_company_Data, eval=TRUE, message=FALSE}
+# Visualize structure of the company_Metadata with a collapsible section
 library(magrittr)
-# Visualize structure of the company_Metadata
 str(company_Metadata) %>% print()
 ```
 
+As you can see the structure of company_Data is large and complex.
+
+### Creating dataframe
 Let's create now a first dataframe:
 
-```{r Explore Data_book}
+```{r Explore Data, message=FALSE, warning=FALSE}
 # Create a DataFrame with relevant data
 company_df <- data.frame(
   CIK = cik,
@@ -70,7 +75,64 @@ company_df <- data.frame(
   FiscalYearEnd = company_Metadata$fiscalYearEnd,
   AssetsLabel = company_Facts$facts$`us-gaap`$Assets$label,
   AssetsDescription = company_Facts$facts$`us-gaap`$Assets$description
-  # Add more relevant fields here
+  # Add more relevant columns here
 )
-print(company_df)
+library(knitr)
+kable(company_df)
+```
+
+Let's say that we want to recreate a summary version of the balance sheet of Apple Inc. based on the last filing. The dataframe would be generated in the following way: 
+
+```{r balancesheet, warning=FALSE, message=FALSE}
+# Load necessary libraries
+library(dplyr)
+
+# Extract detailed information for the Balance Sheet summary
+detailed_balance_sheet_summary <- data.frame(
+  CIK = cik,
+  Name = company_Metadata$name,
+  FiscalYearEnd = company_Metadata$fiscalYearEnd,
+  CashAndCashEquivalents = company_Facts$facts$`us-gaap`$CashAndCashEquivalentsAtCarryingValue$units$USD$val
+)
+
+# Add a FiscalYear column
+detailed_balance_sheet_summary <- detailed_balance_sheet_summary %>%
+  mutate(FiscalYear = as.character(FiscalYearEnd))
+
+# Format the CashAndCashEquivalents column
+detailed_balance_sheet_summary$CashAndCashEquivalents_Millions <- format(
+  detailed_balance_sheet_summary$CashAndCashEquivalents / 1e6,
+  big.mark = ",",
+  scientific = FALSE
+)
+
+
+# Add a column for unit of measure
+detailed_balance_sheet_summary$CashAndCashEquivalents_Unit <- paste0(
+  detailed_balance_sheet_summary$CashAndCashEquivalents_Million, " USD (millions)"
+)
+
+  # AccountsReceivable = company_Facts$facts$`us-gaap`$AccountsReceivableNet$value,
+  # Inventory = company_Facts$facts$`us-gaap`$InventoryNet$value,
+  # TotalCurrentAssets = company_Facts$facts$`us-gaap`$AssetsCurrent$value,
+  # PropertyPlantAndEquipment = company_Facts$facts$`us-gaap`$PropertyPlantAndEquipmentNet$value,
+  # TotalAssets = company_Facts$facts$`us-gaap`$Assets$value,
+  # AccountsPayable = company_Facts$facts$`us-gaap`$AccountsPayableCurrent$value,
+  # TotalShortTermDebtsAndLeasing = company_Facts$facts$`us-gaap`$DebtCurrent$value,
+  # TotalCurrentLiabilities = company_Facts$facts$`us-gaap`$LiabilitiesCurrent$value,
+  # TotalLongTermDebtsAndLeasing = company_Facts$facts$`us-gaap`$DebtNoncurrent$value,
+  # TotalLiabilities = company_Facts$facts$`us-gaap`$Liabilities$value,
+  # CommonStock = company_Facts$facts$`us-gaap`$CommonStockSharesOutstanding$value,
+  # PreferredStock = company_Facts$facts$`us-gaap`$PreferredStockValue$value,
+  # RetainedEarnings = company_Facts$facts$`us-gaap`$RetainedEarningsAccumulatedDeficit$value,
+  # AdditionalPaidInCapital = company_Facts$facts$`us-gaap`$AdditionalPaidInCapital$value,
+  # TreasuryStock = company_Facts$facts$`us-gaap`$TreasuryStockValue$value,
+  # TotalStockholdersEquity = company_Facts$facts$`us-gaap`$StockholdersEquity$value,
+  # MinorityInterest = company_Facts$facts$`us-gaap`$MinorityInterest$value
+# )
+# 
+# Display the formatted summary dataframe
+kable(detailed_balance_sheet_summary[, c("CIK", "Name", "FiscalYear", "CashAndCashEquivalents_Unit")])
+
+
 ```
