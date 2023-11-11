@@ -1,17 +1,16 @@
 # Explore data retrieved from SEC
 
-In this section, we will explore the structure of the SEC data retrieved from the API. The data is organized in a structured format compliant with SEC reporting standards. Understanding this structure is crucial for effective analysis.
+In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, and understanding this structure is vital for effective analysis.
 
-First, we load the various libraries.
+First, we load the required libraries and files.
 
-```{r load_libraries, eval=FALSE, echo = FALSE, warning=FALSE}
-# Include the shared setup file
-source("setup.qmd")
+```{r Functions_source, message=FALSE, warning=FALSE}
+source("setup.qmd")          
 ```
 
-Next, let's retrieve the objects that we need for the data exploration:
+Now, let's retrieve the necessary objects for data exploration:
 
-```{r load_object1, eval=TRUE}
+```{r load_object1, eval=TRUE, warning=FALSE, message=FALSE}
 # Load company_Data
 company_Data <- readRDS("company_data.RDS")
 cik <- readRDS("cik.RDS")
@@ -19,55 +18,145 @@ cik <- readRDS("cik.RDS")
 
 ## Structure of the SEC data: XBRL
 
-The structure the data retrieved from SEC API is a structured financial data in compliance with SEC reporting standards.The SEC data is organized in XBRL (eXtensible Business Reporting Language), which is a structured, machine-readable format. It ensures consistency and comparability of financial data across different companies and filings.
+The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards. It utilizes XBRL (eXtensible Business Reporting Language), a structured, machine-readable format ensuring consistency and comparability across companies and filings.
 
-In practice, if you want to analyze specific financial metrics like "Assets," you would navigate through the structure to access the corresponding "fact" under the relevant "concept." This allows you to extract and work with financial data for analysis or reporting. The structure includes:
+To navigate through this structure for analysis, consider the following key elements:
 
--   **`cik`**: This is the Central Index Key (CIK) of the company. It's a unique identifier assigned to each company that files reports with the U.S. Securities and Exchange Commission (SEC).
+-   **`cik`**: The Central Index Key (CIK) is a unique identifier assigned to each company filing reports with the U.S. Securities and Exchange Commission (SEC).
 
--   **`entityName`**: This is the name of the company, in this case, "Apple Inc."
+-   **`entityName`**: This is the name of the company, such as "Apple Inc."
 
--   **`facts`**: This is the main container for financial data. Within "facts," you have two main sections:
+-   **`facts`**: The main container for financial data, housing two critical sections:
 
-    -   **`dei`**: This section contains financial data related to Document and Entity Information (DEI). DEI data includes basic company information, such as the entity's common stock shares outstanding and the entity's public float.
+    -   **`dei`**: Contains Document and Entity Information (DEI), providing basic company details.
 
-    -   **`us-gaap`**: This section contains financial data that follows the U.S. Generally Accepted Accounting Principles (GAAP). It includes a wide range of financial concepts, which are organized as a list of financial items.
+    -   **`us-gaap`**: Holds financial data following the U.S. Generally Accepted Accounting Principles (GAAP).
 
-Within these sections, you'll find the actual financial data represented as a list of items. Each item has specific attributes that describe the financial information:
+Within these sections, financial data is organized as a list of items, each with specific attributes:
 
--   **Concept**: A "concept" represents a specific financial measure or item. For example, "Assets" or "AccountsPayable" are concepts. Each concept has an associated label and a data type.
+-   **Concept**: Represents a financial measure or item (e.g., "Assets") with an associated label and data type.
 
--   **Facts**: Under each concept, you have "facts." These are the actual numerical values or data associated with the concept. For example, "Assets" will have a fact that represents the total assets value for the company. Facts typically have attributes like "value," "unitRef," and "contextRef."
+-   **Facts**: Actual numerical values associated with the concept, with attributes like "value," "unitRef," and "contextRef."
 
--   **Attributes**: Facts may have additional attributes that provide context for the data, such as the reporting period, currency unit, or the precision of the data.
+-   **Attributes**: Additional attributes providing context for the data, such as reporting period, currency unit, or data precision.
 
-To analyze and work with this data effectively, you would typically need to select specific concepts and facts that are relevant to your analysis, and you may also need to transform or pivot the data into a more tabular format for further processing and visualization.
+Effectively analyzing this data involves selecting relevant concepts and facts, potentially transforming or pivoting the data for further processing and visualization.
 
-We split the data in `company_Data` into separate Lists: `company_Metadata`, `company_Facts`, `company_Concept`
+### Uderstanding `company_Data`
 
-```{r split_company_Data, eval=TRUE}
+Let's start by exploring the structure of **`company_Data`**:
+
+```{r str_company_Data, eval=TRUE, message=FALSE,warning=FALSE}
+# Visualize structure of the company_Data 
+str(company_Data, max.level = 1)
+```
+
+The output reveals that **`company_Data`** comprises three lists with nested lists, such as **`company_Metadata`** with 22 lists.
+
+::: {#Note_List .Note style="background-color: #f0f0f0; padding: 10px;"}
+*In R, a **list** is a versatile data structure capable of holding elements of different data types. It offers flexibility, allowing each element to be of a different type.*
+
+*For **`company_Data`**, the list structure organizes various pieces of information, accommodating different data types. Understanding this structure is crucial for navigating and extracting specific information from complex datasets.*
+:::
+
+To access the lists we use the symbol `$` in after the object e.g. `company_Data$company_Metadata`.
+
+Next, we split the data into separate lists: **`company_Metadata`**, **`company_Facts`**, **`company_Concept`**.
+
+```{r split_company_Data, eval=TRUE, warning=FALSE, message=FALSE}
 # Split the lists in company_Data
 company_Metadata <- company_Data$company_Metadata
 company_Facts <- company_Data$company_Facts
 company_Concept <- company_Data$company_Concept
 ```
 
-### Uderstanding 'company_Data'
+Now, let's examine the structures of these lists:
 
-You can see the structure in textual format:
-
-```{r str_company_Data, eval=TRUE, message=FALSE}
-# Visualize structure of the company_Metadata with a collapsible section
-library(magrittr)
-str(company_Metadata) %>% print()
+```{r str_company_Data2, eval=TRUE, warning=FALSE, message=FALSE}
+# Visualize structure of the company_Data
+str(company_Metadata, max.level = 1)
+str(company_Facts, max.level = 1)
+str(company_Concept, max.level = 1)
 ```
 
-As you can see the structure of company_Data is large and complex.
+#### `company_Metadata`
+
+`company_Metadata` is the largest list including 22 elements of which:
+
+1.  **List** - `Addresses`, `filings`: are nested lists.
+
+2.  **Integer** - `insiderTransactionForOwnerExists` , `insiderTransactionForIssuuerExists` : are integer number.
+
+3.  **Dataframe** - `formerNames`: is a dataframe.
+
+4.  **Characters** - All the remaining elements of `company_Metadata` are characters.
+
+The most relevant information of `company_Metadata` are included in the `filing` list, which contains filing attributes.
+
+```{r str_company_Metadata_Filing, eval=TRUE, warning=FALSE, message=FALSE}
+# Visualize structure of the company_Metadata
+str(company_Metadata$filing, max.level = 2)
+```
+
+#### `company_Facts`
+
+`company_Facts` includes several nested lists.
+
+```{r str_company_Facts, eval=TRUE, warning=FALSE, message=FALSE}
+# Visualize structure of the company_Facts
+str(company_Facts, max.level = 2)
+```
+
+The **`us-gaap`** list is the most significant one, containing 498 nested elements. Let's examine the first five.
+
+```{r str_company_Facts_us_gaap_head, eval=TRUE, warning=FALSE, message=FALSE}
+
+# Visualize structure of the company_Facts
+Facts_us_gaap <- str(company_Facts$facts$`us-gaap`[1:5], max.level = 1)
+```
+
+These five facts include essential fundamentals of the company and are themselves nested lists. Let's explore the structure of the first one.
+
+```{r str_company_Facts_us_gaap, eval=TRUE, warning=FALSE, message=FALSE}
+
+# Visualize structure of the company_Facts
+str(company_Facts$facts$`us-gaap`[1], max.level = 4)
+```
+
+Breaking down the content of the list, we find:
+
+##### **Content of the List `us-gaap`**
+
+-   **AccountsPayable**: Represents a financial concept within the **`us-gaap`** section, specifically referring to "Accounts Payable (Deprecated 2009-01-31)."
+
+    -   **`label`**: A human-readable description of the concept, such as "Accounts Payable (Deprecated 2009-01-31)."
+
+    -   **`description`**: A detailed explanation of the concept, providing insight into the carrying value as of the balance sheet date.
+
+    -   **`units`**: A list containing information about the units associated with the concept, with USD as the unit of measure.
+
+This hierarchical structure provides a detailed view of the financial concept "Accounts Payable (Deprecated 2009-01-31)" within the **`us-gaap`** section, including its label, description, and historical data with unit details.
+
+::: {#Note_List2 .Note style="background-color: #f0f0f0; padding: 10px;"}
+*Most of the SEC data requried for fundamentals analysis is included in this structure. Its understanding is critical to properly retrieve the data*
+:::
+
+#### `company_Concept`
+
+Finally, let's examine the structure associated with the company's Concept.
+
+```{r str_company_Concept, eval=TRUE, warning=FALSE, message=FALSE}
+# Visualize structure of the company_Concepts
+str(company_Concept, max.level = 3)
+```
+
+The output shows the structure associated with the `Asset` of the company under the taxonomy of `us-gaap`.
 
 ### Creating dataframe
+
 Let's create now a first dataframe:
 
-```{r Explore Data, message=FALSE, warning=FALSE}
+```{r Explore Data, message=FALSE, warning=FALSE, message=FALSE}
 # Create a DataFrame with relevant data
 company_df <- data.frame(
   CIK = cik,
@@ -81,12 +170,9 @@ library(knitr)
 kable(company_df)
 ```
 
-Let's say that we want to recreate a summary version of the balance sheet of Apple Inc. based on the last filing. The dataframe would be generated in the following way: 
+Let's say that we want to recreate a summary version of the balance sheet of Apple Inc. based on the last filing. The dataframe would be generated in the following way:
 
-```{r balancesheet, warning=FALSE, message=FALSE}
-# Load necessary libraries
-library(dplyr)
-
+```{r balancesheet, warning=FALSE, warning=FALSE, message=FALSE}
 # Extract detailed information for the Balance Sheet summary
 detailed_balance_sheet_summary <- data.frame(
   CIK = cik,
@@ -133,6 +219,4 @@ detailed_balance_sheet_summary$CashAndCashEquivalents_Unit <- paste0(
 # 
 # Display the formatted summary dataframe
 kable(detailed_balance_sheet_summary[, c("CIK", "Name", "FiscalYear", "CashAndCashEquivalents_Unit")])
-
-
 ```

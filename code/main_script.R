@@ -8,10 +8,10 @@ library(httr)
 library(jsonlite)
 
 # Sourcing required files
-source("Functions/data_retrieval.R")
-source("Functions/data_analysis.R")
-source("Functions/data_visualization.R")
-source("Functions/utils.R")
+source("code/Functions/data_retrieval.R")
+source("code/Functions/data_analysis.R")
+source("code/Functions/data_visualization.R")
+source("code/Functions/utils.R")
 
 
 # Retrieve data from SEC --------------------------------------------------

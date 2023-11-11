@@ -1,8 +1,13 @@
+# Source key required libraries
 library(tidyverse)
 library(httr)
 library(jsonlite)
-library(DiagrammeR)
 library(magrittr)
 library(tibble)
 library(knitr)
 
+# Source required functions
+source("../code/Functions/data_retrieval.R")   # Sourcing the data retrieval functions
+source("../code/Functions/data_analysis.R")    # Sourcing the data analysis functions
+source("../code/Functions/data_visualization.R")  # Sourcing the data visualization functions
+source("../code/Functions/utils.R")           # Sourcing utility functions
