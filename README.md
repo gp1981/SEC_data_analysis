@@ -51,9 +51,9 @@ The primary purpose of this project is to retrieve company data from SEC filings
 
 We are developing a Quarto website as part of this project. You can access the book at the following link:
 
-[Fundamental analysis of SEC data](#) - Link to your rendered book (will be replaced with the actual link)
+[Unlocking Financial Insights: A Guide to SEC Data Analysis with R](#) - Link to your rendered book (will be replaced with the actual link)
 
-## Rendering the Quarto Book Locally
+## Rendering the Quarto website Locally
 
 If you want to render the Quarto book on your local machine, proceed with the following additional steps:
 
@@ -63,12 +63,12 @@ If you want to render the Quarto book on your local machine, proceed with the fo
     ```bash 
     npm install -g quarto
 
-5.  **Render the Quarto Book**: Navigate to the /quarto directory and use the Quarto CLI to render the book::
+5.  **Render the Quarto website**: Navigate to the /quarto directory and use the Quarto CLI to render the book::
 
     ```bash 
     cd quarto quarto render 
 
-The rendered book will be available in the [docs](./docs) directory. Alternatively, in the [quarto](./quarto) directory you can open the index.qmd file and click "Render"
+The rendered website will be available in the [docs](./docs) directory. Alternatively, in the [quarto](./quarto) directory you can open the index.qmd file and click "Render"
 
 ## Contribution
 
