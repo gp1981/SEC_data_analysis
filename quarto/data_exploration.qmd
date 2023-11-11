@@ -170,6 +170,12 @@ library(knitr)
 kable(company_df)
 ```
 
+------------------------------------------------------------------------
+
+WORK IN PROGRESS
+
+------------------------------------------------------------------------
+
 Let's say that we want to recreate a summary version of the balance sheet of Apple Inc. based on the last filing. The dataframe would be generated in the following way:
 
 ```{r balancesheet, warning=FALSE, warning=FALSE, message=FALSE}
@@ -218,5 +224,5 @@ detailed_balance_sheet_summary$CashAndCashEquivalents_Unit <- paste0(
 # )
 # 
 # Display the formatted summary dataframe
-kable(detailed_balance_sheet_summary[, c("CIK", "Name", "FiscalYear", "CashAndCashEquivalents_Unit")])
+kable(detailed_balance_sheet_summary[1:5, c("CIK", "Name", "FiscalYear", "CashAndCashEquivalents_Unit")])
 ```
