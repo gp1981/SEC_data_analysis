@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.433">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Unlocking Financial Insights: A Guide to SEC Data Analysis with R – data_exploration</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<script src="site_libs/quarto-html/quarto.js"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "navbar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "end",
+  "type": "overlay",
+  "limit": 20,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+<link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="nav-sidebar docked nav-fixed">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Unlocking Financial Insights: A Guide to SEC Data Analysis with R</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools ms-auto">
+    <div class="dropdown">
+      <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label=""><i class="bi bi-github"></i></a>
+      <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
+          <li>
+            <a class="dropdown-item quarto-navbar-tools ms-auto-item" href="https://github.com/gp1981/SEC_data_analysis">
+            Source code
+            </a>
+          </li>
+      </ul>
+    </div>
+</div>
+          <div id="quarto-search" class="" title="Search"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./data_exploration.html">Explore data retrieved from SEC</a></li></ol></nav>
+      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+      </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Introduction and Overview</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data_retrieval.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Retrieval</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data_exploration.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Explore data retrieved from SEC</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data_analysis.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Analysis</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./data_visualization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Data Visualization</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./advanced_topics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Advanced Topics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./case_studies.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Case Study</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">On this page</h2>
+   
+  <ul>
+  <li><a href="#explore-data-retrieved-from-sec" id="toc-explore-data-retrieved-from-sec" class="nav-link active" data-scroll-target="#explore-data-retrieved-from-sec">Explore data retrieved from SEC</a>
+  <ul class="collapse">
+  <li><a href="#structure-of-the-sec-data-xbrl" id="toc-structure-of-the-sec-data-xbrl" class="nav-link" data-scroll-target="#structure-of-the-sec-data-xbrl">Structure of the SEC data: XBRL</a>
+  <ul class="collapse">
+  <li><a href="#uderstanding-company_data" id="toc-uderstanding-company_data" class="nav-link" data-scroll-target="#uderstanding-company_data">Uderstanding <code>company_Data</code></a></li>
+  <li><a href="#creating-dataframe" id="toc-creating-dataframe" class="nav-link" data-scroll-target="#creating-dataframe">Creating dataframe</a></li>
+  </ul></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+
+
+<section id="explore-data-retrieved-from-sec" class="level1">
+<h1>Explore data retrieved from SEC</h1>
+<p>In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, and understanding this structure is vital for effective analysis.</p>
+<p>First, we load the required libraries and files.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.qmd"</span>)          </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, let’s retrieve the necessary objects for data exploration:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_Data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"cik.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<section id="structure-of-the-sec-data-xbrl" class="level2">
+<h2 class="anchored" data-anchor-id="structure-of-the-sec-data-xbrl">Structure of the SEC data: XBRL</h2>
+<p>The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards. It utilizes XBRL (eXtensible Business Reporting Language), a structured, machine-readable format ensuring consistency and comparability across companies and filings.</p>
+<p>To navigate through this structure for analysis, consider the following key elements:</p>
+<ul>
+<li><p><strong><code>cik</code></strong>: The Central Index Key (CIK) is a unique identifier assigned to each company filing reports with the U.S. Securities and Exchange Commission (SEC).</p></li>
+<li><p><strong><code>entityName</code></strong>: This is the name of the company, such as “Apple Inc.”</p></li>
+<li><p><strong><code>facts</code></strong>: The main container for financial data, housing two critical sections:</p>
+<ul>
+<li><p><strong><code>dei</code></strong>: Contains Document and Entity Information (DEI), providing basic company details.</p></li>
+<li><p><strong><code>us-gaap</code></strong>: Holds financial data following the U.S. Generally Accepted Accounting Principles (GAAP).</p></li>
+</ul></li>
+</ul>
+<p>Within these sections, financial data is organized as a list of items, each with specific attributes:</p>
+<ul>
+<li><p><strong>Concept</strong>: Represents a financial measure or item (e.g., “Assets”) with an associated label and data type.</p></li>
+<li><p><strong>Facts</strong>: Actual numerical values associated with the concept, with attributes like “value,” “unitRef,” and “contextRef.”</p></li>
+<li><p><strong>Attributes</strong>: Additional attributes providing context for the data, such as reporting period, currency unit, or data precision.</p></li>
+</ul>
+<p>Effectively analyzing this data involves selecting relevant concepts and facts, potentially transforming or pivoting the data for further processing and visualization.</p>
+<section id="uderstanding-company_data" class="level3">
+<h3 class="anchored" data-anchor-id="uderstanding-company_data">Uderstanding <code>company_Data</code></h3>
+<p>Let’s start by exploring the structure of <strong><code>company_Data</code></strong>:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Data </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Data, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 3
+ $ company_Metadata:List of 22
+ $ company_Facts   :List of 3
+ $ company_Concept :List of 7</code></pre>
+</div>
+</div>
+<p>The output reveals that <strong><code>company_Data</code></strong> comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
+<div id="Note_List" class="Note" style="background-color: #f0f0f0; padding: 10px;">
+<p><em>In R, a <strong>list</strong> is a versatile data structure capable of holding elements of different data types. It offers flexibility, allowing each element to be of a different type.</em></p>
+<p><em>For <strong><code>company_Data</code></strong>, the list structure organizes various pieces of information, accommodating different data types. Understanding this structure is crucial for navigating and extracting specific information from complex datasets.</em></p>
+</div>
+<p>To access the lists we use the symbol <code>$</code> in after the object e.g.&nbsp;<code>company_Data$company_Metadata</code>.</p>
+<p>Next, we split the data into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_Data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Metadata</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Facts</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>company_Concept <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Concept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now, let’s examine the structures of these lists:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Data</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Metadata, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 22
+ $ cik                              : chr "320193"
+ $ entityType                       : chr "operating"
+ $ sic                              : chr "3571"
+ $ sicDescription                   : chr "Electronic Computers"
+ $ insiderTransactionForOwnerExists : int 0
+ $ insiderTransactionForIssuerExists: int 1
+ $ name                             : chr "Apple Inc."
+ $ tickers                          : chr "AAPL"
+ $ exchanges                        : chr "Nasdaq"
+ $ ein                              : chr "942404110"
+ $ description                      : chr ""
+ $ website                          : chr ""
+ $ investorWebsite                  : chr ""
+ $ category                         : chr "Large accelerated filer"
+ $ fiscalYearEnd                    : chr "0930"
+ $ stateOfIncorporation             : chr "CA"
+ $ stateOfIncorporationDescription  : chr "CA"
+ $ addresses                        :List of 2
+ $ phone                            : chr "(408) 996-1010"
+ $ flags                            : chr ""
+ $ formerNames                      :'data.frame':  3 obs. of  3 variables:
+ $ filings                          :List of 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 3
+ $ cik       : int 320193
+ $ entityName: chr "Apple Inc."
+ $ facts     :List of 2</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Concept, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 7
+ $ cik        : int 320193
+ $ taxonomy   : chr "us-gaap"
+ $ tag        : chr "Assets"
+ $ label      : chr "Assets"
+ $ description: chr "Sum of the carrying amounts as of the balance sheet date of all assets that are recognized. Assets are probable"| __truncated__
+ $ entityName : chr "Apple Inc."
+ $ units      :List of 1</code></pre>
+</div>
+</div>
+<section id="company_metadata" class="level4">
+<h4 class="anchored" data-anchor-id="company_metadata"><code>company_Metadata</code></h4>
+<p><code>company_Metadata</code> is the largest list including 22 elements of which:</p>
+<ol type="1">
+<li><p><strong>List</strong> - <code>Addresses</code>, <code>filings</code>: are nested lists.</p></li>
+<li><p><strong>Integer</strong> - <code>insiderTransactionForOwnerExists</code> , <code>insiderTransactionForIssuuerExists</code> : are integer number.</p></li>
+<li><p><strong>Dataframe</strong> - <code>formerNames</code>: is a dataframe.</p></li>
+<li><p><strong>Characters</strong> - All the remaining elements of <code>company_Metadata</code> are characters.</p></li>
+</ol>
+<p>The most relevant information of <code>company_Metadata</code> are included in the <code>filing</code> list, which contains filing attributes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Metadata</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Metadata<span class="sc">$</span>filing, <span class="at">max.level =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 2
+ $ recent:List of 14
+  ..$ accessionNumber      : chr [1:1003] "0000320193-23-000106" "0000320193-23-000104" "0000320193-23-000099" "0000320193-23-000097" ...
+  ..$ filingDate           : chr [1:1003] "2023-11-03" "2023-11-02" "2023-10-17" "2023-10-10" ...
+  ..$ reportDate           : chr [1:1003] "2023-09-30" "2023-11-02" "2023-10-15" "2023-10-06" ...
+  ..$ acceptanceDateTime   : chr [1:1003] "2023-11-02T18:08:27.000Z" "2023-11-02T16:30:32.000Z" "2023-10-17T18:30:48.000Z" "2023-10-10T18:31:19.000Z" ...
+  ..$ act                  : chr [1:1003] "34" "34" "" "" ...
+  ..$ form                 : chr [1:1003] "10-K" "8-K" "4" "4" ...
+  ..$ fileNumber           : chr [1:1003] "001-36743" "001-36743" "" "" ...
+  ..$ filmNumber           : chr [1:1003] "231373899" "231372885" "" "" ...
+  ..$ items                : chr [1:1003] "" "2.02,9.01" "" "" ...
+  ..$ size                 : int [1:1003] 9569569 450675 16029 4875 8889 6090 5310 4338 15985 19514 ...
+  ..$ isXBRL               : int [1:1003] 1 1 0 0 0 0 0 0 0 0 ...
+  ..$ isInlineXBRL         : int [1:1003] 1 1 0 0 0 0 0 0 0 0 ...
+  ..$ primaryDocument      : chr [1:1003] "aapl-20230930.htm" "aapl-20231102.htm" "xslF345X05/wk-form4_1697581839.xml" "xslF345X05/wk-form4_1696977071.xml" ...
+  ..$ primaryDocDescription: chr [1:1003] "10-K" "8-K" "FORM 4" "FORM 4" ...
+ $ files :'data.frame': 1 obs. of  4 variables:
+  ..$ name       : chr "CIK0000320193-submissions-001.json"
+  ..$ filingCount: int 1003
+  ..$ filingFrom : chr "1994-01-26"
+  ..$ filingTo   : chr "2013-04-16"</code></pre>
+</div>
+</div>
+</section>
+<section id="company_facts" class="level4">
+<h4 class="anchored" data-anchor-id="company_facts"><code>company_Facts</code></h4>
+<p><code>company_Facts</code> includes several nested lists.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts, <span class="at">max.level =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 3
+ $ cik       : int 320193
+ $ entityName: chr "Apple Inc."
+ $ facts     :List of 2
+  ..$ dei    :List of 2
+  ..$ us-gaap:List of 498</code></pre>
+</div>
+</div>
+<p>The <strong><code>us-gaap</code></strong> list is the most significant one, containing 498 nested elements. Let’s examine the first five.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>Facts_us_gaap <span class="ot">&lt;-</span> <span class="fu">str</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 5
+ $ AccountsPayable             :List of 3
+ $ AccountsPayableCurrent      :List of 3
+ $ AccountsReceivableNetCurrent:List of 3
+ $ AccruedIncomeTaxesCurrent   :List of 3
+ $ AccruedIncomeTaxesNoncurrent:List of 3</code></pre>
+</div>
+</div>
+<p>These five facts include essential fundamentals of the company and are themselves nested lists. Let’s explore the structure of the first one.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>[<span class="dv">1</span>], <span class="at">max.level =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 1
+ $ AccountsPayable:List of 3
+  ..$ label      : chr "Accounts Payable (Deprecated 2009-01-31)"
+  ..$ description: chr "Carrying value as of the balance sheet date of liabilities incurred (and for which invoices have typically been"| __truncated__
+  ..$ units      :List of 1
+  .. ..$ USD:'data.frame':  2 obs. of  8 variables:
+  .. .. ..$ end  : chr [1:2] "2008-09-27" "2009-06-27"
+  .. .. ..$ val  : num [1:2] 5.52e+09 4.85e+09
+  .. .. ..$ accn : chr [1:2] "0001193125-09-153165" "0001193125-09-153165"
+  .. .. ..$ fy   : int [1:2] 2009 2009
+  .. .. ..$ fp   : chr [1:2] "Q3" "Q3"
+  .. .. ..$ form : chr [1:2] "10-Q" "10-Q"
+  .. .. ..$ filed: chr [1:2] "2009-07-22" "2009-07-22"
+  .. .. ..$ frame: chr [1:2] "CY2008Q3I" "CY2009Q2I"</code></pre>
+</div>
+</div>
+<p>Breaking down the content of the list, we find:</p>
+<section id="content-of-the-list-us-gaap" class="level5">
+<h5 class="anchored" data-anchor-id="content-of-the-list-us-gaap"><strong>Content of the List <code>us-gaap</code></strong></h5>
+<ul>
+<li><p><strong>AccountsPayable</strong>: Represents a financial concept within the <strong><code>us-gaap</code></strong> section, specifically referring to “Accounts Payable (Deprecated 2009-01-31).”</p>
+<ul>
+<li><p><strong><code>label</code></strong>: A human-readable description of the concept, such as “Accounts Payable (Deprecated 2009-01-31).”</p></li>
+<li><p><strong><code>description</code></strong>: A detailed explanation of the concept, providing insight into the carrying value as of the balance sheet date.</p></li>
+<li><p><strong><code>units</code></strong>: A list containing information about the units associated with the concept, with USD as the unit of measure.</p></li>
+</ul></li>
+</ul>
+<p>This hierarchical structure provides a detailed view of the financial concept “Accounts Payable (Deprecated 2009-01-31)” within the <strong><code>us-gaap</code></strong> section, including its label, description, and historical data with unit details.</p>
+<div id="Note_List2" class="Note" style="background-color: #f0f0f0; padding: 10px;">
+<p><em>Most of the SEC data requried for fundamentals analysis is included in this structure. Its understanding is critical to properly retrieve the data</em></p>
+</div>
+</section>
+</section>
+<section id="company_concept" class="level4">
+<h4 class="anchored" data-anchor-id="company_concept"><code>company_Concept</code></h4>
+<p>Finally, let’s examine the structure associated with the company’s Concept.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Concepts</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Concept, <span class="at">max.level =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>List of 7
+ $ cik        : int 320193
+ $ taxonomy   : chr "us-gaap"
+ $ tag        : chr "Assets"
+ $ label      : chr "Assets"
+ $ description: chr "Sum of the carrying amounts as of the balance sheet date of all assets that are recognized. Assets are probable"| __truncated__
+ $ entityName : chr "Apple Inc."
+ $ units      :List of 1
+  ..$ USD:'data.frame': 124 obs. of  8 variables:
+  .. ..$ end  : chr [1:124] "2008-09-27" "2008-09-27" "2008-09-27" "2008-09-27" ...
+  .. ..$ val  : num [1:124] 3.96e+10 3.96e+10 3.62e+10 3.62e+10 4.81e+10 ...
+  .. ..$ accn : chr [1:124] "0001193125-09-153165" "0001193125-09-214859" "0001193125-10-012091" "0001193125-10-238044" ...
+  .. ..$ fy   : int [1:124] 2009 2009 2009 2010 2009 2009 2010 2009 2010 2010 ...
+  .. ..$ fp   : chr [1:124] "Q3" "FY" "FY" "FY" ...
+  .. ..$ form : chr [1:124] "10-Q" "10-K" "10-K/A" "10-K" ...
+  .. ..$ filed: chr [1:124] "2009-07-22" "2009-10-27" "2010-01-25" "2010-10-27" ...
+  .. ..$ frame: chr [1:124] NA NA NA "CY2008Q3I" ...</code></pre>
+</div>
+</div>
+<p>The output shows the structure associated with the <code>Asset</code> of the company under the taxonomy of <code>us-gaap</code>.</p>
+</section>
+</section>
+<section id="creating-dataframe" class="level3">
+<h3 class="anchored" data-anchor-id="creating-dataframe">Creating dataframe</h3>
+<p>Let’s create now a first dataframe:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a DataFrame with relevant data</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>company_df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">CIK =</span> cik,</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Name =</span> company_Metadata<span class="sc">$</span>name,</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">FiscalYearEnd =</span> company_Metadata<span class="sc">$</span>fiscalYearEnd,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">AssetsLabel =</span> company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span><span class="sc">$</span>Assets<span class="sc">$</span>label,</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  <span class="at">AssetsDescription =</span> company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span><span class="sc">$</span>Assets<span class="sc">$</span>description</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Add more relevant columns here</span></span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(knitr)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(company_df)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<colgroup>
+<col style="width: 4%">
+<col style="width: 4%">
+<col style="width: 5%">
+<col style="width: 4%">
+<col style="width: 81%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: left;">CIK</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">FiscalYearEnd</th>
+<th style="text-align: left;">AssetsLabel</th>
+<th style="text-align: left;">AssetsDescription</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0000320193</td>
+<td style="text-align: left;">Apple Inc.</td>
+<td style="text-align: left;">0930</td>
+<td style="text-align: left;">Assets</td>
+<td style="text-align: left;">Sum of the carrying amounts as of the balance sheet date of all assets that are recognized. Assets are probable future economic benefits obtained or controlled by an entity as a result of past transactions or events.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<hr>
+<p>WORK IN PROGRESS</p>
+<hr>
+<p>Let’s say that we want to recreate a summary version of the balance sheet of Apple Inc.&nbsp;based on the last filing. The dataframe would be generated in the following way:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Extract detailed information for the Balance Sheet summary</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>detailed_balance_sheet_summary <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="at">CIK =</span> cik,</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="at">Name =</span> company_Metadata<span class="sc">$</span>name,</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="at">FiscalYearEnd =</span> company_Metadata<span class="sc">$</span>fiscalYearEnd,</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="at">CashAndCashEquivalents =</span> company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span><span class="sc">$</span>CashAndCashEquivalentsAtCarryingValue<span class="sc">$</span>units<span class="sc">$</span>USD<span class="sc">$</span>val</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a FiscalYear column</span></span>
+<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>detailed_balance_sheet_summary <span class="ot">&lt;-</span> detailed_balance_sheet_summary <span class="sc">%&gt;%</span></span>
+<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">FiscalYear =</span> <span class="fu">as.character</span>(FiscalYearEnd))</span>
+<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Format the CashAndCashEquivalents column</span></span>
+<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>detailed_balance_sheet_summary<span class="sc">$</span>CashAndCashEquivalents_Millions <span class="ot">&lt;-</span> <span class="fu">format</span>(</span>
+<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>  detailed_balance_sheet_summary<span class="sc">$</span>CashAndCashEquivalents <span class="sc">/</span> <span class="fl">1e6</span>,</span>
+<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>  <span class="at">big.mark =</span> <span class="st">","</span>,</span>
+<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="at">scientific =</span> <span class="cn">FALSE</span></span>
+<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-20"><a href="#cb23-20" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-21"><a href="#cb23-21" aria-hidden="true" tabindex="-1"></a><span class="co"># Add a column for unit of measure</span></span>
+<span id="cb23-22"><a href="#cb23-22" aria-hidden="true" tabindex="-1"></a>detailed_balance_sheet_summary<span class="sc">$</span>CashAndCashEquivalents_Unit <span class="ot">&lt;-</span> <span class="fu">paste0</span>(</span>
+<span id="cb23-23"><a href="#cb23-23" aria-hidden="true" tabindex="-1"></a>  detailed_balance_sheet_summary<span class="sc">$</span>CashAndCashEquivalents_Million, <span class="st">" USD (millions)"</span></span>
+<span id="cb23-24"><a href="#cb23-24" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb23-25"><a href="#cb23-25" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-26"><a href="#cb23-26" aria-hidden="true" tabindex="-1"></a>  <span class="co"># AccountsReceivable = company_Facts$facts$`us-gaap`$AccountsReceivableNet$value,</span></span>
+<span id="cb23-27"><a href="#cb23-27" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Inventory = company_Facts$facts$`us-gaap`$InventoryNet$value,</span></span>
+<span id="cb23-28"><a href="#cb23-28" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalCurrentAssets = company_Facts$facts$`us-gaap`$AssetsCurrent$value,</span></span>
+<span id="cb23-29"><a href="#cb23-29" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PropertyPlantAndEquipment = company_Facts$facts$`us-gaap`$PropertyPlantAndEquipmentNet$value,</span></span>
+<span id="cb23-30"><a href="#cb23-30" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalAssets = company_Facts$facts$`us-gaap`$Assets$value,</span></span>
+<span id="cb23-31"><a href="#cb23-31" aria-hidden="true" tabindex="-1"></a>  <span class="co"># AccountsPayable = company_Facts$facts$`us-gaap`$AccountsPayableCurrent$value,</span></span>
+<span id="cb23-32"><a href="#cb23-32" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalShortTermDebtsAndLeasing = company_Facts$facts$`us-gaap`$DebtCurrent$value,</span></span>
+<span id="cb23-33"><a href="#cb23-33" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalCurrentLiabilities = company_Facts$facts$`us-gaap`$LiabilitiesCurrent$value,</span></span>
+<span id="cb23-34"><a href="#cb23-34" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalLongTermDebtsAndLeasing = company_Facts$facts$`us-gaap`$DebtNoncurrent$value,</span></span>
+<span id="cb23-35"><a href="#cb23-35" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalLiabilities = company_Facts$facts$`us-gaap`$Liabilities$value,</span></span>
+<span id="cb23-36"><a href="#cb23-36" aria-hidden="true" tabindex="-1"></a>  <span class="co"># CommonStock = company_Facts$facts$`us-gaap`$CommonStockSharesOutstanding$value,</span></span>
+<span id="cb23-37"><a href="#cb23-37" aria-hidden="true" tabindex="-1"></a>  <span class="co"># PreferredStock = company_Facts$facts$`us-gaap`$PreferredStockValue$value,</span></span>
+<span id="cb23-38"><a href="#cb23-38" aria-hidden="true" tabindex="-1"></a>  <span class="co"># RetainedEarnings = company_Facts$facts$`us-gaap`$RetainedEarningsAccumulatedDeficit$value,</span></span>
+<span id="cb23-39"><a href="#cb23-39" aria-hidden="true" tabindex="-1"></a>  <span class="co"># AdditionalPaidInCapital = company_Facts$facts$`us-gaap`$AdditionalPaidInCapital$value,</span></span>
+<span id="cb23-40"><a href="#cb23-40" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TreasuryStock = company_Facts$facts$`us-gaap`$TreasuryStockValue$value,</span></span>
+<span id="cb23-41"><a href="#cb23-41" aria-hidden="true" tabindex="-1"></a>  <span class="co"># TotalStockholdersEquity = company_Facts$facts$`us-gaap`$StockholdersEquity$value,</span></span>
+<span id="cb23-42"><a href="#cb23-42" aria-hidden="true" tabindex="-1"></a>  <span class="co"># MinorityInterest = company_Facts$facts$`us-gaap`$MinorityInterest$value</span></span>
+<span id="cb23-43"><a href="#cb23-43" aria-hidden="true" tabindex="-1"></a><span class="co"># )</span></span>
+<span id="cb23-44"><a href="#cb23-44" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
+<span id="cb23-45"><a href="#cb23-45" aria-hidden="true" tabindex="-1"></a><span class="co"># Display the formatted summary dataframe</span></span>
+<span id="cb23-46"><a href="#cb23-46" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(detailed_balance_sheet_summary[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="fu">c</span>(<span class="st">"CIK"</span>, <span class="st">"Name"</span>, <span class="st">"FiscalYear"</span>, <span class="st">"CashAndCashEquivalents_Unit"</span>)])</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small">
+<thead>
+<tr class="header">
+<th style="text-align: left;">CIK</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">FiscalYear</th>
+<th style="text-align: left;">CashAndCashEquivalents_Unit</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">0000320193</td>
+<td style="text-align: left;">Apple Inc.</td>
+<td style="text-align: left;">0930</td>
+<td style="text-align: left;">6,392 USD (millions)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0000320193</td>
+<td style="text-align: left;">Apple Inc.</td>
+<td style="text-align: left;">0930</td>
+<td style="text-align: left;">6,392 USD (millions)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0000320193</td>
+<td style="text-align: left;">Apple Inc.</td>
+<td style="text-align: left;">0930</td>
+<td style="text-align: left;">9,352 USD (millions)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">0000320193</td>
+<td style="text-align: left;">Apple Inc.</td>
+<td style="text-align: left;">0930</td>
+<td style="text-align: left;">9,352 USD (millions)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">0000320193</td>
+<td style="text-align: left;">Apple Inc.</td>
+<td style="text-align: left;">0930</td>
+<td style="text-align: left;">9,352 USD (millions)</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+</section>
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
