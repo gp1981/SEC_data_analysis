@@ -47,11 +47,11 @@ The primary purpose of this project is to retrieve company data from SEC filings
 
 3. Run the main_script.R script to retrieve and analyze SEC data.
 
-## Quarto Book
+## Quarto Website
 
-We are developing a Quarto book as part of this project. You can access the book at the following link:
+We are developing a Quarto website as part of this project. You can access the book at the following link:
 
-[SEC Data Analysis Quarto Book](#) - Link to your rendered book (will be replaced with the actual link)
+[Fundamental analysis of SEC data](#) - Link to your rendered book (will be replaced with the actual link)
 
 ## Rendering the Quarto Book Locally
 
