@@ -51,7 +51,7 @@ The primary purpose of this project is to retrieve company data from SEC filings
 
 We are developing a Quarto website as part of this project. You can access the book at the following link:
 
-[Unlocking Financial Insights: A Guide to SEC Data Analysis with R](#) - Link to your rendered book (will be replaced with the actual link)
+[Unlocking Financial Insights: A Guide to SEC Data Analysis with R](https://gp1981.github.io/SEC_data_analysis/) - Link to the page created
 
 ## Rendering the Quarto website Locally
 
