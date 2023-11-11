@@ -1,8 +1,10 @@
 project:
   type: website
+  output-dir: "../docs"
+  title: "Unlocking Financial Insights: A Guide to SEC Data Analysis with R"
 
 website:
-  title: "Business Analysis Using SEC Data of Public Companies"
+  title: "Unlocking Financial Insights: A Guide to SEC Data Analysis with R"
   navbar: 
     tools:
     - icon: github
@@ -28,5 +30,4 @@ format:
     css: styles.css
     toc: true
 
-output:
-  dir: "../docs"
+
