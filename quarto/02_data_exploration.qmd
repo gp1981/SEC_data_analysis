@@ -42,7 +42,7 @@ Within these sections, financial data is organized as a list of items, each with
 
 Effectively analyzing this data involves selecting relevant concepts and facts, potentially transforming or pivoting the data for further processing and visualization.
 
-### Uderstanding `company_Data`
+### Understanding the dataset: `company_Data`
 
 Let's start by exploring the structure of **`company_Data`**:
 
@@ -53,10 +53,15 @@ str(company_Data, max.level = 1)
 
 The output reveals that **`company_Data`** comprises three lists with nested lists, such as **`company_Metadata`** with 22 lists.
 
-::: {#Note_List .Note style="background-color: #f0f0f0; padding: 10px;"}
+::: {#Note_List .Note style="background-color: #f0f0f0; padding: 10px; color: gray"}
+
+------------------------------------------------------------------------
+
 *In R, a **list** is a versatile data structure capable of holding elements of different data types. It offers flexibility, allowing each element to be of a different type.*
 
 *For **`company_Data`**, the list structure organizes various pieces of information, accommodating different data types. Understanding this structure is crucial for navigating and extracting specific information from complex datasets.*
+
+------------------------------------------------------------------------
 :::
 
 To access the lists we use the symbol `$` in after the object e.g. `company_Data$company_Metadata`.
@@ -70,44 +75,45 @@ company_Facts <- company_Data$company_Facts
 company_Concept <- company_Data$company_Concept
 ```
 
-Now, let's examine the structures of these lists:
+Now, let's examine the structures and content of these lists:
 
-```{r str_company_Data2, eval=TRUE, warning=FALSE, message=FALSE}
-# Visualize structure of the company_Data
+#### Company Metadata
+
+Let's start with `company_Metadata` which includes 22 elements: characters, integer, sub-list (or nested list), etc.
+
+```{r view_company_Metadata, eval=TRUE, warning=FALSE, message=FALSE}
+# Visualize structure of the company_Metadata
 str(company_Metadata, max.level = 1)
-str(company_Facts, max.level = 1)
-str(company_Concept, max.level = 1)
 ```
 
-#### `company_Metadata`
-
-`company_Metadata` is the largest list including 22 elements of which:
-
-1.  **List** - `Addresses`, `filings`: are nested lists.
-
-2.  **Integer** - `insiderTransactionForOwnerExists` , `insiderTransactionForIssuuerExists` : are integer number.
-
-3.  **Dataframe** - `formerNames`: is a dataframe.
-
-4.  **Characters** - All the remaining elements of `company_Metadata` are characters.
-
-The most relevant information of `company_Metadata` are included in the `filing` list, which contains filing attributes.
+The most relevant information of `company_Metadata` are included in the elemnent `filing` which is a nested list and contains the filing attributes.
 
 ```{r str_company_Metadata_Filing, eval=TRUE, warning=FALSE, message=FALSE}
 # Visualize structure of the company_Metadata
 str(company_Metadata$filing, max.level = 2)
 ```
 
-#### `company_Facts`
+The format of the dataset as printed is not very useful. We see that there are useful information on the forms (e.g. 10K) and dates (e.g. filing dates).
 
-`company_Facts` includes several nested lists.
+For now we will keep it as is and we will come back later on how to improve the readibility
 
-```{r str_company_Facts, eval=TRUE, warning=FALSE, message=FALSE}
+#### Company Facts
+
+`company_Facts` is relatively simple and is a list of 3 elements.
+
+```{r view_company_Facts, eval=TRUE, warning=FALSE, message=FALSE}
 # Visualize structure of the company_Facts
-str(company_Facts, max.level = 2)
+str(company_Facts, max.level = 1)
 ```
 
-The **`us-gaap`** list is the most significant one, containing 498 nested elements. Let's examine the first five.
+The last element `company_Facts$facts` is the most relevant one.
+
+```{r view_company_Facts2, eval=TRUE, warning=FALSE, message=FALSE}
+# Visualize structure of the company_Facts
+str(company_Facts$facts, max.level = 1)
+```
+
+The **`us-gaap`** list is the most significant sub-element of facts, containing 498 nested sub-sub-elements. Let's examine the first five.
 
 ```{r str_company_Facts_us_gaap_head, eval=TRUE, warning=FALSE, message=FALSE}
 
@@ -115,7 +121,7 @@ The **`us-gaap`** list is the most significant one, containing 498 nested elemen
 Facts_us_gaap <- str(company_Facts$facts$`us-gaap`[1:5], max.level = 1)
 ```
 
-These five facts include essential fundamentals of the company and are themselves nested lists. Let's explore the structure of the first one.
+These sub-elements include essential fundamentals of the company and are themselves nested lists. Let's explore the structure of the first one.
 
 ```{r str_company_Facts_us_gaap, eval=TRUE, warning=FALSE, message=FALSE}
 
@@ -123,9 +129,7 @@ These five facts include essential fundamentals of the company and are themselve
 str(company_Facts$facts$`us-gaap`[1], max.level = 4)
 ```
 
-Breaking down the content of the list, we find:
-
-##### **Content of the List `us-gaap`**
+The output presents the structure of the information related to the first element: `AccountsPayable`
 
 -   **AccountsPayable**: Represents a financial concept within the **`us-gaap`** section, specifically referring to "Accounts Payable (Deprecated 2009-01-31)."
 
@@ -133,15 +137,36 @@ Breaking down the content of the list, we find:
 
     -   **`description`**: A detailed explanation of the concept, providing insight into the carrying value as of the balance sheet date.
 
-    -   **`units`**: A list containing information about the units associated with the concept, with USD as the unit of measure.
+    -   **`units`**: A data frame with 2 observations and 8 variables. The variables include information such as:
+
+        -   `end` the end date
+
+        -   `val` value
+
+        -   `accn` accession number
+
+        -   `fy` fiscal year
+
+        -   `fp` fiscal period
+
+        -   `form` form type
+
+        -   `filed` date in which the form was filed
+
+        -   `frame` frame. The format "CY2008Q3I" suggests a possible combination of calendar year (CY), year (2008), fiscal quarter (Q3), and possibly an additional identifier ("I")
 
 This hierarchical structure provides a detailed view of the financial concept "Accounts Payable (Deprecated 2009-01-31)" within the **`us-gaap`** section, including its label, description, and historical data with unit details.
 
 ::: {#Note_List2 .Note style="background-color: #f0f0f0; padding: 10px;"}
-*Most of the SEC data requried for fundamentals analysis is included in this structure. Its understanding is critical to properly retrieve the data*
+
+------------------------------------------------------------------------
+
+*Most of the SEC data required for fundamentals analysis is included in a structure of nested lists. Its understanding is critical to properly retrieve the data. Once we automate the process of "un-nesting" the lists, we will be able to verify that this process led to a dataframe structure where the data is properly located.*
+
+------------------------------------------------------------------------
 :::
 
-#### `company_Concept`
+#### Company Concept
 
 Finally, let's examine the structure associated with the company's Concept.
 
@@ -152,9 +177,11 @@ str(company_Concept, max.level = 3)
 
 The output shows the structure associated with the `Asset` of the company under the taxonomy of `us-gaap`.
 
-### Creating dataframe
+### Creating dataframe of financial data
 
-Let's create now a first dataframe:
+Let's create now a dataframe including the data retrieved from `` company_Facts$facts$`us-gaap` ``.
+
+One way to create a dataframe is to manually describe each columns and then point to the `company_Metadata` or `company_Facts` nested list and data.
 
 ```{r Explore Data, message=FALSE, warning=FALSE, message=FALSE}
 # Create a DataFrame with relevant data
@@ -170,59 +197,44 @@ library(knitr)
 kable(company_df)
 ```
 
+We would probably agree that this is not the most efficient way to format the data from the `company_Metadata` and `company_Fact` datasets.
+
+::: {#Note_Dataframe .Note style="background-color: #f0f0f0; padding: 10px;"}
+
 ------------------------------------------------------------------------
 
-WORK IN PROGRESS
+*A dataframe including the financials reported by a company is usually formatted as a matrix: the columns represent the fundamentals (or also Concept in XBRL terms) e.g. Accounts Payables, and the rows represent the time e.g. each row represent a day or a quarter, etc.*
 
 ------------------------------------------------------------------------
+:::
 
-Let's say that we want to recreate a summary version of the balance sheet of Apple Inc. based on the last filing. The dataframe would be generated in the following way:
+#### Un-nesting process
 
-```{r balancesheet, warning=FALSE, warning=FALSE, message=FALSE}
-# Extract detailed information for the Balance Sheet summary
-detailed_balance_sheet_summary <- data.frame(
-  CIK = cik,
-  Name = company_Metadata$name,
-  FiscalYearEnd = company_Metadata$fiscalYearEnd,
-  CashAndCashEquivalents = company_Facts$facts$`us-gaap`$CashAndCashEquivalentsAtCarryingValue$units$USD$val
-)
+The following code can be used to un-nest the list within `company_Facts` and create a dataframe easy to visualize and useful for our purpose[^02_data_exploration-1].
 
-# Add a FiscalYear column
-detailed_balance_sheet_summary <- detailed_balance_sheet_summary %>%
-  mutate(FiscalYear = as.character(FiscalYearEnd))
+[^02_data_exploration-1]: For visualization purpose we have omitted in `df_Facts` the column \"description\"
 
-# Format the CashAndCashEquivalents column
-detailed_balance_sheet_summary$CashAndCashEquivalents_Millions <- format(
-  detailed_balance_sheet_summary$CashAndCashEquivalents / 1e6,
-  big.mark = ",",
-  scientific = FALSE
-)
+```{r unnesting_company_Facts, message=FALSE, warning=FALSE, message=FALSE}
 
+library(kableExtra)
 
-# Add a column for unit of measure
-detailed_balance_sheet_summary$CashAndCashEquivalents_Unit <- paste0(
-  detailed_balance_sheet_summary$CashAndCashEquivalents_Million, " USD (millions)"
-)
+# Un-nest the company_Facts (and nested unit list)
+df_Facts <- company_Facts$facts$`us-gaap` %>%
+  tibble() %>%
+  unnest_wider(col = everything()) %>%
+  unnest(cols = c(units)) %>%
+  unnest(cols = c(units))
 
-  # AccountsReceivable = company_Facts$facts$`us-gaap`$AccountsReceivableNet$value,
-  # Inventory = company_Facts$facts$`us-gaap`$InventoryNet$value,
-  # TotalCurrentAssets = company_Facts$facts$`us-gaap`$AssetsCurrent$value,
-  # PropertyPlantAndEquipment = company_Facts$facts$`us-gaap`$PropertyPlantAndEquipmentNet$value,
-  # TotalAssets = company_Facts$facts$`us-gaap`$Assets$value,
-  # AccountsPayable = company_Facts$facts$`us-gaap`$AccountsPayableCurrent$value,
-  # TotalShortTermDebtsAndLeasing = company_Facts$facts$`us-gaap`$DebtCurrent$value,
-  # TotalCurrentLiabilities = company_Facts$facts$`us-gaap`$LiabilitiesCurrent$value,
-  # TotalLongTermDebtsAndLeasing = company_Facts$facts$`us-gaap`$DebtNoncurrent$value,
-  # TotalLiabilities = company_Facts$facts$`us-gaap`$Liabilities$value,
-  # CommonStock = company_Facts$facts$`us-gaap`$CommonStockSharesOutstanding$value,
-  # PreferredStock = company_Facts$facts$`us-gaap`$PreferredStockValue$value,
-  # RetainedEarnings = company_Facts$facts$`us-gaap`$RetainedEarningsAccumulatedDeficit$value,
-  # AdditionalPaidInCapital = company_Facts$facts$`us-gaap`$AdditionalPaidInCapital$value,
-  # TreasuryStock = company_Facts$facts$`us-gaap`$TreasuryStockValue$value,
-  # TotalStockholdersEquity = company_Facts$facts$`us-gaap`$StockholdersEquity$value,
-  # MinorityInterest = company_Facts$facts$`us-gaap`$MinorityInterest$value
-# )
-# 
-# Display the formatted summary dataframe
-kable(detailed_balance_sheet_summary[1:5, c("CIK", "Name", "FiscalYear", "CashAndCashEquivalents_Unit")])
+# Format numbers in the val column as millions
+df_Facts$val <- scales::number(df_Facts$val / 1e6, accuracy = 0.1, suffix = "M")
+
+# Select the columns to print out
+df_Facts_selected_columns <- df_Facts %>%
+  select(-description)
+
+# Present the output with wrapped text and formatted numbers
+df_Facts_selected_columns %>% head() %>%
+  kable("html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "150px")
 ```

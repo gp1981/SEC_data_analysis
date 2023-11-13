@@ -15,13 +15,21 @@ website:
     style: "docked"
     search: true
     contents: 
-      - index.qmd
-      - data_retrieval.qmd
-      - data_exploration.qmd
-      - data_analysis.qmd
-      - data_visualization.qmd
-      - advanced_topics.qmd
-      - case_studies.qmd
+      - section: "**Basics**"
+        contents: 
+          - index.qmd
+          - 01_data_retrieval.qmd
+          - 02_data_exploration.qmd
+          - 03_data_analysis.qmd
+          - 04_data_visualization.qmd
+          - 05_advanced_topics.qmd
+      - section: "**Fundamental Analysis**"
+        contents: 
+          - 11_AAPL.qmd
+      - section: "**Appendix A - R script and functions**"
+        contents: 
+          - A1_main_script.qmd
+          - A2_Functions.qmd
 
     
 format:
