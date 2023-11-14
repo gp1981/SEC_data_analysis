@@ -1,8 +1,8 @@
-# Introduction and Overview
+# Unveiling Financial Insights: Retrieving SEC Data
 
-## Purpose of this Project
+## Dive into the World of SEC Filings
 
-The primary purpose of this project is to retrieve company data from SEC filings and analyze it for educational and research purposes. Please note that the scripts provided here are not intended for making investment decisions, and their use is at your own risk.
+Welcome to the first chapter of our journey into SEC data analysis! In this section, we embark on the exciting process of retrieving financial data from the U.S. Securities and Exchange Commission (SEC) filings using the power of R.
 
 ## Disclaimer
 

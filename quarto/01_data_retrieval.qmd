@@ -1,22 +1,23 @@
 # Data Retrieval
 
-## Import Required Libraries {#sec-import-libraries}
+## Let's Get Started
 
-In this chapter, we will explore the process of retrieving financial data from the U.S. Securities and Exchange Commission (SEC) filings. To do this, we will use R and several libraries that facilitate data retrieval and analysis.
+To kick things off, we need to import the essential libraries that will empower us to interact with the SEC's data and perform insightful analysis. The magic happens when we source the necessary files via `setup.qmd`.
+
+### Import Required Libraries {#sec-import-libraries}
 
 To start, we need to import the required libraries. These libraries provide functions and tools that enable us to interact with the SEC's data and perform data analysis. The necessary libraries are listed in `setup.qmd`.
-
-
-## Sourcing Required Files
 
 The data retrieval process is orchestrated using a set of functions located in separate R script files. We'll be sourcing these files via `setup.qmd` to access the functions for retrieving, processing, and analyzing SEC data.
 
 ```{r Functions_source, message=FALSE, warning=FALSE}
 source("setup.qmd")           # Sourcing necessary libraries
 ```
+
 This sets the stage for retrieving and working with SEC data efficiently.
 
 ## Retrieve Data from SEC {#sec-retrieve-data}
+
 In this example, we will focus on one company, Apple Inc. (AAPL), as the target for our data retrieval.
 
 ### Define User Headers {#sec-user-headers}

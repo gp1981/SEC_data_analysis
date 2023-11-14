@@ -93,6 +93,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
+<script type="application/json" class="js-hypothesis-config">
+{
+  "theme": "clean"
+}
+</script>
+<script async="" src="https://hypothes.is/embed.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -161,7 +167,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./index.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Introduction and Overview</span></a>
+ <span class="menu-text">Unveiling Financial Insights: Retrieving SEC Data</span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -245,8 +251,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#data-retrieval" id="toc-data-retrieval" class="nav-link active" data-scroll-target="#data-retrieval">Data Retrieval</a>
   <ul class="collapse">
+  <li><a href="#lets-get-started" id="toc-lets-get-started" class="nav-link" data-scroll-target="#lets-get-started">Let’s Get Started</a>
+  <ul class="collapse">
   <li><a href="#sec-import-libraries" id="toc-sec-import-libraries" class="nav-link" data-scroll-target="#sec-import-libraries">Import Required Libraries</a></li>
-  <li><a href="#sourcing-required-files" id="toc-sourcing-required-files" class="nav-link" data-scroll-target="#sourcing-required-files">Sourcing Required Files</a></li>
+  </ul></li>
   <li><a href="#sec-retrieve-data" id="toc-sec-retrieve-data" class="nav-link" data-scroll-target="#sec-retrieve-data">Retrieve Data from SEC</a>
   <ul class="collapse">
   <li><a href="#sec-user-headers" id="toc-sec-user-headers" class="nav-link" data-scroll-target="#sec-user-headers">Define User Headers</a></li>
@@ -264,18 +272,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="data-retrieval" class="level1">
 <h1>Data Retrieval</h1>
-<section id="sec-import-libraries" class="level2">
-<h2 class="anchored" data-anchor-id="sec-import-libraries">Import Required Libraries</h2>
-<p>In this chapter, we will explore the process of retrieving financial data from the U.S. Securities and Exchange Commission (SEC) filings. To do this, we will use R and several libraries that facilitate data retrieval and analysis.</p>
+<section id="lets-get-started" class="level2">
+<h2 class="anchored" data-anchor-id="lets-get-started">Let’s Get Started</h2>
+<p>To kick things off, we need to import the essential libraries that will empower us to interact with the SEC’s data and perform insightful analysis. The magic happens when we source the necessary files via <code>setup.qmd</code>.</p>
+<section id="sec-import-libraries" class="level3">
+<h3 class="anchored" data-anchor-id="sec-import-libraries">Import Required Libraries</h3>
 <p>To start, we need to import the required libraries. These libraries provide functions and tools that enable us to interact with the SEC’s data and perform data analysis. The necessary libraries are listed in <code>setup.qmd</code>.</p>
-</section>
-<section id="sourcing-required-files" class="level2">
-<h2 class="anchored" data-anchor-id="sourcing-required-files">Sourcing Required Files</h2>
 <p>The data retrieval process is orchestrated using a set of functions located in separate R script files. We’ll be sourcing these files via <code>setup.qmd</code> to access the functions for retrieving, processing, and analyzing SEC data.</p>
 <div class="cell">
+<details>
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.qmd"</span>)           <span class="co"># Sourcing necessary libraries</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 <p>This sets the stage for retrieving and working with SEC data efficiently.</p>
+</section>
 </section>
 <section id="sec-retrieve-data" class="level2">
 <h2 class="anchored" data-anchor-id="sec-retrieve-data">Retrieve Data from SEC</h2>
@@ -284,9 +295,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="sec-user-headers">Define User Headers</h3>
 <p>To access the SEC API, we need to define user headers. These headers will be used for making HTTP requests to the SEC servers. We can set our user agent as an example:</p>
 <div class="cell">
+<details>
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define user headers</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>headers <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">'User-Agent'</span> <span class="ot">=</span> <span class="st">'email@address.com'</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(headers)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <thead>
@@ -311,9 +325,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="sec-company-list">Retrieve Company List</h2>
 <p>Our first step in data retrieval is to obtain the list of companies available on the SEC. This list contains essential information, including the Central Index Key (CIK), which uniquely identifies each company that files reports with the SEC. We’ll make an HTTP request to fetch this list:</p>
 <div class="cell">
+<details>
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve company list</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>company_List <span class="ot">&lt;-</span> <span class="fu">retrieve_Company_List</span>(headers)</span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">kable</span>(<span class="fu">head</span>(company_List))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <thead>
@@ -371,12 +388,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>For our analysis, we’ll use Apple Inc.&nbsp;(AAPL) as the company of interest. The CIK for Apple Inc.&nbsp;is 0000320193.</p>
 <p>Let’s now select Apple Inc.&nbsp;by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the <code>company_Data</code> object for further analysis:</p>
 <div class="cell" data-paged.print="true">
+<details>
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select Apple Inc. (AAPL) by CIK</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="st">"0000320193"</span>  <span class="co"># CIK for Apple Inc.</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">retrieve_Company_Data</span>(headers, cik)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># this the first row of the company list as a quick check</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>company_List[<span class="dv">1</span>,] <span class="sc">%&gt;%</span> <span class="fu">kable</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small">
 <thead>
@@ -401,9 +421,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>By following these steps, we’ve imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for Apple Inc.</p>
 <p>Before we move to the next chapter we save the files.</p>
 <div class="cell">
+<details>
+<summary>Code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_Data</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(company_Data, <span class="at">file =</span> <span class="st">"company_Data.RDS"</span>) </span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cik, <span class="at">file =</span> <span class="st">"cik.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
 </div>
 
 

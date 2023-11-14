@@ -31,11 +31,20 @@ website:
           - A1_main_script.qmd
           - A2_Functions.qmd
 
-    
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    code-fold: true
+    code-summary: "Show the code"
+    code-copy: hover
+    code-overflow: wrap
+    code-block-bg: true
+    code-block-border-left: "#31BAE9"
+
+comments:
+  hypothesis:
+    theme: clean 
 
 
