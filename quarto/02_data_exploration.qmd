@@ -212,21 +212,11 @@ We would probably agree that this is not the most efficient way to format the da
 
 The following code can be used to un-nest the list within `company_Facts` and create a dataframe easy to visualize and useful for our purpose[^02_data_exploration-1].
 
-[^02_data_exploration-1]: For visualization purpose we have omitted in `df_Facts` the column \"description\"
+[^02_data_exploration-1]: For visualization purpose we have omitted in `df_Facts` the column "description"
 
 ```{r unnesting_company_Facts, message=FALSE, warning=FALSE, message=FALSE}
 
-library(kableExtra)
-
-# Un-nest the company_Facts (and nested unit list)
-df_Facts <- company_Facts$facts$`us-gaap` %>%
-  tibble() %>%
-  unnest_wider(col = everything()) %>%
-  unnest(cols = c(units)) %>%
-  unnest(cols = c(units))
-
-# Format numbers in the val column as millions
-df_Facts$val <- scales::number(df_Facts$val / 1e6, accuracy = 0.1, suffix = "M")
+df_Facts <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
 
 # Select the columns to print out
 df_Facts_selected_columns <- df_Facts %>%
