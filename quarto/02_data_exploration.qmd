@@ -133,27 +133,27 @@ The output presents the structure of the information related to the first elemen
 
 -   **AccountsPayable**: Represents a financial concept within the **`us-gaap`** section, specifically referring to "Accounts Payable (Deprecated 2009-01-31)."
 
-    -   **`label`**: A human-readable description of the concept, such as "Accounts Payable (Deprecated 2009-01-31)."
+    -   **`label`**: This column represents the financial concept or measure, such as "Accounts Payable (Deprecated 2009-01-31)."
 
     -   **`description`**: A detailed explanation of the concept, providing insight into the carrying value as of the balance sheet date.
 
     -   **`units`**: A data frame with 2 observations and 8 variables. The variables include information such as:
 
-        -   `end` the end date
+        -   `end`: Indicates the end date of the reporting period associated with the financial data.
 
-        -   `val` value
+        -   `val`: Represents the numerical value associated with the financial concept. It includes the unit of measure (e.g., million - "M").
 
-        -   `accn` accession number
+        -   `accn`: Stands for accession number, a unique identifier assigned by the SEC to each submission.
 
-        -   `fy` fiscal year
+        -   `fy`: Represents the fiscal year associated with the financial data
 
-        -   `fp` fiscal period
+        -   `fp`: Represents the fiscal period (e.g., Q3 for the third quarter, FY for the full fiscal year).
 
-        -   `form` form type
+        -   `form`: Indicates the type of form filed with the SEC (e.g., 10-Q for quarterly reports, 10-K for annual reports).
 
-        -   `filed` date in which the form was filed
+        -   `filed`: Represents the date on which the form was filed with the SEC.
 
-        -   `frame` frame. The format "CY2008Q3I" suggests a possible combination of calendar year (CY), year (2008), fiscal quarter (Q3), and possibly an additional identifier ("I")
+        -   `frame` Provides information about the frame, and in this case, it appears to be a combination of calendar year, fiscal quarter, and an additional identifier. For instance "CY2008Q3I" suggests a possible combination of calendar year (CY), year (2008), fiscal quarter (Q3), and possibly an additional identifier ("I")
 
 This hierarchical structure provides a detailed view of the financial concept "Accounts Payable (Deprecated 2009-01-31)" within the **`us-gaap`** section, including its label, description, and historical data with unit details.
 
@@ -177,38 +177,13 @@ str(company_Concept, max.level = 3)
 
 The output shows the structure associated with the `Asset` of the company under the taxonomy of `us-gaap`.
 
-### Creating dataframe of financial data
+### Rebuilding the financial reports
 
 Let's create now a dataframe including the data retrieved from `` company_Facts$facts$`us-gaap` ``.
 
-One way to create a dataframe is to manually describe each columns and then point to the `company_Metadata` or `company_Facts` nested list and data.
-
-```{r Explore Data, message=FALSE, warning=FALSE, message=FALSE}
-# Create a DataFrame with relevant data
-company_df <- data.frame(
-  CIK = cik,
-  Name = company_Metadata$name,
-  FiscalYearEnd = company_Metadata$fiscalYearEnd,
-  AssetsLabel = company_Facts$facts$`us-gaap`$Assets$label,
-  AssetsDescription = company_Facts$facts$`us-gaap`$Assets$description
-  # Add more relevant columns here
-)
-library(knitr)
-kable(company_df)
-```
-
-We would probably agree that this is not the most efficient way to format the data from the `company_Metadata` and `company_Fact` datasets.
-
-::: {#Note_Dataframe .Note style="background-color: #f0f0f0; padding: 10px;"}
-
-------------------------------------------------------------------------
-
-*A dataframe including the financials reported by a company is usually formatted as a matrix: the columns represent the fundamentals (or also Concept in XBRL terms) e.g. Accounts Payables, and the rows represent the time e.g. each row represent a day or a quarter, etc.*
-
-------------------------------------------------------------------------
-:::
-
 #### Un-nesting process
+
+The first step is un-nest the dataset, in particular the financial data, in `company_Facts`, nested in sub-lists.
 
 The following code can be used to un-nest the list within `company_Facts` and create a dataframe easy to visualize and useful for our purpose[^02_data_exploration-1].
 
@@ -228,3 +203,65 @@ df_Facts_selected_columns %>% head() %>%
   kable_styling(full_width = FALSE) %>%
   column_spec(1, width = "150px")
 ```
+
+The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial concept (e.g. Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.
+
+#### Balancesheet
+
+To create a standardized balance sheet from the data in `df_Facts`, we need to identify the relevant concepts associated with each part of the balancesheet. Here code to generate a standardized table the balancesheet:
+
+```{r balancesheet_table, message=FALSE, warning=FALSE, message=FALSE}
+# Define the list of concepts for the standardized balance sheet
+balance_sheet_concepts <- c(
+  "Cash, Cash Equivalent & Marketable Securities",
+  "Total Accounts Receivable",
+  "Total Inventories",
+  "Other Current assets (to balance out the Total Current Assets)",
+  "Total Current Assets",
+  "Property, Plant and Equipment",
+  "Investment & Advances",
+  "Intangible Assets (excl. goodwill)",
+  "Goodwill",
+  "Other Long Term Assets (to balance out the Total Long-Term Assets)",
+  "Total Long Term Assets",
+  "Accounts Payable",
+  "Tax Payable",
+  "Other Account Payable (to balance out the Total Accounts Payable)",
+  "Total Accounts Payable",
+  "Short-Term Debt & Capital Leasing",
+  "Deferred Tax And Revenue",
+  "Other Current Liabilities (to balance out the Total Current Liabilities)",
+  "Total Current Liabilities",
+  "Long-Term Debts and Capital Leasing",
+  "Other Long-term liabilities (to balance out the total Long-term liabilities)",
+  "Total Long-Term liabilities",
+  "Common Stock",
+  "Retained Earnings",
+  "Accumulated other comprehensive income (loss)",
+  "Additional paid-in capital",
+  "Other stockholders Equity (to balance out the Total Stockholders Equity)",
+  "Total Stockholders Equity",
+  "Minority interest",
+  "Total Equity"
+)
+
+```
+
+Next the code to extract from `df_Facts` the labels and corresponding descriptions which we will use to match with our standardized balancesheet.
+
+```{r balancesheet_label_description, message=FALSE, warning=FALSE, message=FALSE}
+# Create df_Facts_label_description with unique combinations of label and description
+df_Facts_label_description <- df_Facts %>%
+  select(label, description) %>%
+  distinct()
+
+# Display the first few rows of df_Facts_label_description
+head(df_Facts_label_description) %>% kable()
+
+```
+
+This code selects the label and description columns from `df_Facts`, removes duplicate rows using the distinct function, and stores the result in the new dataframe `df_Facts_label_description`. The head function is then used to display the first few rows of the new dataframe.
+
+#### Income Statement
+
+#### Cash Flow
