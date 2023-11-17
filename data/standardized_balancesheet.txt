@@ -1,0 +1,31 @@
+Concept_std|Long_Description_std
+Cash, Cash Equivalent & Marketable Securities|Cash and cash equivalents include cash on hand and deposits with original maturities of three months or less. Marketable securities are highly liquid investments that can be quickly converted to cash.
+Total Accounts Receivable|Total amount owed to the entity by its customers for goods or services sold on credit, after considering any allowance for credit loss.
+Total Inventories|The cost of goods held by the entity for resale and materials used in production, reported at the lower of cost or market value.
+Other Current assets (to balance out the Total Current Assets)|Miscellaneous current assets not explicitly mentioned, balancing out the total current assets.
+Total Current Assets|The sum of cash, accounts receivable, inventories, and other current assets, representing assets expected to be converted into cash or used up within one year.
+Property, Plant and Equipment|The net book value of physical assets such as land, buildings, and machinery, less accumulated depreciation.
+Investment & Advances|Long-term investments and advances made by the entity, typically in securities or other companies.
+Intangible Assets (excl. goodwill)|Non-physical assets, such as patents and copyrights, having a finite useful life and excluding goodwill.
+Goodwill|The excess of the purchase price over the fair value of identifiable net assets acquired in a business combination.
+Other Long Term Assets (to balance out the Total Long-Term Assets)|Miscellaneous long-term assets not explicitly mentioned, balancing out the total long-term assets.
+Total Long Term Assets|The sum of property, plant, equipment, long-term investments, intangible assets, and other long-term assets.
+Accounts Payable|Amounts owed by the entity to its suppliers and vendors for goods and services received on credit.
+Tax Payable|Taxes owed by the entity but not yet paid, including both current and deferred tax liabilities.
+Other Account Payable (to balance out the Total Accounts Payable)|Miscellaneous payables and liabilities not explicitly mentioned, balancing out the total accounts payable.
+Total Accounts Payable|The sum of amounts owed by the entity to its suppliers and vendors, representing current liabilities.
+Short-Term Debt & Capital Leasing|Short-term borrowings and obligations under capital leases that are due within one year.
+Deferred Tax And Revenue|Deferred tax liabilities and revenue recognized for transactions that have been deferred for accounting purposes.
+Other Current Liabilities (to balance out the Total Current Liabilities)|Miscellaneous current liabilities not explicitly mentioned, balancing out the total current liabilities.
+Total Current Liabilities|The sum of all obligations that are expected to be settled within one year, including accounts payable, short-term debt, and other current liabilities.
+Long-Term Debts and Capital Leasing|Long-term borrowings and obligations under capital leases that are due beyond one year.
+Other Long-term liabilities (to balance out the total Long-term liabilities)|Miscellaneous long-term liabilities not explicitly mentioned, balancing out the total long-term liabilities.
+Total Long-Term liabilities|The sum of long-term debts, obligations under capital leases, and other long-term liabilities.
+Common Stock|The par or stated value of common stock issued by the entity to its shareholders.
+Retained Earnings|Accumulated earnings retained by the entity, representing the portion of net income not distributed as dividends.
+Accumulated other comprehensive income (loss)|The cumulative change in equity from transactions and events outside the ordinary operations of the entity, such as foreign currency translation adjustments and unrealized gains or losses on certain investments.
+Additional paid-in capital|The excess of amounts paid by shareholders over the par value of common stock, representing contributed capital.
+Other stockholders Equity (to balance out the Total Stockholders Equity)|Miscellaneous equity items not explicitly mentioned, balancing out the total stockholders' equity.
+Total Stockholders Equity|The residual interest in the assets of the entity after deducting liabilities, including common stock, retained earnings, and additional paid-in capital.
+Minority interest|The portion of equity in a subsidiary not attributable to the parent company, representing the interest of minority shareholders.
+Total Equity|The sum of total stockholders' equity and minority interest, representing the total ownership interest in the entity.

@@ -208,42 +208,11 @@ The data in this dataframe is organized to facilitate analysis and comparison of
 
 #### Balancesheet
 
-To create a standardized balance sheet from the data in `df_Facts`, we need to identify the relevant concepts associated with each part of the balancesheet. Here code to generate a standardized table the balancesheet:
+To recreate a balance sheet from the data in `df_Facts`, we need to identify the relevant concepts and then associate the values and corresponding date. 
+
+First we start building our own standardized balancesheet:
 
 ```{r balancesheet_table, message=FALSE, warning=FALSE, message=FALSE}
-# Define the list of concepts for the standardized balance sheet
-balance_sheet_concepts <- c(
-  "Cash, Cash Equivalent & Marketable Securities",
-  "Total Accounts Receivable",
-  "Total Inventories",
-  "Other Current assets (to balance out the Total Current Assets)",
-  "Total Current Assets",
-  "Property, Plant and Equipment",
-  "Investment & Advances",
-  "Intangible Assets (excl. goodwill)",
-  "Goodwill",
-  "Other Long Term Assets (to balance out the Total Long-Term Assets)",
-  "Total Long Term Assets",
-  "Accounts Payable",
-  "Tax Payable",
-  "Other Account Payable (to balance out the Total Accounts Payable)",
-  "Total Accounts Payable",
-  "Short-Term Debt & Capital Leasing",
-  "Deferred Tax And Revenue",
-  "Other Current Liabilities (to balance out the Total Current Liabilities)",
-  "Total Current Liabilities",
-  "Long-Term Debts and Capital Leasing",
-  "Other Long-term liabilities (to balance out the total Long-term liabilities)",
-  "Total Long-Term liabilities",
-  "Common Stock",
-  "Retained Earnings",
-  "Accumulated other comprehensive income (loss)",
-  "Additional paid-in capital",
-  "Other stockholders Equity (to balance out the Total Stockholders Equity)",
-  "Total Stockholders Equity",
-  "Minority interest",
-  "Total Equity"
-)
 
 ```
 
@@ -261,6 +230,9 @@ head(df_Facts_label_description) %>% kable()
 ```
 
 This code selects the label and description columns from `df_Facts`, removes duplicate rows using the distinct function, and stores the result in the new dataframe `df_Facts_label_description`. The head function is then used to display the first few rows of the new dataframe.
+
+Next step is to match the label in `df_Facts` with our standardized balancehseeet. There are different ways to identify the appropriate label. For instance we could use sophisiticated machine learning to read and interpret the long description of the labels matching with the 
+
 
 #### Income Statement
 

@@ -3,6 +3,17 @@
 # Disclaimer: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
 # Import required libraries
+
+if (!require(tm, character.only = TRUE)) {
+  # If not installed, install the package
+  install.packages(tm)
+}
+if (!require(proxy, character.only = TRUE)) {
+  # If not installed, install the package
+  install.packages(proxy)
+}
+library(tm)
+library(proxy)
 library(httr)
 library(jsonlite)
 
@@ -74,5 +85,30 @@ retrieve_Company_Data <- function(headers, cik) {
     company_Concept = company_Concept
   )
   return(company_Data)
+}
+
+bs_std <- function(){
+  # Specify the path to your text file
+  file_path <- "./data/standardized_balancesheet.txt"
+  
+  # Read the text file into a dataframe
+  balancesheet_std <- read.delim(file_path, header = TRUE, sep = "|", stringsAsFactors = FALSE)
+  
+  # Preprocess both sets of descriptions by removing stop words, converting to lowercase, and stemming.
+  preprocess_text <- function(text) {
+    corpus <- Corpus(VectorSource(text))
+    corpus <- tm_map(corpus, content_transformer(tolower))
+    corpus <- tm_map(corpus, removePunctuation)
+    corpus <- tm_map(corpus, removeNumbers)
+    corpus <- tm_map(corpus, removeWords, stopwords("en"))
+    corpus <- tm_map(corpus, stripWhitespace)
+    corpus <- tm_map(corpus, stemDocument)
+    return(corpus)
+  }
+  
+  standardized_balancesheet_corpus <- preprocess_text(standardized_balancesheet$Long_Description_std)
+  df_Facts_corpus <- preprocess_text(df_Facts$description)
+
+  
 }
 
