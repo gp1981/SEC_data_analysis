@@ -3,12 +3,13 @@
 # Disclaimer: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
 # Import required libraries
-
-if (!require(tm, character.only = TRUE)) {
+# 
+if (!require(tm, quietly = TRUE)) {
   # If not installed, install the package
-  install.packages(tm)
+  install.packages("tm")
 }
-if (!require(proxy, character.only = TRUE)) {
+
+if (!require(proxy, quietly = TRUE)) {
   # If not installed, install the package
   install.packages(proxy)
 }
@@ -30,7 +31,7 @@ retrieve_Company_List <- function(headers) {
   }
   
   # Proceed with data extraction
-  company_Tickers_List <- fromJSON(content(company_Tickers, "text"))
+  company_Tickers_List <- fromJSON(content(company_Tickers))
   
   # Convert the JSON list to a data frame
   company_List <- as.data.frame(t(sapply(company_Tickers_List, unlist)), stringsAsFactors = FALSE)
