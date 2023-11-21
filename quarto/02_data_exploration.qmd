@@ -208,31 +208,9 @@ The data in this dataframe is organized to facilitate analysis and comparison of
 
 #### Balancesheet
 
-To recreate a balance sheet from the data in `df_Facts`, we need to identify the relevant concepts and then associate the values and corresponding date. 
+To recreate a balance sheet from the data in `df_Facts`, we need to identify the relevant concepts and then associate the values and corresponding date.
 
-First we start building our own standardized balancesheet:
-
-```{r balancesheet_table, message=FALSE, warning=FALSE, message=FALSE}
-
-```
-
-Next the code to extract from `df_Facts` the labels and corresponding descriptions which we will use to match with our standardized balancesheet.
-
-```{r balancesheet_label_description, message=FALSE, warning=FALSE, message=FALSE}
-# Create df_Facts_label_description with unique combinations of label and description
-df_Facts_label_description <- df_Facts %>%
-  select(label, description) %>%
-  distinct()
-
-# Display the first few rows of df_Facts_label_description
-head(df_Facts_label_description) %>% kable()
-
-```
-
-This code selects the label and description columns from `df_Facts`, removes duplicate rows using the distinct function, and stores the result in the new dataframe `df_Facts_label_description`. The head function is then used to display the first few rows of the new dataframe.
-
-Next step is to match the label in `df_Facts` with our standardized balancehseeet. There are different ways to identify the appropriate label. For instance we could use sophisiticated machine learning to read and interpret the long description of the labels matching with the 
-
+(work in progress ...)
 
 #### Income Statement
 

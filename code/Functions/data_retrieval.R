@@ -11,7 +11,12 @@ if (!require(tm, quietly = TRUE)) {
 
 if (!require(proxy, quietly = TRUE)) {
   # If not installed, install the package
-  install.packages(proxy)
+  install.packages("proxy")
+}
+
+if (!require(SnowballC, quietly = TRUE)) {
+  # If not installed, install the package
+  install.packages("SnowballC")
 }
 library(tm)
 library(proxy)
@@ -31,7 +36,7 @@ retrieve_Company_List <- function(headers) {
   }
   
   # Proceed with data extraction
-  company_Tickers_List <- fromJSON(content(company_Tickers))
+  company_Tickers_List <- fromJSON(httr::content(company_Tickers, as = "text"))
   
   # Convert the JSON list to a data frame
   company_List <- as.data.frame(t(sapply(company_Tickers_List, unlist)), stringsAsFactors = FALSE)
@@ -55,7 +60,7 @@ retrieve_Company_Data <- function(headers, cik) {
   }
   
   # Process and adjust JSON data
-  company_Metadata <- fromJSON(content(company_Metadata, "text"))
+  company_Metadata <- fromJSON(httr::content(company_Metadata, as = "text"))
   
   # Retrieve company facts
   company_Facts <- GET(paste0("https://data.sec.gov/api/xbrl/companyfacts/CIK", cik, ".json"), add_headers(headers))
@@ -66,7 +71,7 @@ retrieve_Company_Data <- function(headers, cik) {
   }
   
   # Process and adjust JSON data
-  company_Facts <- fromJSON(content(company_Facts, "text"))
+  company_Facts <- fromJSON(httr::content(company_Facts, as = "text"))
   
   # Retrieve company facts
   company_Concept <- GET(paste0("https://data.sec.gov/api/xbrl/companyconcept/CIK", cik, "/us-gaap/Assets.json"), add_headers(headers))
@@ -77,7 +82,7 @@ retrieve_Company_Data <- function(headers, cik) {
   }
   
   # Process and adjust JSON data
-  company_Concept <- fromJSON(content(company_Concept, "text"))
+  company_Concept <- fromJSON(httr::content(company_Concept, as =  "text"))
   
   # Prepare output
   company_Data <- list(
@@ -88,28 +93,18 @@ retrieve_Company_Data <- function(headers, cik) {
   return(company_Data)
 }
 
-bs_std <- function(){
+bs_std <- function(df_Facts) {
   # Specify the path to your text file
-  file_path <- "./data/standardized_balancesheet.txt"
+  file_path <- "../data/standardized_balancesheet.txt"
   
-  # Read the text file into a dataframe
-  balancesheet_std <- read.delim(file_path, header = TRUE, sep = "|", stringsAsFactors = FALSE)
+  # Create df_Facts_label_description with unique combinations of label and description
+  df_Facts_label_description <- df_Facts %>%
+    select(label, description) %>%
+    distinct()
   
-  # Preprocess both sets of descriptions by removing stop words, converting to lowercase, and stemming.
-  preprocess_text <- function(text) {
-    corpus <- Corpus(VectorSource(text))
-    corpus <- tm_map(corpus, content_transformer(tolower))
-    corpus <- tm_map(corpus, removePunctuation)
-    corpus <- tm_map(corpus, removeNumbers)
-    corpus <- tm_map(corpus, removeWords, stopwords("en"))
-    corpus <- tm_map(corpus, stripWhitespace)
-    corpus <- tm_map(corpus, stemDocument)
-    return(corpus)
-  }
+ 
   
-  standardized_balancesheet_corpus <- preprocess_text(standardized_balancesheet$Long_Description_std)
-  df_Facts_corpus <- preprocess_text(df_Facts$description)
-
-  
+  return(standardized_balancesheet_matched)
 }
+
 
