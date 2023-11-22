@@ -3,26 +3,17 @@
 # Disclaimer: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
 # Import required libraries
-# 
-if (!require(tm, quietly = TRUE)) {
-  # If not installed, install the package
-  install.packages("tm")
-}
 
-if (!require(proxy, quietly = TRUE)) {
-  # If not installed, install the package
-  install.packages("proxy")
-}
+packages <- c("tm", "proxy","httr","jsonlite","tidyverse")
 
-if (!require(SnowballC, quietly = TRUE)) {
-  # If not installed, install the package
-  install.packages("SnowballC")
+for (package in packages) {
+  if (!(package %in% installed.packages())) {
+    install.packages(package)
+  }
+  
+  # Load the package
+  library(package, character.only = TRUE)
 }
-library(tm)
-library(proxy)
-library(httr)
-library(jsonlite)
-
 
 # Function to retrieve list of companies ----------------------------------
 

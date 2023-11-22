@@ -211,6 +211,12 @@ The data in this dataframe is organized to facilitate analysis and comparison of
 To recreate a balance sheet from the data in `df_Facts`, we need to identify the relevant concepts and then associate the values and corresponding date.
 
 (work in progress ...)
+```{r summarize_Facts, message=FALSE, warning=FALSE, message=FALSE}
+# Create df_Facts_summary with unique combinations of label and description
+df_Facts_summary <- df_Facts %>%
+  select(label, description) %>%
+  distinct()
+```
 
 #### Income Statement
 
