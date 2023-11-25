@@ -4,7 +4,7 @@
 
 # Import required libraries
 
-packages <- c("tm", "proxy","httr","jsonlite","tidyverse")
+packages <- c("tm", "proxy","httr","jsonlite","tidyverse", "readxl")
 
 for (package in packages) {
   if (!(package %in% installed.packages())) {

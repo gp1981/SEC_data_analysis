@@ -40,7 +40,7 @@ Within these sections, financial data is organized as a list of items, each with
 
 -   **Attributes**: Additional attributes providing context for the data, such as reporting period, currency unit, or data precision.
 
-Effectively analyzing this data involves selecting relevant concepts and facts, potentially transforming or pivoting the data for further processing and visualization.
+Effectively analyzing this data involves selecting relevant concepts and `Fact`, potentially transforming or pivoting the data for further processing and visualization.
 
 ### Understanding the dataset: `company_Data`
 
@@ -113,7 +113,7 @@ The last element `company_Facts$facts` is the most relevant one.
 str(company_Facts$facts, max.level = 1)
 ```
 
-The **`us-gaap`** list is the most significant sub-element of facts, containing 498 nested sub-sub-elements. Let's examine the first five.
+The **`us-gaap`** list is the most significant sub-element of Facts, containing 498 nested sub-sub-elements. Let's examine the first five.
 
 ```{r str_company_Facts_us_gaap_head, eval=TRUE, warning=FALSE, message=FALSE}
 
@@ -208,7 +208,7 @@ The data in this dataframe is organized to facilitate analysis and comparison of
 
 #### Balancesheet
 
-To recreate a balance sheet from the data in `df_Facts`, we need to identify the relevant concepts and then associate the values and corresponding date.
+To recreate a balance sheet from the data in `df_Facts` of Apple Inc., we need to identify the relevant concepts and then associate the values and corresponding date.
 
 (work in progress ...)
 ```{r summarize_Facts, message=FALSE, warning=FALSE, message=FALSE}
@@ -216,8 +216,61 @@ To recreate a balance sheet from the data in `df_Facts`, we need to identify the
 df_Facts_summary <- df_Facts %>%
   select(label, description) %>%
   distinct()
+
+# Task 1: Build a new dataframe with labels from "standardized_balancesheet_label" ---------------------------------------------------------------------
+# Read the standardized_balancesheet.xlsx file
+standardized_balancesheet <- read_excel("../data/standardized_balancesheet.xlsx", sheet = "Sheet1")
+
+# Create a new dataframe with labels from standardized_balancesheet_label
+df_new <- data.frame(standardized_balancesheet_label = standardized_balancesheet$standardized_balancesheet_label)
+
+# Task 2: Retrieve the value from df_Facts associated with the label for the latest period ---------------------------------------------------------------------
+# Convert 'end' column to date format
+df_Facts$end <- as.Date(df_Facts$end)
+
+# Filter df_Facts to get values for the latest period for each label
+df_latest_values <- df_Facts %>%
+  group_by(label) %>%
+  filter(end == max(end)) %>%
+  select(label, val) %>%
+  rename(df_Facts_value = val)
+
+# Change the join column to match the column name in df_new
+df_new <- left_join(df_new, df_latest_values, by = c("standardized_balancesheet_label" = "label"))
+
+
 ```
 
 #### Income Statement
 
+(work in progress ...) 
+
 #### Cash Flow
+
+(work in progress ...)
+
+## Standardization of financial reports
+
+The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts. 
+
+Different comapnies may use different similar labels to indicate similar Facts. The use of different labels however affect the ability to efficient retrieve 
+
+The objective is to generate standardized financial reports of Balancesheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.
+
+(work in progress ...) 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
