@@ -181,69 +181,116 @@ The output shows the structure associated with the `Asset` of the company under 
 
 Let's create now a dataframe including the data retrieved from `` company_Facts$facts$`us-gaap` ``.
 
-#### Un-nesting process
+#### Extracting financial data
 
-The first step is un-nest the dataset, in particular the financial data, in `company_Facts`, nested in sub-lists.
+The first step is un-nest the dataset, in particular the financial data, in `company_Facts`, nested in various sub-lists.
 
 The following code can be used to un-nest the list within `company_Facts` and create a dataframe easy to visualize and useful for our purpose[^02_data_exploration-1].
 
-[^02_data_exploration-1]: For visualization purpose we have omitted in `df_Facts` the column "description"
+[^02_data_exploration-1]: For visualization purpose we have omitted from the pritned table the variables (columns) `df_Facts$description` and `df_Facts$accn`.
 
 ```{r unnesting_company_Facts, message=FALSE, warning=FALSE, message=FALSE}
 
 df_Facts <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
 
-# Select the columns to print out
-df_Facts_selected_columns <- df_Facts %>%
-  select(-description)
-
-# Present the output with wrapped text and formatted numbers
-df_Facts_selected_columns %>% head() %>%
-  kable("html") %>%
-  kable_styling(full_width = FALSE) %>%
-  column_spec(1, width = "150px")
+# Select the columns to print out and present the output with wrapped text and formatted numbers
+df_Facts %>%   select(-c(description,accn)) %>% 
+  head() %>% kable("html") %>%  
+  kable_styling(full_width = FALSE)
 ```
 
 The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial concept (e.g. Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.
 
-#### Balancesheet
+To recreate a financial statement from the data in `df_Facts` of Apple Inc., we need to extract the values of the various Concepts and corresponding date in `df_Fact$end`.
 
-To recreate a balance sheet from the data in `df_Facts` of Apple Inc., we need to identify the relevant concepts and then associate the values and corresponding date.
+`df_Fact` has a long list of Concepts for multiple fiscal periods. The following is to show the large number of Concepts included in df_Fact\`, related to all financial reports.
 
-(work in progress ...)
-```{r summarize_Facts, message=FALSE, warning=FALSE, message=FALSE}
-# Create df_Facts_summary with unique combinations of label and description
-df_Facts_summary <- df_Facts %>%
-  select(label, description) %>%
-  distinct()
+```{r summarize_Facts1, message=FALSE, warning=FALSE, message=FALSE}
+# Show the size and first rows of df_Facts (excluding long text for visualization purpose)
+df_Fact_lenght <- df_Facts %>% nrow()
+  
+  # Print the size in human-readable format
+cat("df_Facts includes:", format(df_Fact_lenght, units = "auto"), "records \n")
+```
 
-# Task 1: Build a new dataframe with labels from "standardized_balancesheet_label" ---------------------------------------------------------------------
+```{r summarize_Facts2, message=FALSE, warning=FALSE, message=FALSE}
+# Show the size and first rows of df_Facts (excluding long text for visualization purpose)
+df_Facts %>% select(-c(description,accn)) %>% 
+  head() %>% as.data.frame() %>% 
+  kable("html") %>% 
+  kable_styling(full_width = FALSE)
+```
+
+From the extract of the `df_Facts` above, we see repeated Concepts. Each of them is associated with a different fiscal period.  By grouping these records by date indicated in `df_Fact$end` we can see the the full financial report for each period
+
+```{r summarize_Facts3, message=FALSE, warning=FALSE, message=FALSE}
+# Group the df_Fact by date in df_Fact$end
+df_Fact_BS <- df_Facts %>% group_by(end) %>% arrange(desc(end))
+
+# Show first rows of df_Facts_BS 
+df_Fact_BS %>%  select(-c(description,accn)) %>% 
+  head() %>% as.data.frame() %>% 
+  kable("html") %>% 
+  kable_styling(full_width = FALSE) %>% 
+  column_spec(1,width = "250px")
+```
+
+The next step is to filter the relevant Concepts associated with each statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).
+
+#### Balance Sheet
+The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table in excel, part of the repository of this website. The excel is: standardized_balancehseet.xlsx
+
+```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE}
 # Read the standardized_balancesheet.xlsx file
 standardized_balancesheet <- read_excel("../data/standardized_balancesheet.xlsx", sheet = "Sheet1")
 
-# Create a new dataframe with labels from standardized_balancesheet_label
-df_new <- data.frame(standardized_balancesheet_label = standardized_balancesheet$standardized_balancesheet_label)
 
-# Task 2: Retrieve the value from df_Facts associated with the label for the latest period ---------------------------------------------------------------------
-# Convert 'end' column to date format
-df_Facts$end <- as.Date(df_Facts$end)
+# Select relevant columns from df_Facts
+df_Facts_subset <- df_Facts %>%
+  select(label, end, fy, fp, form, val)
 
-# Filter df_Facts to get values for the latest period for each label
-df_latest_values <- df_Facts %>%
-  group_by(label) %>%
-  filter(end == max(end)) %>%
-  select(label, val) %>%
-  rename(df_Facts_value = val)
+# Merge with standardized_balancesheet to get the corresponding df_Facts_label
+df_std_BS <- df_Facts_subset %>%
+  left_join(standardized_balancesheet, by = c("label" = "df_Facts_label"))
 
-# Change the join column to match the column name in df_new
-df_new <- left_join(df_new, df_latest_values, by = c("standardized_balancesheet_label" = "label"))
+# Filter out records not associated with standardized_balancesheet
+df_std_BS <- df_std_BS %>% 
+  filter(!is.na(standardized_balancesheet_label)) %>% 
+  select(-c(label, df_Fact_Description))
 
+# Pivot the data to the desired structure
+df_std_BS <- df_std_BS %>%
+  pivot_wider(
+    names_from = standardized_balancesheet_label,
+    values_from = val
+    ) %>% 
+  arrange(desc(end))
+
+# Reorder columns dynamically based on the order in standardized_balancesheet
+column_order <- standardized_balancesheet$standardized_balancesheet_label
+
+# Check if each column in column_order exists in df_std_BS, if not, remove it from the order
+column_order <- column_order[column_order %in% colnames(df_std_BS)]
+
+# Reorder columns for better readability
+df_std_BS <- df_std_BS[, c("end", "fy", "fp", "form", column_order)]
+
+# Print the resulting data.frame
+df_std_BS %>% head() %>% as.data.frame() %>% 
+  kable("html") %>% 
+  kable_styling(
+    full_width = TRUE,
+    bootstrap_options = c("striped", "hover", "condensed"),
+    font_size = 8  # Adjust the font size as needed
+  ) %>% 
+  column_spec(1, width = "200px")  # Adjust the width as needed for other columns
 
 ```
 
+
 #### Income Statement
 
-(work in progress ...) 
+(work in progress ...)
 
 #### Cash Flow
 
@@ -251,26 +298,10 @@ df_new <- left_join(df_new, df_latest_values, by = c("standardized_balancesheet_
 
 ## Standardization of financial reports
 
-The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts. 
+The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts.
 
-Different comapnies may use different similar labels to indicate similar Facts. The use of different labels however affect the ability to efficient retrieve 
+Different comapnies may use different similar labels to indicate similar Facts. The use of different labels however affect the ability to efficient retrieve
 
-The objective is to generate standardized financial reports of Balancesheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.
+The objective is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.
 
-(work in progress ...) 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+(work in progress ...)
