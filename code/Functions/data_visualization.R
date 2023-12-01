@@ -2,10 +2,6 @@
 # Purpose: Contains the script for processing, analyzing, and visualizing SEC data.
 # Disclaimer: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
-# Import required libraries
-library(tidyverse)
-library(kableExtra)
-
 # Function to unnest list company_Facts ----------------------------------
 
 # Un-nest the company_Facts (and nested unit list)

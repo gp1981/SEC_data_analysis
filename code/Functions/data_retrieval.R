@@ -2,19 +2,6 @@
 # Purpose: Contains the script to retrieve company data from SEC filings.
 # Disclaimer: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
-# Import required libraries
-
-packages <- c("tm", "proxy","httr","jsonlite","tidyverse", "readxl")
-
-for (package in packages) {
-  if (!(package %in% installed.packages())) {
-    install.packages(package)
-  }
-  
-  # Load the package
-  library(package, character.only = TRUE)
-}
-
 # Function to retrieve list of companies ----------------------------------
 
 retrieve_Company_List <- function(headers) {
@@ -84,18 +71,42 @@ retrieve_Company_Data <- function(headers, cik) {
   return(company_Data)
 }
 
-bs_std <- function(df_Facts) {
-  # Specify the path to your text file
-  file_path <- "../data/standardized_balancesheet.txt"
+bs_std <- function(df_Facts, balancesheet_path) {
+  # Read the standardized_balancesheet.xlsx file
+  standardized_balancesheet <- read.xlsx(balancesheet_path, sheet = "Sheet1")
   
-  # Create df_Facts_label_description with unique combinations of label and description
-  df_Facts_label_description <- df_Facts %>%
-    select(label, description) %>%
-    distinct()
   
- 
+  # Select relevant columns from df_Facts
+  df_Facts_subset <- df_Facts %>%
+    select(label, end, fy, fp, form, val)
   
-  return(standardized_balancesheet_matched)
+  # Merge with standardized_balancesheet to get the corresponding df_Facts_label
+  df_std_BS <- df_Facts_subset %>%
+    left_join(standardized_balancesheet, by = c("label" = "df_Facts_label"))
+  
+  # Filter out records not associated with standardized_balancesheet
+  df_std_BS <- df_std_BS %>% 
+    filter(!is.na(standardized_balancesheet_label)) %>% 
+    select(-c(label, df_Fact_Description))
+  
+  # Pivot the data to the desired structure
+  df_std_BS <- df_std_BS %>%
+    pivot_wider(
+      names_from = standardized_balancesheet_label,
+      values_from = val
+    ) %>% 
+    arrange(desc(end))
+  
+  # Reorder columns dynamically based on the order in standardized_balancesheet
+  column_order <- standardized_balancesheet$standardized_balancesheet_label
+  
+  # Check if each column in column_order exists in df_std_BS, if not, remove it from the order
+  column_order <- column_order[column_order %in% colnames(df_std_BS)]
+  
+  # Reorder columns for better readability
+  df_std_BS <- df_std_BS[, c("end", "fy", "fp", "form", column_order)]
+  
+ return(df_std_BS)
 }
 
 

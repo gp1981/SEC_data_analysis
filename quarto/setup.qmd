@@ -1,13 +1,20 @@
-# Source key required libraries
-library(tidyverse)
-library(httr)
-library(jsonlite)
-library(magrittr)
-library(tibble)
-library(knitr)
+# Import required libraries
+packages <- c("tm", "proxy","httr","jsonlite","tidyverse", "readxl","magrittr", "kableExtra" ,"tibble","knitr", "here","openxlsx")
+
+for (package in packages) {
+  if (!(package %in% installed.packages())) {
+    install.packages(package)
+  }
+  
+  # Load the package
+  library(package, character.only = TRUE)
+}
 
 # Source required functions
 source("../code/Functions/data_retrieval.R")   # Sourcing the data retrieval functions
 source("../code/Functions/data_analysis.R")    # Sourcing the data analysis functions
 source("../code/Functions/data_visualization.R")  # Sourcing the data visualization functions
 source("../code/Functions/utils.R")           # Sourcing utility functions
+
+# Required datasets
+data_dir <- here("data")
