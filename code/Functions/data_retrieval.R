@@ -71,31 +71,50 @@ retrieve_Company_Data <- function(headers, cik) {
   return(company_Data)
 }
 
-bs_std <- function(df_Facts, balancesheet_path) {
+bs_std <- function(df_Facts) {
+  # Define the standardized balancesheet file path
+  balancesheet_path <- here(data_dir, "standardized_balancesheet.xlsx")
+  
   # Read the standardized_balancesheet.xlsx file
   standardized_balancesheet <- read.xlsx(balancesheet_path, sheet = "Sheet1")
   
+  # Create a mapping between df_Facts_label and standardized_balancesheet_label
+  label_mapping <- df_Facts %>%
+    left_join(standardized_balancesheet, by = c("label" = "df_Facts_label")) %>%
+    select(label, standardized_balancesheet_label) %>%
+    distinct()
   
   # Select relevant columns from df_Facts
   df_Facts_subset <- df_Facts %>%
-    select(label, end, fy, fp, form, val)
+    select(label, end, fy, fp, form, val) %>%
+    left_join(label_mapping, by = "label")
   
   # Merge with standardized_balancesheet to get the corresponding df_Facts_label
   df_std_BS <- df_Facts_subset %>%
-    left_join(standardized_balancesheet, by = c("label" = "df_Facts_label"))
+    left_join(standardized_balancesheet, by = "standardized_balancesheet_label")
   
   # Filter out records not associated with standardized_balancesheet
-  df_std_BS <- df_std_BS %>% 
-    filter(!is.na(standardized_balancesheet_label)) %>% 
-    select(-c(label, df_Fact_Description))
+  df_std_BS <- df_std_BS %>%
+    filter(!is.na(standardized_balancesheet_label)) %>%
+    select(-c(label,standardized_balancesheet_label, df_Fact_Description))
   
   # Pivot the data to the desired structure
   df_std_BS <- df_std_BS %>%
     pivot_wider(
-      names_from = standardized_balancesheet_label,
+      names_from = df_Facts_label,
       values_from = val
-    ) %>% 
+    ) %>%
     arrange(desc(end))
+  
+  # Perform the calculation for "Other Current assets (to balance out the Total Current Assets)"
+  df_std_BS <- df_std_BS %>%
+    mutate(
+      Other_Current_Assets = `Assets, Current` -
+        (`Cash and Cash Equivalents, at Carrying Value` +
+           `Marketable Securities, Current` +
+           `Accounts Receivable, after Allowance for Credit Loss, Current` +
+           `Inventory, Net`)
+    )
   
   # Reorder columns dynamically based on the order in standardized_balancesheet
   column_order <- standardized_balancesheet$standardized_balancesheet_label

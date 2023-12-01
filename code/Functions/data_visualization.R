@@ -5,15 +5,23 @@
 # Function to unnest list company_Facts ----------------------------------
 
 # Un-nest the company_Facts (and nested unit list)
-FactsList_to_Dataframe <- function(company_Facts_us_gaap){
+FactsList_to_Dataframe <- function(company_Facts_us_gaap) {
   df_Facts <- company_Facts_us_gaap %>%
     tibble() %>%
     unnest_wider(col = everything()) %>%
     unnest(cols = c(units)) %>%
-    unnest(cols = c(units)) 
+    unnest(cols = c(units))
   
-  # Format numbers in the val column as millions
-  df_Facts$val <- scales::number(df_Facts$val / 1e6, accuracy = 0.1, suffix = "M")
+  # Convert the val column to numeric
+  df_Facts$val <- as.numeric(df_Facts$val)
+
+  # Mutate to reduce values in millions by dividing by 1 million
+  df_Facts <- df_Facts %>%
+    mutate(
+      val = val / 1e6,
+      formatted_val = scales::comma(val, accuracy = 0.1)
+    )
   
   return(df_Facts)
 }
+
