@@ -289,7 +289,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <section id="structure-of-the-sec-data-xbrl" class="level2">
 <h2 class="anchored" data-anchor-id="structure-of-the-sec-data-xbrl">Structure of the SEC data: XBRL</h2>
-<p>The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards. It utilizes XBRL (eXtensible Business Reporting Language), a structured, machine-readable format ensuring consistency and comparability across companies and filings.</p>
+<p>The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards. It utilizes XBRL (eXtensible Business Reporting Language)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, a structured, machine-readable format ensuring consistency and comparability across companies and filings.</p>
 <p>To navigate through this structure for analysis, consider the following key elements:</p>
 <ul>
 <li><p><strong><code>cik</code></strong>: The Central Index Key (CIK) is a unique identifier assigned to each company filing reports with the U.S. Securities and Exchange Commission (SEC).</p></li>
@@ -323,7 +323,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ company_Concept :List of 7</code></pre>
 </div>
 </div>
-<p>The output reveals that <strong><code>company_Data</code></strong> comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
+<p>The output reveals that <strong><code>company_Data</code></strong> structure comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
 <div id="Note_List" class="Note" style="background-color: #f0f0f0; padding: 10px; color: gray">
 <hr>
 <p><em>In R, a <strong>list</strong> is a versatile data structure capable of holding elements of different data types. It offers flexibility, allowing each element to be of a different type.</em></p>
@@ -331,7 +331,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <hr>
 </div>
 <p>To access the lists we use the symbol <code>$</code> in after the object e.g.&nbsp;<code>company_Data$company_Metadata</code>.</p>
-<p>Next, we split the data into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>
+<p>Next, we split the <code>company_Data</code> into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -377,7 +377,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ filings                          :List of 2</code></pre>
 </div>
 </div>
-<p>The most relevant information of <code>company_Metadata</code> are included in the elemnent <code>filing</code> which is a nested list and contains the filing attributes.</p>
+<p>For our purpose, the most relevant information of <code>company_Metadata</code> are included in the elemnent <code>filing</code> which is a nested list and contains the filing attributes. Here the structure of <code>company_Metadata</code>:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -387,25 +387,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 2
  $ recent:List of 14
-  ..$ accessionNumber      : chr [1:1001] "0000320193-23-000111" "0000320193-23-000109" "0000320193-23-000106" "0000320193-23-000104" ...
-  ..$ filingDate           : chr [1:1001] "2023-11-20" "2023-11-14" "2023-11-03" "2023-11-02" ...
-  ..$ reportDate           : chr [1:1001] "2023-11-16" "2023-11-10" "2023-09-30" "2023-11-02" ...
-  ..$ acceptanceDateTime   : chr [1:1001] "2023-11-20T18:31:21.000Z" "2023-11-14T18:31:09.000Z" "2023-11-02T18:08:27.000Z" "2023-11-02T16:30:32.000Z" ...
-  ..$ act                  : chr [1:1001] "" "" "34" "34" ...
-  ..$ form                 : chr [1:1001] "4" "4" "10-K" "8-K" ...
-  ..$ fileNumber           : chr [1:1001] "" "" "001-36743" "001-36743" ...
-  ..$ filmNumber           : chr [1:1001] "" "" "231373899" "231372885" ...
-  ..$ items                : chr [1:1001] "" "" "" "2.02,9.01" ...
-  ..$ size                 : int [1:1001] 8165 5066 9569569 450675 16029 4875 8889 6090 5310 4338 ...
-  ..$ isXBRL               : int [1:1001] 0 0 1 1 0 0 0 0 0 0 ...
-  ..$ isInlineXBRL         : int [1:1001] 0 0 1 1 0 0 0 0 0 0 ...
-  ..$ primaryDocument      : chr [1:1001] "xslF345X05/wk-form4_1700523067.xml" "xslF345X05/wk-form4_1700004649.xml" "aapl-20230930.htm" "aapl-20231102.htm" ...
-  ..$ primaryDocDescription: chr [1:1001] "FORM 4" "FORM 4" "10-K" "8-K" ...
+  ..$ accessionNumber      : chr [1:1000] "0000320193-23-000113" "0000320193-23-000111" "0000320193-23-000109" "0000320193-23-000106" ...
+  ..$ filingDate           : chr [1:1000] "2023-12-01" "2023-11-20" "2023-11-14" "2023-11-03" ...
+  ..$ reportDate           : chr [1:1000] "2023-11-29" "2023-11-16" "2023-11-10" "2023-09-30" ...
+  ..$ acceptanceDateTime   : chr [1:1000] "2023-12-01T18:32:18.000Z" "2023-11-20T18:31:21.000Z" "2023-11-14T18:31:09.000Z" "2023-11-02T18:08:27.000Z" ...
+  ..$ act                  : chr [1:1000] "" "" "" "34" ...
+  ..$ form                 : chr [1:1000] "4" "4" "4" "10-K" ...
+  ..$ fileNumber           : chr [1:1000] "" "" "" "001-36743" ...
+  ..$ filmNumber           : chr [1:1000] "" "" "" "231373899" ...
+  ..$ items                : chr [1:1000] "" "" "" "" ...
+  ..$ size                 : int [1:1000] 4600 8165 5066 9569569 450675 16029 4875 8889 6090 5310 ...
+  ..$ isXBRL               : int [1:1000] 0 0 0 1 1 0 0 0 0 0 ...
+  ..$ isInlineXBRL         : int [1:1000] 0 0 0 1 1 0 0 0 0 0 ...
+  ..$ primaryDocument      : chr [1:1000] "xslF345X05/wk-form4_1701473530.xml" "xslF345X05/wk-form4_1700523067.xml" "xslF345X05/wk-form4_1700004649.xml" "aapl-20230930.htm" ...
+  ..$ primaryDocDescription: chr [1:1000] "FORM 4" "FORM 4" "FORM 4" "10-K" ...
  $ files :'data.frame': 1 obs. of  4 variables:
   ..$ name       : chr "CIK0000320193-submissions-001.json"
-  ..$ filingCount: int 1007
+  ..$ filingCount: int 1009
   ..$ filingFrom : chr "1994-01-26"
-  ..$ filingTo   : chr "2013-04-22"</code></pre>
+  ..$ filingTo   : chr "2013-04-23"</code></pre>
 </div>
 </div>
 <p>The format of the dataset as printed is not very useful. We see that there are useful information on the forms (e.g.&nbsp;10K) and dates (e.g.&nbsp;filing dates).</p>
@@ -427,7 +427,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ facts     :List of 2</code></pre>
 </div>
 </div>
-<p>The last element <code>company_Facts$facts</code> is the most relevant one.</p>
+<p>For our purpose, the last element <code>company_Facts$facts</code> is the most relevant one.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -440,7 +440,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ us-gaap:List of 498</code></pre>
 </div>
 </div>
-<p>The <strong><code>us-gaap</code></strong> list is the most significant sub-element of Facts, containing 498 nested sub-sub-elements. Let’s examine the first five.</p>
+<p>The <strong><code>us-gaap</code></strong> list includes relevant Facts, containing 498 nested elements. Let’s examine the first five.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -456,7 +456,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ AccruedIncomeTaxesNoncurrent:List of 3</code></pre>
 </div>
 </div>
-<p>These sub-elements include essential fundamentals of the company and are themselves nested lists. Let’s explore the structure of the first one.</p>
+<p>These elements include essential fundamentals of the company and are themselves nested lists. Let’s explore the structure of the first one.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -541,22 +541,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="rebuilding-the-financial-reports" class="level3">
 <h3 class="anchored" data-anchor-id="rebuilding-the-financial-reports">Rebuilding the financial reports</h3>
 <p>The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts.</p>
-<p>Different comapnies may use different similar labels to indicate similar Facts. The use of different labels however affect the ability to efficiently retrieve the appropriate financial data.</p>
-<p>The objective is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.</p>
+<p>Different comapnies may use different reporting styles to indicate Facts in different ways. The use of different labels however affect our ability to efficiently retrieve the appropriate financial data.</p>
+<p>The objective here is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.</p>
 <p>Let’s create now a dataframe including the data retrieved from <code>company_Facts$facts$`us-gaap`</code>.</p>
 <section id="extracting-financial-data" class="level4">
 <h4 class="anchored" data-anchor-id="extracting-financial-data">Extracting financial data</h4>
 <p>The first step is un-nest the dataset, in particular the financial data, in <code>company_Facts</code>, nested in various sub-lists.</p>
-<p>The following code can be used to un-nest the list within <code>company_Facts</code> and create a dataframe easy to visualize and useful for our purpose<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<p>The following code can be used to un-nest the list within <code>company_Facts</code> and create a dataframe easy to visualize and useful for our purpose<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="ot">&lt;-</span> <span class="fu">FactsList_to_Dataframe</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>)</span>
 <span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the columns to print out and present the output with wrapped text and formatted numbers</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span>   <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span>  </span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small" data-quarto-postprocess="true">
@@ -564,81 +565,88 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">val</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">val</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">formatted_val</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">Accounts Payable (Deprecated 2009-01-31)</td>
 <td style="text-align: left;">2008-09-27</td>
-<td style="text-align: left;">5 520.0M</td>
+<td style="text-align: right;">5520</td>
 <td style="text-align: right;">2009</td>
 <td style="text-align: left;">Q3</td>
 <td style="text-align: left;">10-Q</td>
 <td style="text-align: left;">2009-07-22</td>
 <td style="text-align: left;">CY2008Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">5,520.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Accounts Payable (Deprecated 2009-01-31)</td>
 <td style="text-align: left;">2009-06-27</td>
-<td style="text-align: left;">4 854.0M</td>
+<td style="text-align: right;">4854</td>
 <td style="text-align: right;">2009</td>
 <td style="text-align: left;">Q3</td>
 <td style="text-align: left;">10-Q</td>
 <td style="text-align: left;">2009-07-22</td>
 <td style="text-align: left;">CY2009Q2I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">4,854.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Accounts Payable, Current</td>
 <td style="text-align: left;">2008-09-27</td>
-<td style="text-align: left;">5 520.0M</td>
+<td style="text-align: right;">5520</td>
 <td style="text-align: right;">2009</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2009-10-27</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">5,520.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Accounts Payable, Current</td>
 <td style="text-align: left;">2008-09-27</td>
-<td style="text-align: left;">5 520.0M</td>
+<td style="text-align: right;">5520</td>
 <td style="text-align: right;">2009</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K/A</td>
 <td style="text-align: left;">2010-01-25</td>
 <td style="text-align: left;">CY2008Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">5,520.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Accounts Payable, Current</td>
 <td style="text-align: left;">2009-09-26</td>
-<td style="text-align: left;">5 601.0M</td>
+<td style="text-align: right;">5601</td>
 <td style="text-align: right;">2009</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2009-10-27</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">5,601.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Accounts Payable, Current</td>
 <td style="text-align: left;">2009-09-26</td>
-<td style="text-align: left;">5 601.0M</td>
+<td style="text-align: right;">5601</td>
 <td style="text-align: right;">2010</td>
 <td style="text-align: left;">Q1</td>
 <td style="text-align: left;">10-Q</td>
 <td style="text-align: left;">2010-01-25</td>
 <td style="text-align: left;">NA</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">5,601.0</td>
 </tr>
 </tbody>
 </table>
@@ -646,9 +654,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </div>
 </div>
-<p>The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial concept (e.g.&nbsp;Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.</p>
+<p>The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial Concept (e.g.&nbsp;Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.</p>
 <p>To recreate a financial statement from the data in <code>df_Facts</code> of Apple Inc., we need to extract the values of the various Concepts and corresponding date in <code>df_Fact$end</code>.</p>
-<p><code>df_Fact</code> has a long list of Concepts for multiple fiscal periods. The following is to show the large number of Concepts included in df_Fact`, related to all financial reports.</p>
+<p><code>df_Fact</code> has a long list of Concepts for multiple fiscal periods. The following code shows the large number of Concepts included in <code>df_Fact</code>, related to all financial reports.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -662,14 +670,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <pre><code>df_Facts includes: 22057 records </code></pre>
 </div>
 </div>
+<p>From the extract of the <code>df_Facts</code> above, we see repeated Concepts. Each of them is associated with a different fiscal period. By grouping these records by date indicated in <code>df_Fact$end</code> we can see the the full financial reports for each period in a data frame format.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the size and first rows of df_Facts (excluding long text for visualization purpose)</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group the df_Fact by date in df_Fact$end</span></span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>df_Fact_BS <span class="ot">&lt;-</span> df_Facts <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(end) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(end))</span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first rows of df_Facts_BS </span></span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>df_Fact_BS <span class="sc">%&gt;%</span>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
 <table class="table table-sm table-striped small" data-quarto-postprocess="true">
@@ -677,183 +690,88 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">val</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">val</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Accounts Payable (Deprecated 2009-01-31)</td>
-<td style="text-align: left;">2008-09-27</td>
-<td style="text-align: left;">5 520.0M</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">Q3</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">2009-07-22</td>
-<td style="text-align: left;">CY2008Q3I</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Accounts Payable (Deprecated 2009-01-31)</td>
-<td style="text-align: left;">2009-06-27</td>
-<td style="text-align: left;">4 854.0M</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">Q3</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">2009-07-22</td>
-<td style="text-align: left;">CY2009Q2I</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2008-09-27</td>
-<td style="text-align: left;">5 520.0M</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2009-10-27</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2008-09-27</td>
-<td style="text-align: left;">5 520.0M</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K/A</td>
-<td style="text-align: left;">2010-01-25</td>
-<td style="text-align: left;">CY2008Q3I</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2009-09-26</td>
-<td style="text-align: left;">5 601.0M</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2009-10-27</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2009-09-26</td>
-<td style="text-align: left;">5 601.0M</td>
-<td style="text-align: right;">2010</td>
-<td style="text-align: left;">Q1</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">2010-01-25</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-</tr>
-</tbody>
-</table>
-
-
-</div>
-</div>
-<p>From the extract of the <code>df_Facts</code> above, we see repeated Concepts. Each of them is associated with a different fiscal period. By grouping these records by date indicated in <code>df_Fact$end</code> we can see the the full financial report for each period</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group the df_Fact by date in df_Fact$end</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>df_Fact_BS <span class="ot">&lt;-</span> df_Facts <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(end) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(end))</span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first rows of df_Facts_BS </span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>df_Fact_BS <span class="sc">%&gt;%</span>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<table class="table table-sm table-striped small" data-quarto-postprocess="true">
-<thead>
-<tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">val</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">formatted_val</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
 <td style="text-align: left; width: 250px;">Accounts Payable, Current</td>
 <td style="text-align: left;">2023-09-30</td>
-<td style="text-align: left;">62 611.0M</td>
+<td style="text-align: right;">62611</td>
 <td style="text-align: right;">2023</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2023-11-03</td>
 <td style="text-align: left;">CY2023Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">62,611.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left; width: 250px;">Accounts Receivable, after Allowance for Credit Loss, Current</td>
 <td style="text-align: left;">2023-09-30</td>
-<td style="text-align: left;">29 508.0M</td>
+<td style="text-align: right;">29508</td>
 <td style="text-align: right;">2023</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2023-11-03</td>
 <td style="text-align: left;">CY2023Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">29,508.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left; width: 250px;">Accrued Income Taxes, Current</td>
 <td style="text-align: left;">2023-09-30</td>
-<td style="text-align: left;">8 819.0M</td>
+<td style="text-align: right;">8819</td>
 <td style="text-align: right;">2023</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2023-11-03</td>
 <td style="text-align: left;">CY2023Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">8,819.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left; width: 250px;">Accrued Income Taxes, Noncurrent</td>
 <td style="text-align: left;">2023-09-30</td>
-<td style="text-align: left;">15 457.0M</td>
+<td style="text-align: right;">15457</td>
 <td style="text-align: right;">2023</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2023-11-03</td>
 <td style="text-align: left;">CY2023Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">15,457.0</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left; width: 250px;">Accumulated Depreciation, Depletion and Amortization, Property, Plant, and Equipment</td>
 <td style="text-align: left;">2023-09-30</td>
-<td style="text-align: left;">70 884.0M</td>
+<td style="text-align: right;">70884</td>
 <td style="text-align: right;">2023</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2023-11-03</td>
 <td style="text-align: left;">CY2023Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">70,884.0</td>
 </tr>
 <tr class="even">
 <td style="text-align: left; width: 250px;">Accumulated Other Comprehensive Income (Loss), Net of Tax</td>
 <td style="text-align: left;">2023-09-30</td>
-<td style="text-align: left;">-11 452.0M</td>
+<td style="text-align: right;">-11452</td>
 <td style="text-align: right;">2023</td>
 <td style="text-align: left;">FY</td>
 <td style="text-align: left;">10-K</td>
 <td style="text-align: left;">2023-11-03</td>
 <td style="text-align: left;">CY2023Q3I</td>
 <td style="text-align: left;">NA</td>
+<td style="text-align: left;">-11,452.0</td>
 </tr>
 </tbody>
 </table>
@@ -861,271 +779,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </div>
 </div>
-<p>The next step is to filter the relevant Concepts associated with each statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).</p>
+<p>The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).</p>
 </section>
 <section id="balance-sheet" class="level4">
 <h4 class="anchored" data-anchor-id="balance-sheet">Balance Sheet</h4>
-<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table in excel, part of the repository of this website. The excel is: standardized_balancehseet.xlsx</p>
+<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx), part of the repository of this website.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Define the standardized balancesheet file path</span></span>
-<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>balancesheet_path <span class="ot">&lt;-</span> <span class="fu">here</span>(data_dir, <span class="st">"standardized_balancesheet.xlsx"</span>)</span>
-<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of Apple Inc. in standardizeformat</span></span>
-<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="ot">&lt;-</span> <span class="fu">bs_std</span>(df_Facts,balancesheet_path)</span>
-<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the resulting data.frame</span></span>
-<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(</span>
-<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">full_width =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>),</span>
-<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>    <span class="at">font_size =</span> <span class="dv">8</span>  <span class="co"># Adjust the font size as needed</span></span>
-<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span> </span>
-<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>, <span class="at">width =</span> <span class="st">"200px"</span>)  <span class="co"># Adjust the width as needed for other columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of Apple Inc. in standardizeformat</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS &lt;- bs_std(df_Facts)</span></span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Print the resulting data.frame</span></span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS %&gt;% head() %&gt;% as.data.frame() %&gt;% </span></span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable("html") %&gt;% </span></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable_styling(</span></span>
+<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     full_width = TRUE,</span></span>
+<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     bootstrap_options = c("striped", "hover", "condensed"),</span></span>
+<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     font_size = 8  # Adjust the font size as needed</span></span>
+<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) %&gt;% </span></span>
+<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   column_spec(1, width = "200px")  # Adjust the width as needed for other columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
-<div class="cell-output-display">
-<table class="table table-striped table-hover table-condensed table-sm small" data-quarto-postprocess="true">
-<thead>
-<tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Cash &amp; Cash Equivalent</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Marketable Securities, Current</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Accounts Receivable</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Inventories</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Current Assets</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Marketable Securities, Noncurrent</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Property, Plant and Equipment</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Intangible Assets (excl. goodwill)</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Goodwill</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Long Term Assets</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Accounts Payable</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Tax Payable</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Commercial papers</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Short-Term Debt</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Operating Lease, Liability, Current</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Finance Lease, Liability, Current</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Assets</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Current Liabilities</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Operating Lease, Liability, Non Current</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Finance Lease, Liability, Non Current</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Long-Term liabilities</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Total Liabilities</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Common Stock &amp; Additional paid-in capital (or)</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Common Stock, Value, Issued</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Preferred Stock</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Retained Earnings</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">Accumulated other comprehensive income (loss)</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left; width: 200px;">2023-09-30</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">29 965.0M</td>
-<td style="text-align: left;">31 590.0M</td>
-<td style="text-align: left;">29 508.0M</td>
-<td style="text-align: left;">6 331.0M</td>
-<td style="text-align: left;">143 566.0M</td>
-<td style="text-align: left;">100 544.0M</td>
-<td style="text-align: left;">43 715.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">209 017.0M</td>
-<td style="text-align: left;">62 611.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">5 985.0M</td>
-<td style="text-align: left;">9 822.0M</td>
-<td style="text-align: left;">1 410.0M</td>
-<td style="text-align: left;">165.0M</td>
-<td style="text-align: left;">352 583.0M</td>
-<td style="text-align: left;">145 308.0M</td>
-<td style="text-align: left;">10 408.0M</td>
-<td style="text-align: left;">165.0M</td>
-<td style="text-align: left;">145 129.0M</td>
-<td style="text-align: left;">290 437.0M</td>
-<td style="text-align: left;">73 812.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">-214.0M</td>
-<td style="text-align: left;">-11 452.0M</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; width: 200px;">2023-07-01</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">Q3</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">28 408.0M</td>
-<td style="text-align: left;">34 074.0M</td>
-<td style="text-align: left;">19 549.0M</td>
-<td style="text-align: left;">7 351.0M</td>
-<td style="text-align: left;">122 659.0M</td>
-<td style="text-align: left;">104 061.0M</td>
-<td style="text-align: left;">43 550.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">212 379.0M</td>
-<td style="text-align: left;">46 699.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">3 993.0M</td>
-<td style="text-align: left;">7 216.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">335 038.0M</td>
-<td style="text-align: left;">124 963.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">149 801.0M</td>
-<td style="text-align: left;">274 764.0M</td>
-<td style="text-align: left;">70 667.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">1 408.0M</td>
-<td style="text-align: left;">-11 801.0M</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; width: 200px;">2023-04-01</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">Q2</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">24 687.0M</td>
-<td style="text-align: left;">31 185.0M</td>
-<td style="text-align: left;">17 936.0M</td>
-<td style="text-align: left;">7 482.0M</td>
-<td style="text-align: left;">112 913.0M</td>
-<td style="text-align: left;">110 461.0M</td>
-<td style="text-align: left;">43 398.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">219 247.0M</td>
-<td style="text-align: left;">42 945.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">1 996.0M</td>
-<td style="text-align: left;">10 578.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">332 160.0M</td>
-<td style="text-align: left;">120 075.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">149 927.0M</td>
-<td style="text-align: left;">270 002.0M</td>
-<td style="text-align: left;">69 568.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">4 336.0M</td>
-<td style="text-align: left;">-11 746.0M</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; width: 200px;">2022-12-31</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">Q1</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">20 535.0M</td>
-<td style="text-align: left;">30 820.0M</td>
-<td style="text-align: left;">23 752.0M</td>
-<td style="text-align: left;">6 820.0M</td>
-<td style="text-align: left;">128 777.0M</td>
-<td style="text-align: left;">114 095.0M</td>
-<td style="text-align: left;">42 951.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">217 970.0M</td>
-<td style="text-align: left;">57 918.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">1 743.0M</td>
-<td style="text-align: left;">9 740.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">346 747.0M</td>
-<td style="text-align: left;">137 286.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">152 734.0M</td>
-<td style="text-align: left;">290 020.0M</td>
-<td style="text-align: left;">66 399.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">3 240.0M</td>
-<td style="text-align: left;">-12 912.0M</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; width: 200px;">2022-09-24</td>
-<td style="text-align: right;">2022</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">23 646.0M</td>
-<td style="text-align: left;">24 658.0M</td>
-<td style="text-align: left;">28 184.0M</td>
-<td style="text-align: left;">4 946.0M</td>
-<td style="text-align: left;">135 405.0M</td>
-<td style="text-align: left;">120 805.0M</td>
-<td style="text-align: left;">42 117.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">217 350.0M</td>
-<td style="text-align: left;">64 115.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">9 982.0M</td>
-<td style="text-align: left;">11 128.0M</td>
-<td style="text-align: left;">1 534.0M</td>
-<td style="text-align: left;">129.0M</td>
-<td style="text-align: left;">352 755.0M</td>
-<td style="text-align: left;">153 982.0M</td>
-<td style="text-align: left;">9 936.0M</td>
-<td style="text-align: left;">129.0M</td>
-<td style="text-align: left;">148 101.0M</td>
-<td style="text-align: left;">302 083.0M</td>
-<td style="text-align: left;">64 849.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">-3 068.0M</td>
-<td style="text-align: left;">-11 109.0M</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; width: 200px;">2022-09-24</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">Q1</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">23 646.0M</td>
-<td style="text-align: left;">24 658.0M</td>
-<td style="text-align: left;">28 184.0M</td>
-<td style="text-align: left;">4 946.0M</td>
-<td style="text-align: left;">135 405.0M</td>
-<td style="text-align: left;">120 805.0M</td>
-<td style="text-align: left;">42 117.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">217 350.0M</td>
-<td style="text-align: left;">64 115.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">9 982.0M</td>
-<td style="text-align: left;">11 128.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">352 755.0M</td>
-<td style="text-align: left;">153 982.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">148 101.0M</td>
-<td style="text-align: left;">302 083.0M</td>
-<td style="text-align: left;">64 849.0M</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">-3 068.0M</td>
-<td style="text-align: left;">-11 109.0M</td>
-</tr>
-</tbody>
-</table>
-
-
-</div>
 </div>
 </section>
 <section id="income-statement" class="level4">
@@ -1146,7 +820,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
 
 <ol>
-<li id="fn1"><p>For visualization purpose we have omitted from the pritned table the variables (columns) <code>df_Facts$description</code> and <code>df_Facts$accn</code>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn1"><p>The definitions provided on this website are crafted for non-practitioners and may lack the rigor and precision required by experts. For a more thorough understanding of XBRL financial reporting, we recommend referring to <a href="http://xbrl.squarespace.com" title="XBRL-based structured digital financial reporting">XBRL-based structured digital financial reporting</a> where you can find a comprehensive and rigorous explanation. To delve deeper into the subject, we suggest reading the following authoritative texts: <a href="http://xbrlsite.azurewebsites.net/2021/essentials/EssentialsOfXBRLBasedDigitalFinancialReporting.pdf">Essentials of XBRL-based Digital Financial Reporting</a> and <a href="http://xbrl.squarespace.com/mastering-xbrl/">Mastering XBRL-based Digital Financial Reporting</a> by C. Hoffman.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2"><p>For visualization purpose we have omitted from the printed table below the variables (columns) <code>df_Facts$description</code> and <code>df_Facts$accn</code>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

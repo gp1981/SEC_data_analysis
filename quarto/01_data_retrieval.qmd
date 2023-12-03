@@ -50,7 +50,7 @@ Let's now select Apple Inc. by its CIK and retrieve its data from the SEC. The d
 
 ```{r company_selecte, eval=TRUE, warning=FALSE, message=FALSE, paged.print=TRUE}
 # Select Apple Inc. (AAPL) by CIK
-cik <- "0000320193"  # CIK for Apple Inc.
+cik <- "0001009829"  # CIK for Apple Inc.
 company_Data <- retrieve_Company_Data(headers, cik)
 
 # this the first row of the company list as a quick check

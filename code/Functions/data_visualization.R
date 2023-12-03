@@ -12,15 +12,11 @@ FactsList_to_Dataframe <- function(company_Facts_us_gaap) {
     unnest(cols = c(units)) %>%
     unnest(cols = c(units))
   
-  # Convert the val column to numeric
-  df_Facts$val <- as.numeric(df_Facts$val)
-
+  df_Facts <- as.data.frame(df_Facts)
+  
   # Mutate to reduce values in millions by dividing by 1 million
   df_Facts <- df_Facts %>%
-    mutate(
-      val = val / 1e6,
-      formatted_val = scales::comma(val, accuracy = 0.1)
-    )
+    mutate(val = val / 1e6)
   
   return(df_Facts)
 }
