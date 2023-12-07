@@ -85,115 +85,99 @@ bs_std <- function(df_Facts) {
   # Merge df_Facts with standardized_balancesheet
   df_std_BS <- df_Facts %>%
     left_join(standardized_balancesheet, by = "label") %>% 
-    select(standardized_balancesheet_label,everything(),-df_Fact_Description,)
+    select(standardized_balancesheet_label, everything(), -df_Fact_Description)
   
   # Filter out records not associated with standardized_balancesheet to create the mapping with df_Facts
   df_std_BS_map <- df_std_BS %>%
     filter(!is.na(standardized_balancesheet_label)) %>% 
-    select(standardized_balancesheet_label,label,description) %>% 
+    select(standardized_balancesheet_label, label, description) %>% 
     distinct()
   
   # Filter out records not associated with standardized_balancesheet to create the pivot
   df_std_BS <- df_std_BS %>%
     filter(!is.na(standardized_balancesheet_label)) %>% 
-    select(standardized_balancesheet_label,end,val,fy,fp,form,filed,start)
-  
+    select(standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
   
   # Pivot the data to the desired structure
-  # This function introduces a grouping by label, fy and fp and adds a logical column (has_form_A and has_form) to identify whether there is a row with /A and a row without /A for the same fy and fp. Rows without /A and with a corresponding row with /A will be filtered out. 
-  df_std_BS_test <- df_std_BS %>%
-    filter(!is.na(standardized_balancesheet_label)) %>% 
-    mutate(end = ymd(end), filed = ymd(filed)) %>%  # convert to date format
-    group_by(standardized_balancesheet_label, end) %>%
-    filter(filed == max(filed)) %>%  # filter rows with the most recent filing date
-    ungroup() %>%
-    select(standardized_balancesheet_label, end, val, fy, fp, form, filed, start) %>%
+  df_std_BS <- df_std_BS %>%
     pivot_wider(
       names_from = standardized_balancesheet_label,
       values_from = val
     ) %>%
     arrange(desc(end))
-  # <---- NEED TO CHECK STILL DUPLICATED ROW WITH 1 VARIABLE see 2020-12-31 NA ---->
-  # Perform the calculation for additional records in the balancesheet
+  
+  # <<---THIS BELOW TO BE MOVED UP BEFORE PITVOR_WIDER --->>>
+  # Identify and retain the row with the greatest value for "Preferred Stock" and filter out the rest
+  df_std_BS <- df_std_BS %>%
+    filter(!(standardized_balancesheet_label == "Preferred Stock" & duplicated(fy, fromLast = TRUE)))
+  
+  # Calculate values based on specified formulas
   df_std_BS <- df_std_BS %>%
     mutate(
-      'Total Long Term Assets' = ifelse(
-        !is.na('Total Long Term Assets'),
-        'Total Assets' - 'Total Current Assets',
-        NA_real_
-      )
-    )
-      
-      ,
-      'Other Current Assets' = ifelse(
-        !is.na('Total Current Assets') &
-          !is.na('Cash & Cash Equivalent') &
-          !is.na('Marketable Securities, Current') &
-          !is.na('Total Accounts Receivable') &
-          !is.na('Total Inventories'),
-        'Total Current Assets' - 
-          ('Cash & Cash Equivalent' + 
-             'Marketable Securities, Current' + 
-             'Total Accounts Receivable' + 
-             'Total Inventories'),
-        NA_real_
-      )
-  
-  ,
-      'Other Long Term Assets' = ifelse(
-        !is.na('Total Long Term Assets') &
-          !is.na('Marketable Securities, Non Current') &
-          !is.na('Property, Plant and Equipment') &
-          !is.na('Intangible Assets (excl. goodwill)') &
-          !is.na('Goodwill'),
-        'Total Long Term Assets' - 
-          ('Marketable Securities, Non Current' + 
-             'Property, Plant and Equipment' +
-             'Intangible Assets (excl. goodwill)' + 
-             'Goodwill'),
-        NA_real_
+      `Total Current Assets` = ifelse(
+        is.na(`Total Current Assets`) | `Total Current Assets` == 0,
+        `Total Assets` - `Total Long Term Assets`,
+        `Total Current Assets`
       ),
-      'Other Current Liabilities' = ifelse(
-        !is.na('Total Current Liabilities') &
-          !is.na('Accounts Payable') &
-          !is.na('Tax Payable') &
-          !is.na('Commercial papers') &
-          !is.na('Short-Term Debt') &
-          !is.na('Operating Lease, Liability, Current'),
-        'Total Current Liabilities' - 
-          ('Accounts Payable' + 'Tax Payable' + 
-             'Commercial papers' + 
-             'Short-Term Debt' +
-             'Operating Lease, Liability, Current'),
-        NA_real_
+      `Other Current Assets` = ifelse(
+        is.na(`Other Current Assets`) | `Other Current Assets` == 0,
+        `Total Current Assets` - (
+          `Cash & Cash Equivalent` + 
+            `Marketable Securities, Current` + 
+            `Total Accounts Receivable` + 
+            `Total Inventories`
+        ),
+        `Other Current Assets`
       ),
-      'Other Long Term Liabilities' = ifelse(
-        !is.na('Total Long Term Liabilities') &
-          !is.na('Long Term Debts') &
-          !is.na('Operating Lease, Liability, Non Current') &
-          !is.na('Finance Lease, Liability, Non Current'),
-        'Total Long Term Liabilities' -
-          ('Long Term Debts' + 
-             'Operating Lease, Liability, Non Current' + 
-             'Finance Lease, Liability, Non Current'),
-        NA_real_
+      `Total Long Term Assets` = ifelse(
+        is.na(`Total Long Term Assets`) | `Total Long Term Assets` == 0,
+        `Total Assets` - `Total Current Assets`,
+        `Total Long Term Assets`
       ),
-      'Other Company Stockholders Equity' = ifelse(
-        !is.na('Total Company Stockholders Equity') &
-          !is.na('Common Stock & Additional paid-in capital') &
-          !is.na('Common Stock, Value, Issued') &
-          !is.na('Additional Paid in Capital') &
-          !is.na('Preferred Stock') &
-          !is.na('Retained Earnings') &
-          !is.na('Accumulated other comprehensive income (loss)'),
-        'Total Company Stockholders Equity' -
-          ('Common Stock & Additional paid-in capital' + 
-             'Common Stock, Value, Issued' + 
-             'Additional Paid in Capital' + 
-             'Preferred Stock' + 
-             'Retained Earnings' +
-             'Accumulated other comprehensive income (loss)'),
-        NA_real_
+      `Other Non Current Assets` = ifelse(
+        is.na(`Other Non Current Assets`) | `Other Non Current Assets` == 0,
+        `Total Long Term Assets` - (
+          `Marketable Securities, Non Current` + 
+            `Property, Plant and Equipment` +
+            `Intangible Assets (excl. goodwill)` + 
+            `Goodwill`
+        ),
+        `Other Non Current Assets`
+      ),
+      `Total Current Liabilities` = ifelse(
+        is.na(`Total Current Liabilities`) | `Total Current Liabilities` == 0,
+        `Liabilities` - `Liabilities, Non Current`,
+        `Total Current Liabilities`
+      ),
+      `Other Current Liabilities` = ifelse(
+        is.na(`Other Current Liabilities`) | `Other Current Liabilities` == 0,
+        `Total Current Liabilities` - (
+          `Accounts Payable, Current` + `Taxes Payable, Current` +
+            `Commercial Paper` + `Long Term Debt, Current Maturities` +
+            `Operating Lease, Liability, Current` + `Finance Lease, Liability, Current`
+        ),
+        `Other Current Liabilities`
+      ),
+      `Total Long Term Liabilities` = ifelse(
+        is.na(`Total Long Term Liabilities`) | `Total Long Term Liabilities` == 0,
+        `Total Liabilities` - `Total Current Liabilities`,
+        `Total Long Term Liabilities`
+      ),
+      `Other Long Term Liabilities` = ifelse(
+        is.na(`Other Long Term Liabilities`) | `Other Long Term Liabilities` == 0,
+        `Total Long Term Liabilities` - (
+          `Long Term Debts` + `Operating Lease, Liability, Non Current` +
+            `Finance Lease, Liability, Non Current`
+        ),
+        `Other Long Term Liabilities`
+      ),
+      `Other Stockholders Equity` = ifelse(
+        is.na(`Other Stockholders Equity`) | `Other Stockholders Equity` == 0,
+        `Total Company Stockholders Equity` - (
+          `Common Stock` + `Additional Paid in Capital` + `Preferred Stock` +
+            `Retained Earnings` + `Accumulated other comprehensive income (loss)`
+        ),
+        `Other Stockholders Equity`
       )
     )
   
@@ -206,7 +190,8 @@ bs_std <- function(df_Facts) {
   # Reorder columns for better readability
   df_std_BS <- df_std_BS[, c("end", "fy", "fp", "form", column_order)]
   
- return(df_std_BS)
+  return(df_std_BS)
 }
+
 
 

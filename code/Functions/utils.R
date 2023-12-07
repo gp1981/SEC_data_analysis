@@ -4,6 +4,15 @@
 
 # Import required libraries
 library(tidyverse)
+library(purrr)
 
-
-
+# Function to unnest a list
+unnest_list <- function(x) {
+  purrr::map(x, ~{
+    if (is.list(.x)) {
+      unnest_list(.x)
+    } else {
+      .x
+    }
+  })
+}
