@@ -93,104 +93,37 @@ bs_std <- function(df_Facts) {
     select(standardized_balancesheet_label, label, description) %>% 
     distinct()
   
-  # Filter out records not associated with standardized_balancesheet to create the pivot
+  # Clean up the df_std_BS by retaining the latest amended financials with form e.g. "10K/A"
+  df_std_BS <- df_std_BS %>%
+    group_by(fy, fp, label) %>%
+    arrange(desc(end)) %>%
+    mutate(
+      has_form_A = any(grepl("/A$", form))
+    ) %>%
+    filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
+    select(-has_form_A) %>%
+    ungroup() %>%
+    select(-label, -description, standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
+  
+  
   df_std_BS <- df_std_BS %>%
     filter(!is.na(standardized_balancesheet_label)) %>% 
+    mutate(end = ymd(end), filed = ymd(filed)) %>%  # convert to date format
+    group_by(standardized_balancesheet_label, end) %>%
+    filter(filed == max(filed)) %>%  # filter rows with the most recent filing date
+    ungroup() %>%
     select(standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
   
-  # Pivot the data to the desired structure
-  df_std_BS <- df_std_BS %>%
+  
+  # Build df_std_BS dataframe pivoting the standardized labels into columns
+  df_std_BS_pivoted <- df_std_BS%>%
     pivot_wider(
       names_from = standardized_balancesheet_label,
       values_from = val
     ) %>%
     arrange(desc(end))
   
-  # <<---THIS BELOW TO BE MOVED UP BEFORE PITVOR_WIDER --->>>
-  # Identify and retain the row with the greatest value for "Preferred Stock" and filter out the rest
-  df_std_BS <- df_std_BS %>%
-    filter(!(standardized_balancesheet_label == "Preferred Stock" & duplicated(fy, fromLast = TRUE)))
-  
-  # Calculate values based on specified formulas
-  df_std_BS <- df_std_BS %>%
-    mutate(
-      `Total Current Assets` = ifelse(
-        is.na(`Total Current Assets`) | `Total Current Assets` == 0,
-        `Total Assets` - `Total Long Term Assets`,
-        `Total Current Assets`
-      ),
-      `Other Current Assets` = ifelse(
-        is.na(`Other Current Assets`) | `Other Current Assets` == 0,
-        `Total Current Assets` - (
-          `Cash & Cash Equivalent` + 
-            `Marketable Securities, Current` + 
-            `Total Accounts Receivable` + 
-            `Total Inventories`
-        ),
-        `Other Current Assets`
-      ),
-      `Total Long Term Assets` = ifelse(
-        is.na(`Total Long Term Assets`) | `Total Long Term Assets` == 0,
-        `Total Assets` - `Total Current Assets`,
-        `Total Long Term Assets`
-      ),
-      `Other Non Current Assets` = ifelse(
-        is.na(`Other Non Current Assets`) | `Other Non Current Assets` == 0,
-        `Total Long Term Assets` - (
-          `Marketable Securities, Non Current` + 
-            `Property, Plant and Equipment` +
-            `Intangible Assets (excl. goodwill)` + 
-            `Goodwill`
-        ),
-        `Other Non Current Assets`
-      ),
-      `Total Current Liabilities` = ifelse(
-        is.na(`Total Current Liabilities`) | `Total Current Liabilities` == 0,
-        `Liabilities` - `Liabilities, Non Current`,
-        `Total Current Liabilities`
-      ),
-      `Other Current Liabilities` = ifelse(
-        is.na(`Other Current Liabilities`) | `Other Current Liabilities` == 0,
-        `Total Current Liabilities` - (
-          `Accounts Payable, Current` + `Taxes Payable, Current` +
-            `Commercial Paper` + `Long Term Debt, Current Maturities` +
-            `Operating Lease, Liability, Current` + `Finance Lease, Liability, Current`
-        ),
-        `Other Current Liabilities`
-      ),
-      `Total Long Term Liabilities` = ifelse(
-        is.na(`Total Long Term Liabilities`) | `Total Long Term Liabilities` == 0,
-        `Total Liabilities` - `Total Current Liabilities`,
-        `Total Long Term Liabilities`
-      ),
-      `Other Long Term Liabilities` = ifelse(
-        is.na(`Other Long Term Liabilities`) | `Other Long Term Liabilities` == 0,
-        `Total Long Term Liabilities` - (
-          `Long Term Debts` + `Operating Lease, Liability, Non Current` +
-            `Finance Lease, Liability, Non Current`
-        ),
-        `Other Long Term Liabilities`
-      ),
-      `Other Stockholders Equity` = ifelse(
-        is.na(`Other Stockholders Equity`) | `Other Stockholders Equity` == 0,
-        `Total Company Stockholders Equity` - (
-          `Common Stock` + `Additional Paid in Capital` + `Preferred Stock` +
-            `Retained Earnings` + `Accumulated other comprehensive income (loss)`
-        ),
-        `Other Stockholders Equity`
-      )
-    )
-  
-  # Reorder columns dynamically based on the order in standardized_balancesheet
-  column_order <- standardized_balancesheet$standardized_balancesheet_label
-  
-  # Check if each column in column_order exists in df_std_BS, if not, remove it from the order
-  column_order <- column_order[column_order %in% colnames(df_std_BS)]
-  
-  # Reorder columns for better readability
-  df_std_BS <- df_std_BS[, c("end", "fy", "fp", "form", column_order)]
-  
-  return(df_std_BS)
+  return(df_std_BS_pivoted)
 }
 
 
