@@ -87,14 +87,42 @@ bs_std <- function(df_Facts) {
     left_join(standardized_balancesheet, by = "label") %>% 
     select(standardized_balancesheet_label, everything(), -df_Fact_Description)
   
+  # For the same "fy", "fp", we need to add to df_std_BS the following rows before the pivot_wider:
+  #   
+  #   new row: if Total Current Assets does not exist then it creates a new row whose val is Total Assets - Total Long Term Assets and standardized_balancesheet_label is Total Current Assets
+  # 
+  # new row: if Other Current Assets does not exist then it creates a new row whose val is Total Current Assets - (Cash and Cash Equivalent + Marketable Securities, Current  + Total Accounts Receivable + Total Inventory) and standardized_balancesheet_label is Other Current Assets 
+  # 
+  # new row: if Total Long Term Assets does not exist then it creates a new row whose val is  val of Total Assets - val of Total Current Assets and standardized_balancesheet_label is Total Long Term Assets
+  # 
+  # new row: if Other Non Current Assets  does not exist then it creates a new row whose val is val of  Total Long Term Assets - val of (Marketable Securities, Non Current + Property, Plant and Equipment+ Intangible Assets (excl. goodwill) + Goodwill) and standardized_balancesheet_label is Other Non Current Assets 
+  # 
+  # new row: if Total Current Liabilities  does not exist then it creates a new row whose val is  val of Liabilities - val of Liabilities, Non Current and standardized_balancesheet_label is Total Current Liabilities 
+  # 
+  # new row: if Other Current Liabilities does not exist then it creates a new row whose val is val of  Total Current Liabilities - val of  (Accounts Payable, Current + Taxes Payable, Current + Commercial Paper + Long Term Debt, Current Maturities + Operating Lease, Liability, Current + Finance Lease, Liability, Current) and standardized_balancesheet_label is  Other Current Liabilities
+  # 
+  # new row: if Total Long Term Liabilities does not exist then it creates a new row whose val is  val of Total Liabilities - val of Total Current Liabilities and standardized_balancesheet_label is  Total Long Term Liabilities
+  # 
+  # 
+  # new row: if Other Long Term Liabilities does not exist then it creates a new row whose val is val of  Total Long Term Liabilities - val of (Long Term Debts - Operating Lease, Liability, Non Current + Finance Lease, Liability, Non Current and standardized_balancesheet_label is  Other Long Term Liabilities 
+  #                                                                                                                                             
+  #                                                                                                                                             new row: if Other Stockholders Equity does not exist then it creates a new row whose val is val of   Total Company Stockholders Equity - val of  (Common Stock + Additional Paid in Capital + Preferred Stock + Retained Earnings + Accumulated other comprehensive income (loss)) and standardized_balancesheet_label is  Other Stockholders Equity 
+  
+  
   # Filter out records not associated with standardized_balancesheet to create the mapping with df_Facts
   df_std_BS_map <- df_std_BS %>%
     filter(!is.na(standardized_balancesheet_label)) %>% 
     select(standardized_balancesheet_label, label, description) %>% 
     distinct()
   
+<<<<<<< HEAD
   # Clean up the df_std_BS by retaining the latest amended financials with form e.g. "10K/A"
   df_std_BS <- df_std_BS %>%
+=======
+  # 01 - Clean up df_std_BS ---------------------------------------------------
+  # Clean up the df_std_BS by retaining the latest amended financials with form e.g. "10K/A"
+  df_std_BS_cleaned <- df_std_BS_combined %>%
+>>>>>>> ef217ec8898904c66a13c0cc2a36aa59a38ca2bf
     group_by(fy, fp, label) %>%
     arrange(desc(end)) %>%
     mutate(
@@ -104,6 +132,7 @@ bs_std <- function(df_Facts) {
     select(-has_form_A) %>%
     ungroup() %>%
     select(-label, -description, standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
+<<<<<<< HEAD
   
   
   df_std_BS <- df_std_BS %>%
@@ -117,6 +146,12 @@ bs_std <- function(df_Facts) {
   
   # Build df_std_BS dataframe pivoting the standardized labels into columns
   df_std_BS_pivoted <- df_std_BS%>%
+=======
+  
+  # 02 - Pivot columns of df_std_BS ---------------------------------------------------
+  # Build df_std_BS dataframe pivoting the standardized labels into columns
+  df_std_BS_pivoted <- df_std_BS_cleaned %>%
+>>>>>>> ef217ec8898904c66a13c0cc2a36aa59a38ca2bf
     pivot_wider(
       names_from = standardized_balancesheet_label,
       values_from = val
