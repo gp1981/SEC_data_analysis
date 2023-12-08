@@ -115,14 +115,8 @@ bs_std <- function(df_Facts) {
     select(standardized_balancesheet_label, label, description) %>% 
     distinct()
   
-<<<<<<< HEAD
   # Clean up the df_std_BS by retaining the latest amended financials with form e.g. "10K/A"
   df_std_BS <- df_std_BS %>%
-=======
-  # 01 - Clean up df_std_BS ---------------------------------------------------
-  # Clean up the df_std_BS by retaining the latest amended financials with form e.g. "10K/A"
-  df_std_BS_cleaned <- df_std_BS_combined %>%
->>>>>>> ef217ec8898904c66a13c0cc2a36aa59a38ca2bf
     group_by(fy, fp, label) %>%
     arrange(desc(end)) %>%
     mutate(
@@ -132,8 +126,6 @@ bs_std <- function(df_Facts) {
     select(-has_form_A) %>%
     ungroup() %>%
     select(-label, -description, standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
-<<<<<<< HEAD
-  
   
   df_std_BS <- df_std_BS %>%
     filter(!is.na(standardized_balancesheet_label)) %>% 
@@ -146,13 +138,11 @@ bs_std <- function(df_Facts) {
   
   # Build df_std_BS dataframe pivoting the standardized labels into columns
   df_std_BS_pivoted <- df_std_BS%>%
-=======
   
   # 02 - Pivot columns of df_std_BS ---------------------------------------------------
   # Build df_std_BS dataframe pivoting the standardized labels into columns
   df_std_BS_pivoted <- df_std_BS_cleaned %>%
->>>>>>> ef217ec8898904c66a13c0cc2a36aa59a38ca2bf
-    pivot_wider(
+   pivot_wider(
       names_from = standardized_balancesheet_label,
       values_from = val
     ) %>%
