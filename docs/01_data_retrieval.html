@@ -182,6 +182,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Explore data retrieved from SEC</span></a>
   </div>
 </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Financial Analysis</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03_data_analysis.html" class="sidebar-item-text sidebar-link">
@@ -195,23 +206,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
 </li>
           <li class="sidebar-item">
- <span class="menu-text">05_advanced_topics.qmd</span>
-  </li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
- <span class="menu-text"><strong>Fundamental Analysis</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./11_AAPL.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Apple Inc (AAPL)</span></a>
+  <a href="./05_advanced_topics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Advanced Topics</span></a>
   </div>
 </li>
       </ul>
@@ -219,12 +216,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
- <span class="menu-text"><strong>Appendix A - R script and functions</strong></span></a>
+ <span class="menu-text"><strong>Real Case: AAPL</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_JAKK.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">JAKKS Pacific, Inc.&nbsp;(JAKK)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Appendix A - R script and functions</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./A1_main_script.html" class="sidebar-item-text sidebar-link">
@@ -260,7 +274,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#sec-user-headers" id="toc-sec-user-headers" class="nav-link" data-scroll-target="#sec-user-headers">Define User Headers</a></li>
   </ul></li>
   <li><a href="#sec-company-list" id="toc-sec-company-list" class="nav-link" data-scroll-target="#sec-company-list">Retrieve Company List</a></li>
-  <li><a href="#selecting-a-company-apple-inc.-aapl" id="toc-selecting-a-company-apple-inc.-aapl" class="nav-link" data-scroll-target="#selecting-a-company-apple-inc.-aapl">Selecting a Company: Apple Inc.&nbsp;(AAPL)</a></li>
+  <li><a href="#selecting-a-company-jakks-pacific-inc.-aapl" id="toc-selecting-a-company-jakks-pacific-inc.-aapl" class="nav-link" data-scroll-target="#selecting-a-company-jakks-pacific-inc.-aapl">Selecting a Company: JAKKS Pacific Inc.&nbsp;(AAPL)</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -290,7 +304,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="sec-retrieve-data" class="level2">
 <h2 class="anchored" data-anchor-id="sec-retrieve-data">Retrieve Data from SEC</h2>
-<p>In this example, we will focus on one company, Apple Inc.&nbsp;(AAPL), as the target for our data retrieval.</p>
+<p>In this example, we will focus on one company, JAKKS Pacific Inc.&nbsp;(AAPL), as the target for our data retrieval.</p>
 <section id="sec-user-headers" class="level3">
 <h3 class="anchored" data-anchor-id="sec-user-headers">Define User Headers</h3>
 <p>To access the SEC API, we need to define user headers. These headers will be used for making HTTP requests to the SEC servers. We can set our user agent as an example:</p>
@@ -387,15 +401,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 </section>
-<section id="selecting-a-company-apple-inc.-aapl" class="level2">
-<h2 class="anchored" data-anchor-id="selecting-a-company-apple-inc.-aapl">Selecting a Company: Apple Inc.&nbsp;(AAPL)</h2>
-<p>For our analysis, we’ll use Apple Inc.&nbsp;(AAPL) as the company of interest. The CIK for Apple Inc.&nbsp;is 0000320193.</p>
-<p>Let’s now select Apple Inc.&nbsp;by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the <code>company_Data</code> object for further analysis:</p>
+<section id="selecting-a-company-jakks-pacific-inc.-aapl" class="level2">
+<h2 class="anchored" data-anchor-id="selecting-a-company-jakks-pacific-inc.-aapl">Selecting a Company: JAKKS Pacific Inc.&nbsp;(AAPL)</h2>
+<p>For our analysis, we’ll use JAKKS Pacific Inc.&nbsp;(AAPL) as the company of interest. The CIK for JAKKS Pacific Inc.&nbsp;is 0000320193.</p>
+<p>Let’s now select JAKKS Pacific Inc.&nbsp;by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the <code>company_Data</code> object for further analysis:</p>
 <div class="cell" data-paged.print="true">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select Apple Inc. (AAPL) by CIK</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="st">"0001009829"</span>  <span class="co"># CIK for Apple Inc.</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select JAKKS Pacific Inc. (AAPL) by CIK</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="st">"0001009829"</span>  <span class="co"># CIK for JAKKS Pacific Inc.</span></span>
 <span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">retrieve_Company_Data</span>(headers, cik)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># this the first row of the company list as a quick check</span></span>
@@ -424,7 +438,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 </div>
 </div>
-<p>By following these steps, we’ve imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for Apple Inc.</p>
+<p>By following these steps, we’ve imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for JAKKS Pacific Inc.</p>
 <p>Before we move to the next chapter we save the files.</p>
 <div class="cell">
 <details>

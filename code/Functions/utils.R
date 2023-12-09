@@ -16,4 +16,3 @@ unnest_list <- function(x) {
     }
   })
 }
-

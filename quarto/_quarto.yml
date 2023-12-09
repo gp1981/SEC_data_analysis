@@ -20,12 +20,14 @@ website:
           - index.qmd
           - 01_data_retrieval.qmd
           - 02_data_exploration.qmd
+      - section: "**Financial Analysis**"
+        contents: 
           - 03_data_analysis.qmd
           - 04_data_visualization.qmd
           - 05_advanced_topics.qmd
-      - section: "**Fundamental Analysis**"
+      - section: "**Real Case: AAPL**"
         contents: 
-          - 11_AAPL.qmd
+          - 11_JAKK.qmd
       - section: "**Appendix A - R script and functions**"
         contents: 
           - A1_main_script.qmd

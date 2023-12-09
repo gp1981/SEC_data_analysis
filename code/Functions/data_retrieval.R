@@ -87,6 +87,95 @@ bs_std <- function(df_Facts) {
     left_join(standardized_balancesheet, by = "label") %>% 
     select(standardized_balancesheet_label, everything(), -df_Fact_Description)
   
+  # 01 - Data cleaning ------------------------------------------------------
+  # This code filters rows in df_std_BS based on the presence of "/A" in the 'form' column, ensuring rows with "/A" are retained if any in their group have it. It then selects relevant columns, arranges by descending 'end' date, and for each unique 'val', keeps the row with the most recent 'end' date.
+  
+  df_std_BS <- df_std_BS %>%
+    # Filter out rows without standardized_balancesheet_label
+    filter(!is.na(standardized_balancesheet_label)) %>% 
+    # Group by fiscal year (fy), fiscal period (fp), and label
+    group_by(fy, fp, label) %>%
+    # Arrange by descending end date within each group
+    arrange(desc(end)) %>%
+    # Add a column indicating if any row in the group has a form ending with /A
+    mutate(
+      has_form_A = any(grepl("/A$", form))
+    ) %>%
+    # Filter rows based on the condition:
+    # - Retain rows without /A
+    # - Retain rows with /A if there's at least one row with /A in the group
+    filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
+    # Remove the temporary column
+    select(-has_form_A) %>%
+    # Select relevant columns
+    select(standardized_balancesheet_label, end, val, fy, fp, form, filed, start) %>%
+    # Arrange by descending end date
+    arrange(desc(end)) %>% 
+    # Remove grouping
+    ungroup() %>% 
+    # Remove column label
+    select(-label) %>%
+    # Group by val and arrange by descending end date within each group
+    group_by(val) %>%
+    arrange(desc(end)) %>%
+    # Retain only the first row within each group
+    slice_head(n = 1) %>%
+    # Remove grouping
+    ungroup()
+
+  # Ensures that for each standardized_balancesheet_label and end combination, only the row with the most recent filing date is retained
+  
+  # Clear the dataframe with the most recent form for each end period
+  df_std_BS <- df_std_BS %>%
+    # Filter out rows without standardized_balancesheet_label
+    filter(!is.na(standardized_balancesheet_label)) %>% 
+    # Convert 'end' and 'filed' columns to date format using lubridate (ymd function)
+    mutate(end = ymd(end), filed = ymd(filed)) %>%
+    # Group by standardized_balancesheet_label and end date
+    group_by(standardized_balancesheet_label, end) %>%
+    # Filter rows with the most recent filing date within each group
+    filter(filed == max(filed)) %>%
+    # Remove grouping to perform further operations
+    ungroup() %>%
+    # Select relevant columns
+    select(standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
+  
+  # 02 - Mapping with df_Facts--------------------------------------------------------------
+  # Creates a mapping (df_std_BS_map) by matching standardized_balancesheet_label from df_std_BS with the corresponding description from df_Facts.
+  
+  # Create a map with df_Facts
+  df_std_BS_map <- df_std_BS %>%
+    # Select the standardized_balancesheet_label column
+    select(standardized_balancesheet_label) %>% 
+    # Rename the column to 'label'
+    rename(label = standardized_balancesheet_label) %>% 
+    # Perform a left join with df_Facts using the 'label' column
+    left_join(df_Facts, by = "label") %>%
+    # Rename the 'label' column back to 'standardized_balancesheet_label'
+    rename(standardized_balancesheet_label = label) %>%
+    # Select columns for mapping
+    select(standardized_balancesheet_label, description) %>% 
+    # Retain distinct combinations
+    distinct()
+  
+  # 03 - Pivot df_std_BS in a dataframe format -----------------------------------
+  # Transforms your data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
+  
+  # Build df_std_BS dataframe pivoting the standardized labels into columns
+  df_std_BS <- df_std_BS %>%
+    # Pivot the data using standardized_balancesheet_label as column names
+    pivot_wider(
+      names_from = standardized_balancesheet_label,
+      values_from = val
+    ) %>%
+    # Arrange the dataframe in descending order based on the 'end' column
+    arrange(desc(end))
+  
+  # >>>---- CONTINUE HERE - CHECK RESULTS ----<<<<<
+  # There are instances in which the filing includes comparison with previous reporting period. In such instances additional details of the previous reporting period are included. The following code merge the row with referring to the same period end where these additional details are provided.
+  
+  # 04 - Add missing columns (Facts) ----------------------------------------
+  
   # For the same "fy", "fp", we need to add to df_std_BS the following rows before the pivot_wider:
   #   
   #   new row: if Total Current Assets does not exist then it creates a new row whose val is Total Assets - Total Long Term Assets and standardized_balancesheet_label is Total Current Assets
@@ -105,50 +194,10 @@ bs_std <- function(df_Facts) {
   # 
   # 
   # new row: if Other Long Term Liabilities does not exist then it creates a new row whose val is val of  Total Long Term Liabilities - val of (Long Term Debts - Operating Lease, Liability, Non Current + Finance Lease, Liability, Non Current and standardized_balancesheet_label is  Other Long Term Liabilities 
-  #                                                                                                                                             
-  #                                                                                                                                             new row: if Other Stockholders Equity does not exist then it creates a new row whose val is val of   Total Company Stockholders Equity - val of  (Common Stock + Additional Paid in Capital + Preferred Stock + Retained Earnings + Accumulated other comprehensive income (loss)) and standardized_balancesheet_label is  Other Stockholders Equity 
+  #
+  # new row: if Other Stockholders Equity does not exist then it creates a new row whose val is val of   Total Company Stockholders Equity - val of  (Common Stock + Additional Paid in Capital + Preferred Stock + Retained Earnings + Accumulated other comprehensive income (loss)) and standardized_balancesheet_label is  Other Stockholders Equity   
   
-  
-  # Filter out records not associated with standardized_balancesheet to create the mapping with df_Facts
-  df_std_BS_map <- df_std_BS %>%
-    filter(!is.na(standardized_balancesheet_label)) %>% 
-    select(standardized_balancesheet_label, label, description) %>% 
-    distinct()
-  
-  # Clean up the df_std_BS by retaining the latest amended financials with form e.g. "10K/A"
-  df_std_BS <- df_std_BS %>%
-    group_by(fy, fp, label) %>%
-    arrange(desc(end)) %>%
-    mutate(
-      has_form_A = any(grepl("/A$", form))
-    ) %>%
-    filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
-    select(-has_form_A) %>%
-    ungroup() %>%
-    select(-label, -description, standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
-  
-  df_std_BS <- df_std_BS %>%
-    filter(!is.na(standardized_balancesheet_label)) %>% 
-    mutate(end = ymd(end), filed = ymd(filed)) %>%  # convert to date format
-    group_by(standardized_balancesheet_label, end) %>%
-    filter(filed == max(filed)) %>%  # filter rows with the most recent filing date
-    ungroup() %>%
-    select(standardized_balancesheet_label, end, val, fy, fp, form, filed, start)
-  
-  
-  # Build df_std_BS dataframe pivoting the standardized labels into columns
-  df_std_BS_pivoted <- df_std_BS%>%
-  
-  # 02 - Pivot columns of df_std_BS ---------------------------------------------------
-  # Build df_std_BS dataframe pivoting the standardized labels into columns
-  df_std_BS_pivoted <- df_std_BS_cleaned %>%
-   pivot_wider(
-      names_from = standardized_balancesheet_label,
-      values_from = val
-    ) %>%
-    arrange(desc(end))
-  
-  return(df_std_BS_pivoted)
+  return(df_std_BS)
 }
 
 

@@ -100,9 +100,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </script>
 <script async="" src="https://hypothes.is/embed.js"></script>
 
-<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
-<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
-
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -185,6 +182,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  <span class="menu-text">Explore data retrieved from SEC</span></a>
   </div>
 </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Financial Analysis</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03_data_analysis.html" class="sidebar-item-text sidebar-link">
@@ -198,23 +206,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </div>
 </li>
           <li class="sidebar-item">
- <span class="menu-text">05_advanced_topics.qmd</span>
-  </li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
- <span class="menu-text"><strong>Fundamental Analysis</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./11_AAPL.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Apple Inc (AAPL)</span></a>
+  <a href="./05_advanced_topics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Advanced Topics</span></a>
   </div>
 </li>
       </ul>
@@ -222,12 +216,29 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
- <span class="menu-text"><strong>Appendix A - R script and functions</strong></span></a>
+ <span class="menu-text"><strong>Real Case: AAPL</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_JAKK.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">JAKKS Pacific, Inc.&nbsp;(JAKK)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Appendix A - R script and functions</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./A1_main_script.html" class="sidebar-item-text sidebar-link">
@@ -257,7 +268,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#structure-of-the-sec-data-xbrl" id="toc-structure-of-the-sec-data-xbrl" class="nav-link" data-scroll-target="#structure-of-the-sec-data-xbrl">Structure of the SEC data: XBRL</a>
   <ul class="collapse">
   <li><a href="#understanding-the-dataset-company_data" id="toc-understanding-the-dataset-company_data" class="nav-link" data-scroll-target="#understanding-the-dataset-company_data">Understanding the dataset: <code>company_Data</code></a></li>
-  <li><a href="#rebuilding-the-financial-reports" id="toc-rebuilding-the-financial-reports" class="nav-link" data-scroll-target="#rebuilding-the-financial-reports">Rebuilding the financial reports</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -353,27 +363,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 22
- $ cik                              : chr "320193"
+ $ cik                              : chr "1009829"
  $ entityType                       : chr "operating"
- $ sic                              : chr "3571"
- $ sicDescription                   : chr "Electronic Computers"
+ $ sic                              : chr "3944"
+ $ sicDescription                   : chr "Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)"
  $ insiderTransactionForOwnerExists : int 0
  $ insiderTransactionForIssuerExists: int 1
- $ name                             : chr "Apple Inc."
- $ tickers                          : chr "AAPL"
- $ exchanges                        : chr "Nasdaq"
- $ ein                              : chr "942404110"
+ $ name                             : chr "JAKKS PACIFIC INC"
+ $ tickers                          : chr [1:2] "JAKK" "JAKP"
+ $ exchanges                        : chr [1:2] "Nasdaq" "OTC"
+ $ ein                              : chr "954527222"
  $ description                      : chr ""
  $ website                          : chr ""
  $ investorWebsite                  : chr ""
- $ category                         : chr "Large accelerated filer"
- $ fiscalYearEnd                    : chr "0928"
- $ stateOfIncorporation             : chr "CA"
- $ stateOfIncorporationDescription  : chr "CA"
+ $ category                         : chr "Non-accelerated filer&lt;br&gt;Smaller reporting company"
+ $ fiscalYearEnd                    : chr "1231"
+ $ stateOfIncorporation             : chr "DE"
+ $ stateOfIncorporationDescription  : chr "DE"
  $ addresses                        :List of 2
- $ phone                            : chr "(408) 996-1010"
+ $ phone                            : chr "424-268-9444"
  $ flags                            : chr ""
- $ formerNames                      :'data.frame':  3 obs. of  3 variables:
+ $ formerNames                      : list()
  $ filings                          :List of 2</code></pre>
 </div>
 </div>
@@ -387,25 +397,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 2
  $ recent:List of 14
-  ..$ accessionNumber      : chr [1:1000] "0000320193-23-000113" "0000320193-23-000111" "0000320193-23-000109" "0000320193-23-000106" ...
-  ..$ filingDate           : chr [1:1000] "2023-12-01" "2023-11-20" "2023-11-14" "2023-11-03" ...
-  ..$ reportDate           : chr [1:1000] "2023-11-29" "2023-11-16" "2023-11-10" "2023-09-30" ...
-  ..$ acceptanceDateTime   : chr [1:1000] "2023-12-01T18:32:18.000Z" "2023-11-20T18:31:21.000Z" "2023-11-14T18:31:09.000Z" "2023-11-02T18:08:27.000Z" ...
-  ..$ act                  : chr [1:1000] "" "" "" "34" ...
-  ..$ form                 : chr [1:1000] "4" "4" "4" "10-K" ...
-  ..$ fileNumber           : chr [1:1000] "" "" "" "001-36743" ...
-  ..$ filmNumber           : chr [1:1000] "" "" "" "231373899" ...
+  ..$ accessionNumber      : chr [1:1000] "0001185185-23-001232" "0001185185-23-001194" "0001185185-23-001154" "0001185185-23-001142" ...
+  ..$ filingDate           : chr [1:1000] "2023-11-22" "2023-11-14" "2023-11-09" "2023-11-03" ...
+  ..$ reportDate           : chr [1:1000] "2023-11-20" "2023-09-30" "" "2023-12-15" ...
+  ..$ acceptanceDateTime   : chr [1:1000] "2023-11-22T08:00:21.000Z" "2023-11-14T15:37:25.000Z" "2023-11-08T18:02:08.000Z" "2023-11-03T16:53:20.000Z" ...
+  ..$ act                  : chr [1:1000] "" "34" "34" "34" ...
+  ..$ form                 : chr [1:1000] "4" "10-Q" "DEFR14A" "DEF 14A" ...
+  ..$ fileNumber           : chr [1:1000] "" "001-35448" "001-35448" "001-35448" ...
+  ..$ filmNumber           : chr [1:1000] "" "231405279" "231389465" "231377115" ...
   ..$ items                : chr [1:1000] "" "" "" "" ...
-  ..$ size                 : int [1:1000] 4600 8165 5066 9569569 450675 16029 4875 8889 6090 5310 ...
-  ..$ isXBRL               : int [1:1000] 0 0 0 1 1 0 0 0 0 0 ...
-  ..$ isInlineXBRL         : int [1:1000] 0 0 0 1 1 0 0 0 0 0 ...
-  ..$ primaryDocument      : chr [1:1000] "xslF345X05/wk-form4_1701473530.xml" "xslF345X05/wk-form4_1700523067.xml" "xslF345X05/wk-form4_1700004649.xml" "aapl-20230930.htm" ...
-  ..$ primaryDocDescription: chr [1:1000] "FORM 4" "FORM 4" "FORM 4" "10-K" ...
+  ..$ size                 : int [1:1000] 9905 6541114 885640 871257 872244 6302419 861605 179689 5468658 147552 ...
+  ..$ isXBRL               : int [1:1000] 0 1 0 0 1 1 1 1 1 0 ...
+  ..$ isInlineXBRL         : int [1:1000] 0 1 0 0 1 1 1 1 1 0 ...
+  ..$ primaryDocument      : chr [1:1000] "xslF345X05/ownership.xml" "jakkspacif20230930_10q.htm" "jakkspacif20231107_defr14a.htm" "jakkspacif20231102_def14a.htm" ...
+  ..$ primaryDocDescription: chr [1:1000] "" "FORM 10-Q" "FORM DEFR14A" "FORM DEF 14A" ...
  $ files :'data.frame': 1 obs. of  4 variables:
-  ..$ name       : chr "CIK0000320193-submissions-001.json"
-  ..$ filingCount: int 1009
-  ..$ filingFrom : chr "1994-01-26"
-  ..$ filingTo   : chr "2013-04-23"</code></pre>
+  ..$ name       : chr "CIK0001009829-submissions-001.json"
+  ..$ filingCount: int 123
+  ..$ filingFrom : chr "1996-06-07"
+  ..$ filingTo   : chr "2002-09-29"</code></pre>
 </div>
 </div>
 <p>The format of the dataset as printed is not very useful. We see that there are useful information on the forms (e.g.&nbsp;10K) and dates (e.g.&nbsp;filing dates).</p>
@@ -422,8 +432,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 3
- $ cik       : int 320193
- $ entityName: chr "Apple Inc."
+ $ cik       : int 1009829
+ $ entityName: chr "JAKKS Pacific, Inc."
  $ facts     :List of 2</code></pre>
 </div>
 </div>
@@ -437,7 +447,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 2
  $ dei    :List of 2
- $ us-gaap:List of 498</code></pre>
+ $ us-gaap:List of 487</code></pre>
 </div>
 </div>
 <p>The <strong><code>us-gaap</code></strong> list includes relevant Facts, containing 498 nested elements. Let’s examine the first five.</p>
@@ -449,11 +459,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 5
- $ AccountsPayable             :List of 3
- $ AccountsPayableCurrent      :List of 3
- $ AccountsReceivableNetCurrent:List of 3
- $ AccruedIncomeTaxesCurrent   :List of 3
- $ AccruedIncomeTaxesNoncurrent:List of 3</code></pre>
+ $ AccountsPayableCurrent        :List of 3
+ $ AccountsReceivableNetCurrent  :List of 3
+ $ AccruedAdvertisingCurrent     :List of 3
+ $ AccruedBonusesCurrent         :List of 3
+ $ AccruedEmployeeBenefitsCurrent:List of 3</code></pre>
 </div>
 </div>
 <p>These elements include essential fundamentals of the company and are themselves nested lists. Let’s explore the structure of the first one.</p>
@@ -465,19 +475,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 1
- $ AccountsPayable:List of 3
-  ..$ label      : chr "Accounts Payable (Deprecated 2009-01-31)"
+ $ AccountsPayableCurrent:List of 3
+  ..$ label      : chr "Accounts Payable, Current"
   ..$ description: chr "Carrying value as of the balance sheet date of liabilities incurred (and for which invoices have typically been"| __truncated__
   ..$ units      :List of 1
-  .. ..$ USD:'data.frame':  2 obs. of  8 variables:
-  .. .. ..$ end  : chr [1:2] "2008-09-27" "2009-06-27"
-  .. .. ..$ val  : num [1:2] 5.52e+09 4.85e+09
-  .. .. ..$ accn : chr [1:2] "0001193125-09-153165" "0001193125-09-153165"
-  .. .. ..$ fy   : int [1:2] 2009 2009
-  .. .. ..$ fp   : chr [1:2] "Q3" "Q3"
-  .. .. ..$ form : chr [1:2] "10-Q" "10-Q"
-  .. .. ..$ filed: chr [1:2] "2009-07-22" "2009-07-22"
-  .. .. ..$ frame: chr [1:2] "CY2008Q3I" "CY2009Q2I"</code></pre>
+  .. ..$ USD:'data.frame':  102 obs. of  8 variables:
+  .. .. ..$ end  : chr [1:102] "2010-12-31" "2010-12-31" "2010-12-31" "2011-06-30" ...
+  .. .. ..$ val  : int [1:102] 35886000 35886000 35886000 51537000 85352000 26430000 26430000 26430000 26430000 26430000 ...
+  .. .. ..$ accn : chr [1:102] "0001157523-11-004475" "0001157523-11-006668" "0001157523-12-001404" "0001157523-11-004475" ...
+  .. .. ..$ fy   : int [1:102] 2011 2011 2011 2011 2011 2011 2012 2012 2012 2012 ...
+  .. .. ..$ fp   : chr [1:102] "Q2" "Q3" "FY" "Q2" ...
+  .. .. ..$ form : chr [1:102] "10-Q" "10-Q" "10-K" "10-Q" ...
+  .. .. ..$ filed: chr [1:102] "2011-08-01" "2011-11-09" "2012-03-15" "2011-08-01" ...
+  .. .. ..$ frame: chr [1:102] NA NA "CY2010Q4I" "CY2011Q2I" ...</code></pre>
 </div>
 </div>
 <p>The output presents the structure of the information related to the first element: <code>AccountsPayable</code></p>
@@ -517,298 +527,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>List of 7
- $ cik        : int 320193
+ $ cik        : int 1009829
  $ taxonomy   : chr "us-gaap"
  $ tag        : chr "Assets"
  $ label      : chr "Assets"
  $ description: chr "Sum of the carrying amounts as of the balance sheet date of all assets that are recognized. Assets are probable"| __truncated__
- $ entityName : chr "Apple Inc."
+ $ entityName : chr "JAKKS Pacific, Inc."
  $ units      :List of 1
-  ..$ USD:'data.frame': 124 obs. of  8 variables:
-  .. ..$ end  : chr [1:124] "2008-09-27" "2008-09-27" "2008-09-27" "2008-09-27" ...
-  .. ..$ val  : num [1:124] 3.96e+10 3.96e+10 3.62e+10 3.62e+10 4.81e+10 ...
-  .. ..$ accn : chr [1:124] "0001193125-09-153165" "0001193125-09-214859" "0001193125-10-012091" "0001193125-10-238044" ...
-  .. ..$ fy   : int [1:124] 2009 2009 2009 2010 2009 2009 2010 2009 2010 2010 ...
-  .. ..$ fp   : chr [1:124] "Q3" "FY" "FY" "FY" ...
-  .. ..$ form : chr [1:124] "10-Q" "10-K" "10-K/A" "10-K" ...
-  .. ..$ filed: chr [1:124] "2009-07-22" "2009-10-27" "2010-01-25" "2010-10-27" ...
-  .. ..$ frame: chr [1:124] NA NA NA "CY2008Q3I" ...</code></pre>
+  ..$ USD:'data.frame': 103 obs. of  8 variables:
+  .. ..$ end  : chr [1:103] "2010-12-31" "2010-12-31" "2010-12-31" "2011-06-30" ...
+  .. ..$ val  : int [1:103] 633406000 633406000 633406000 614892000 707611000 615234000 615234000 615234000 615234000 615234000 ...
+  .. ..$ accn : chr [1:103] "0001157523-11-004475" "0001157523-11-006668" "0001157523-12-001404" "0001157523-11-004475" ...
+  .. ..$ fy   : int [1:103] 2011 2011 2011 2011 2011 2011 2012 2012 2012 2012 ...
+  .. ..$ fp   : chr [1:103] "Q2" "Q3" "FY" "Q2" ...
+  .. ..$ form : chr [1:103] "10-Q" "10-Q" "10-K" "10-Q" ...
+  .. ..$ filed: chr [1:103] "2011-08-01" "2011-11-09" "2012-03-15" "2011-08-01" ...
+  .. ..$ frame: chr [1:103] NA NA "CY2010Q4I" "CY2011Q2I" ...</code></pre>
 </div>
 </div>
 <p>The output shows the structure associated with the <code>Asset</code> of the company under the taxonomy of <code>us-gaap</code>.</p>
-</section>
-</section>
-<section id="rebuilding-the-financial-reports" class="level3">
-<h3 class="anchored" data-anchor-id="rebuilding-the-financial-reports">Rebuilding the financial reports</h3>
-<p>The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts.</p>
-<p>Different comapnies may use different reporting styles to indicate Facts in different ways. The use of different labels however affect our ability to efficiently retrieve the appropriate financial data.</p>
-<p>The objective here is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.</p>
-<p>Let’s create now a dataframe including the data retrieved from <code>company_Facts$facts$`us-gaap`</code>.</p>
-<section id="extracting-financial-data" class="level4">
-<h4 class="anchored" data-anchor-id="extracting-financial-data">Extracting financial data</h4>
-<p>The first step is un-nest the dataset, in particular the financial data, in <code>company_Facts</code>, nested in various sub-lists.</p>
-<p>The following code can be used to un-nest the list within <code>company_Facts</code> and create a dataframe easy to visualize and useful for our purpose<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a>.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="ot">&lt;-</span> <span class="fu">FactsList_to_Dataframe</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>)</span>
-<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the columns to print out and present the output with wrapped text and formatted numbers</span></span>
-<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<table class="table table-sm table-striped small" data-quarto-postprocess="true">
-<thead>
-<tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">val</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">formatted_val</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Accounts Payable (Deprecated 2009-01-31)</td>
-<td style="text-align: left;">2008-09-27</td>
-<td style="text-align: right;">5520</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">Q3</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">2009-07-22</td>
-<td style="text-align: left;">CY2008Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">5,520.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Accounts Payable (Deprecated 2009-01-31)</td>
-<td style="text-align: left;">2009-06-27</td>
-<td style="text-align: right;">4854</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">Q3</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">2009-07-22</td>
-<td style="text-align: left;">CY2009Q2I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">4,854.0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2008-09-27</td>
-<td style="text-align: right;">5520</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2009-10-27</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">5,520.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2008-09-27</td>
-<td style="text-align: right;">5520</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K/A</td>
-<td style="text-align: left;">2010-01-25</td>
-<td style="text-align: left;">CY2008Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">5,520.0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2009-09-26</td>
-<td style="text-align: right;">5601</td>
-<td style="text-align: right;">2009</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2009-10-27</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">5,601.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Accounts Payable, Current</td>
-<td style="text-align: left;">2009-09-26</td>
-<td style="text-align: right;">5601</td>
-<td style="text-align: right;">2010</td>
-<td style="text-align: left;">Q1</td>
-<td style="text-align: left;">10-Q</td>
-<td style="text-align: left;">2010-01-25</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">5,601.0</td>
-</tr>
-</tbody>
-</table>
-
-
-</div>
-</div>
-<p>The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial Concept (e.g.&nbsp;Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.</p>
-<p>To recreate a financial statement from the data in <code>df_Facts</code> of Apple Inc., we need to extract the values of the various Concepts and corresponding date in <code>df_Fact$end</code>.</p>
-<p><code>df_Fact</code> has a long list of Concepts for multiple fiscal periods. The following code shows the large number of Concepts included in <code>df_Fact</code>, related to all financial reports.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Show the size and first rows of df_Facts (excluding long text for visualization purpose)</span></span>
-<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>df_Fact_lenght <span class="ot">&lt;-</span> df_Facts <span class="sc">%&gt;%</span> <span class="fu">nrow</span>()</span>
-<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Print the size in human-readable format</span></span>
-<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"df_Facts includes:"</span>, <span class="fu">format</span>(df_Fact_lenght, <span class="at">units =</span> <span class="st">"auto"</span>), <span class="st">"records </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output cell-output-stdout">
-<pre><code>df_Facts includes: 22057 records </code></pre>
-</div>
-</div>
-<p>From the extract of the <code>df_Facts</code> above, we see repeated Concepts. Each of them is associated with a different fiscal period. By grouping these records by date indicated in <code>df_Fact$end</code> we can see the the full financial reports for each period in a data frame format.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group the df_Fact by date in df_Fact$end</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>df_Fact_BS <span class="ot">&lt;-</span> df_Facts <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(end) <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(end))</span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first rows of df_Facts_BS </span></span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>df_Fact_BS <span class="sc">%&gt;%</span>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-<div class="cell-output-display">
-<table class="table table-sm table-striped small" data-quarto-postprocess="true">
-<thead>
-<tr class="header">
-<th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">val</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">formatted_val</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left; width: 250px;">Accounts Payable, Current</td>
-<td style="text-align: left;">2023-09-30</td>
-<td style="text-align: right;">62611</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2023-11-03</td>
-<td style="text-align: left;">CY2023Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">62,611.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; width: 250px;">Accounts Receivable, after Allowance for Credit Loss, Current</td>
-<td style="text-align: left;">2023-09-30</td>
-<td style="text-align: right;">29508</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2023-11-03</td>
-<td style="text-align: left;">CY2023Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">29,508.0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; width: 250px;">Accrued Income Taxes, Current</td>
-<td style="text-align: left;">2023-09-30</td>
-<td style="text-align: right;">8819</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2023-11-03</td>
-<td style="text-align: left;">CY2023Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">8,819.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; width: 250px;">Accrued Income Taxes, Noncurrent</td>
-<td style="text-align: left;">2023-09-30</td>
-<td style="text-align: right;">15457</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2023-11-03</td>
-<td style="text-align: left;">CY2023Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">15,457.0</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left; width: 250px;">Accumulated Depreciation, Depletion and Amortization, Property, Plant, and Equipment</td>
-<td style="text-align: left;">2023-09-30</td>
-<td style="text-align: right;">70884</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2023-11-03</td>
-<td style="text-align: left;">CY2023Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">70,884.0</td>
-</tr>
-<tr class="even">
-<td style="text-align: left; width: 250px;">Accumulated Other Comprehensive Income (Loss), Net of Tax</td>
-<td style="text-align: left;">2023-09-30</td>
-<td style="text-align: right;">-11452</td>
-<td style="text-align: right;">2023</td>
-<td style="text-align: left;">FY</td>
-<td style="text-align: left;">10-K</td>
-<td style="text-align: left;">2023-11-03</td>
-<td style="text-align: left;">CY2023Q3I</td>
-<td style="text-align: left;">NA</td>
-<td style="text-align: left;">-11,452.0</td>
-</tr>
-</tbody>
-</table>
-
-
-</div>
-</div>
-<p>The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).</p>
-</section>
-<section id="balance-sheet" class="level4">
-<h4 class="anchored" data-anchor-id="balance-sheet">Balance Sheet</h4>
-<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx), part of the repository of this website.</p>
-<div class="cell">
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of Apple Inc. in standardizeformat</span></span>
-<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS &lt;- bs_std(df_Facts)</span></span>
-<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Print the resulting data.frame</span></span>
-<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS %&gt;% head() %&gt;% as.data.frame() %&gt;% </span></span>
-<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable("html") %&gt;% </span></span>
-<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable_styling(</span></span>
-<span id="cb24-8"><a href="#cb24-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     full_width = TRUE,</span></span>
-<span id="cb24-9"><a href="#cb24-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     bootstrap_options = c("striped", "hover", "condensed"),</span></span>
-<span id="cb24-10"><a href="#cb24-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     font_size = 8  # Adjust the font size as needed</span></span>
-<span id="cb24-11"><a href="#cb24-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) %&gt;% </span></span>
-<span id="cb24-12"><a href="#cb24-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   column_spec(1, width = "200px")  # Adjust the width as needed for other columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
-</div>
-</section>
-<section id="income-statement" class="level4">
-<h4 class="anchored" data-anchor-id="income-statement">Income Statement</h4>
-<p>(work in progress …)</p>
-</section>
-<section id="cash-flow" class="level4">
-<h4 class="anchored" data-anchor-id="cash-flow">Cash Flow</h4>
-<p>(work in progress …)</p>
 
 
 </section>
@@ -821,7 +558,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <ol>
 <li id="fn1"><p>The definitions provided on this website are crafted for non-practitioners and may lack the rigor and precision required by experts. For a more thorough understanding of XBRL financial reporting, we recommend referring to <a href="http://xbrl.squarespace.com" title="XBRL-based structured digital financial reporting">XBRL-based structured digital financial reporting</a> where you can find a comprehensive and rigorous explanation. To delve deeper into the subject, we suggest reading the following authoritative texts: <a href="http://xbrlsite.azurewebsites.net/2021/essentials/EssentialsOfXBRLBasedDigitalFinancialReporting.pdf">Essentials of XBRL-based Digital Financial Reporting</a> and <a href="http://xbrl.squarespace.com/mastering-xbrl/">Mastering XBRL-based Digital Financial Reporting</a> by C. Hoffman.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
-<li id="fn2"><p>For visualization purpose we have omitted from the printed table below the variables (columns) <code>df_Facts$description</code> and <code>df_Facts$accn</code>.<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
 </ol>
 </section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

@@ -20,6 +20,40 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -66,6 +100,9 @@ ul.task-list li input[type="checkbox"] {
 </script>
 <script async="" src="https://hypothes.is/embed.js"></script>
 
+<script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
+<link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
+
 
 <link rel="stylesheet" href="styles.css">
 </head>
@@ -101,7 +138,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><strong>Basics</strong></a></li><li class="breadcrumb-item"><a href="./03_data_analysis.html">Data Analysis</a></li></ol></nav>
+      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./03_data_analysis.html"><strong>Financial Analysis</strong></a></li><li class="breadcrumb-item"><a href="./03_data_analysis.html">Data Analysis</a></li></ol></nav>
       <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
       </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -148,6 +185,17 @@ ul.task-list li input[type="checkbox"] {
  <span class="menu-text">Explore data retrieved from SEC</span></a>
   </div>
 </li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text"><strong>Financial Analysis</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./03_data_analysis.html" class="sidebar-item-text sidebar-link active">
@@ -161,23 +209,9 @@ ul.task-list li input[type="checkbox"] {
   </div>
 </li>
           <li class="sidebar-item">
- <span class="menu-text">05_advanced_topics.qmd</span>
-  </li>
-      </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
- <span class="menu-text"><strong>Fundamental Analysis</strong></span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
-            <i class="bi bi-chevron-right ms-2"></i>
-          </a> 
-      </div>
-      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
-          <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./11_AAPL.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">Apple Inc (AAPL)</span></a>
+  <a href="./05_advanced_topics.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Advanced Topics</span></a>
   </div>
 </li>
       </ul>
@@ -185,12 +219,29 @@ ul.task-list li input[type="checkbox"] {
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
- <span class="menu-text"><strong>Appendix A - R script and functions</strong></span></a>
+ <span class="menu-text"><strong>Real Case: AAPL</strong></span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
       <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11_JAKK.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">JAKKS Pacific, Inc.&nbsp;(JAKK)</span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true">
+ <span class="menu-text"><strong>Appendix A - R script and functions</strong></span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-4" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-4" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./A1_main_script.html" class="sidebar-item-text sidebar-link">
@@ -215,7 +266,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">On this page</h2>
    
   <ul>
-  <li><a href="#data-analysis" id="toc-data-analysis" class="nav-link active" data-scroll-target="#data-analysis">Data Analysis</a></li>
+  <li><a href="#data-analysis" id="toc-data-analysis" class="nav-link active" data-scroll-target="#data-analysis">Data Analysis</a>
+  <ul class="collapse">
+  <li><a href="#rebuilding-the-financial-reports" id="toc-rebuilding-the-financial-reports" class="nav-link" data-scroll-target="#rebuilding-the-financial-reports">Rebuilding the financial reports</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -226,12 +280,308 @@ ul.task-list li input[type="checkbox"] {
 
 <section id="data-analysis" class="level1">
 <h1>Data Analysis</h1>
-<p>Work in progress [..]</p>
+<p>First, we load the required libraries and files.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.qmd"</span>)          </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Now, let’s retrieve the necessary objects for data exploration:</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_Data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"cik.RDS"</span>)</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_Data</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Metadata</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Facts</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>company_Concept <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Concept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="rebuilding-the-financial-reports" class="level3">
+<h3 class="anchored" data-anchor-id="rebuilding-the-financial-reports">Rebuilding the financial reports</h3>
+<p>The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts.</p>
+<p>Different comapnies may use different reporting styles to indicate Facts in different ways. The use of different labels however affect our ability to efficiently retrieve the appropriate financial data.</p>
+<p>The objective here is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.</p>
+<p>Let’s create now a dataframe including the data retrieved from <code>company_Facts$facts$`us-gaap`</code>.</p>
+<section id="extracting-financial-data" class="level4">
+<h4 class="anchored" data-anchor-id="extracting-financial-data">Extracting financial data</h4>
+<p>The first step is un-nest the dataset, in particular the financial data, in <code>company_Facts</code>, nested in various sub-lists.</p>
+<p>The following code can be used to un-nest the list within <code>company_Facts</code> and create a dataframe easy to visualize and useful for our purpose<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="ot">&lt;-</span> <span class="fu">FactsList_to_Dataframe</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the columns to print out and present the output with wrapped text and formatted numbers</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">val</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Accounts Payable, Current</td>
+<td style="text-align: left;">2010-12-31</td>
+<td style="text-align: right;">35.886</td>
+<td style="text-align: right;">2011</td>
+<td style="text-align: left;">Q2</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2011-08-01</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Accounts Payable, Current</td>
+<td style="text-align: left;">2010-12-31</td>
+<td style="text-align: right;">35.886</td>
+<td style="text-align: right;">2011</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2011-11-09</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Accounts Payable, Current</td>
+<td style="text-align: left;">2010-12-31</td>
+<td style="text-align: right;">35.886</td>
+<td style="text-align: right;">2011</td>
+<td style="text-align: left;">FY</td>
+<td style="text-align: left;">10-K</td>
+<td style="text-align: left;">2012-03-15</td>
+<td style="text-align: left;">CY2010Q4I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Accounts Payable, Current</td>
+<td style="text-align: left;">2011-06-30</td>
+<td style="text-align: right;">51.537</td>
+<td style="text-align: right;">2011</td>
+<td style="text-align: left;">Q2</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2011-08-01</td>
+<td style="text-align: left;">CY2011Q2I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Accounts Payable, Current</td>
+<td style="text-align: left;">2011-09-30</td>
+<td style="text-align: right;">85.352</td>
+<td style="text-align: right;">2011</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2011-11-09</td>
+<td style="text-align: left;">CY2011Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Accounts Payable, Current</td>
+<td style="text-align: left;">2011-12-31</td>
+<td style="text-align: right;">26.430</td>
+<td style="text-align: right;">2011</td>
+<td style="text-align: left;">FY</td>
+<td style="text-align: left;">10-K</td>
+<td style="text-align: left;">2012-03-15</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p><em>Note that <code>df_Facts$val</code> is expressed in million.</em></p>
+<p>The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial Concept (e.g.&nbsp;Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.</p>
+<p>To recreate a financial statement from the data in <code>df_Facts</code> of JAKKS Pacific Inc., we need to extract the values of the various Concepts and corresponding date in <code>df_Fact$end</code>.</p>
+<p><code>df_Fact</code> has a long list of Concepts for multiple fiscal periods. The following code shows the large number of Concepts included in <code>df_Fact</code>, related to all financial reports.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Print the size in human-readable format</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"df_Facts includes:"</span>, <span class="fu">format</span>(<span class="fu">nrow</span>(df_Facts), <span class="at">units =</span> <span class="st">"auto"</span>), <span class="st">"records </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>df_Facts includes: 17258 records </code></pre>
+</div>
+</div>
+<p>From the extract of the <code>df_Facts</code> above, we see repeated Concepts. Each of them is associated with a different fiscal period. The code next provides number of unique Concepts used historically JAKKS Pacific Inc.&nbsp;in their financial reports.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the number of unique records of df_Facts</span></span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>df_Facts_distinct <span class="ot">&lt;-</span> df_Facts <span class="sc">%&gt;%</span> <span class="fu">select</span>(label,description) <span class="sc">%&gt;%</span> <span class="fu">distinct</span>()</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"df_Facts includes:"</span>, <span class="fu">format</span>(<span class="fu">nrow</span>(df_Facts_distinct), <span class="at">units =</span> <span class="st">"auto"</span>), <span class="st">"distinct Concepts </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>df_Facts includes: 487 distinct Concepts </code></pre>
+</div>
+</div>
+<p>By arranging these records by date indicated in <code>df_Fact$end</code> we can see the the full financial reports for each period in a data frame format.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Group the df_Fact by date in df_Fact$end</span></span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="ot">&lt;-</span> df_Facts <span class="sc">%&gt;%</span> <span class="fu">arrange</span>(<span class="fu">desc</span>(end))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first rows of df_Facts_BS </span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">label</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">val</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">fy</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">fp</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">form</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">filed</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">frame</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">start</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">Accounts Payable, Current</td>
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">94.409</td>
+<td style="text-align: right;">2023</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2023-11-14</td>
+<td style="text-align: left;">CY2023Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">Accounts Receivable, after Allowance for Credit Loss, Current</td>
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">206.751</td>
+<td style="text-align: right;">2023</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2023-11-14</td>
+<td style="text-align: left;">CY2023Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">Accrued Income Taxes, Noncurrent</td>
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">2.994</td>
+<td style="text-align: right;">2023</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2023-11-14</td>
+<td style="text-align: left;">CY2023Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">Accrued Liabilities, Current</td>
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">65.609</td>
+<td style="text-align: right;">2023</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2023-11-14</td>
+<td style="text-align: left;">CY2023Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">Accumulated Depreciation, Depletion and Amortization, Property, Plant, and Equipment</td>
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">121.193</td>
+<td style="text-align: right;">2023</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2023-11-14</td>
+<td style="text-align: left;">CY2023Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">Accumulated Other Comprehensive Income (Loss), Net of Tax</td>
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">-16.808</td>
+<td style="text-align: right;">2023</td>
+<td style="text-align: left;">Q3</td>
+<td style="text-align: left;">10-Q</td>
+<td style="text-align: left;">2023-11-14</td>
+<td style="text-align: left;">CY2023Q3I</td>
+<td style="text-align: left;">NA</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+<p>The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).</p>
+</section>
+<section id="balance-sheet" class="level4">
+<h4 class="anchored" data-anchor-id="balance-sheet">Balance Sheet</h4>
+<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx), part of the repository of this website.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of JAKKS Pacific Inc. in standardizeformat</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS &lt;- bs_std(df_Facts)</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Print the resulting data.frame</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS %&gt;% head() %&gt;% as.data.frame() %&gt;% </span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable("html") %&gt;% </span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable_styling(</span></span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     full_width = TRUE,</span></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     bootstrap_options = c("striped", "hover", "condensed"),</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     font_size = 8  # Adjust the font size as needed</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) %&gt;% </span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   column_spec(1, width = "200px")  # Adjust the width as needed for other columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="income-statement" class="level4">
+<h4 class="anchored" data-anchor-id="income-statement">Income Statement</h4>
+<p>(work in progress …)</p>
+</section>
+<section id="cash-flow" class="level4">
+<h4 class="anchored" data-anchor-id="cash-flow">Cash Flow</h4>
+<p>(work in progress …)</p>
 
 
 </section>
+</section>
+</section>
 
-</main> <!-- /main -->
+
+<div id="quarto-appendix" class="default"><section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1"><p>For visualization purpose we have omitted from the printed table below the variables (columns) <code>df_Facts$description</code> and <code>df_Facts$accn</code>.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
