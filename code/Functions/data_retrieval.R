@@ -71,6 +71,8 @@ retrieve_Company_Data <- function(headers, cik) {
   return(company_Data)
 }
 
+# Function to rebuild the balancesheet financial statement ---------------------------------------
+
 bs_std <- function(df_Facts) {
   # Define the standardized balancesheet file path
   balancesheet_path <- here(data_dir, "standardized_balancesheet.xlsx")
@@ -85,11 +87,10 @@ bs_std <- function(df_Facts) {
   # Merge df_Facts with standardized_balancesheet
   df_std_BS <- df_Facts %>%
     left_join(standardized_balancesheet, by = "label") %>% 
-    select(standardized_balancesheet_label, everything(), -df_Fact_Description)
+    select(standardized_balancesheet_label, everything())
   
   # 01 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
-  
   
   df_std_BS <- df_std_BS %>%
     # Filter out rows without standardized_balancesheet_label
@@ -106,16 +107,14 @@ bs_std <- function(df_Facts) {
     # - Retain rows without /A
     # - Retain rows with /A if there's at least one row with /A in the group
     filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
-    # Remove the temporary column and non-relevant attributes
-    select(-has_form_A, -fy, -fp, -form, -filed, -start) %>%
     # Select relevant columns
-    select(standardized_balancesheet_label, end, val) %>%
+    select(label,standardized_balancesheet_label, end, val) %>%
     # Arrange by descending end date
     arrange(desc(end)) %>% 
     # Remove grouping
     ungroup() %>%
-    # Group by val and arrange by descending end date within each group
-    group_by(val) %>%
+    # Group by and arrange by descending end date within each group
+    group_by(label, end) %>%
     arrange(desc(end)) %>%
     # Retain only the first row within each group
     slice_head(n = 1) %>%
@@ -149,64 +148,75 @@ bs_std <- function(df_Facts) {
     # Remove grouping for further operations
     ungroup()
   
-  
   # 02 - Pivot df_std_BS in a dataframe format -----------------------------------
-  # Transforms your data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
+  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
   
-  # Build df_std_BS dataframe pivoting the standardized labels into columns
   df_std_BS <- df_std_BS %>%
-    mutate({
-      # Check if both Total Long Term Assets and Total Current Assets exist
-      if (!exists("Total Long Term Assets") && !exists("Total Current Assets")) {
-        stop("This entity does not have a standard filing style and therefore it is excluded from the analysis")
-      }
-      
-      # If Total Long Term Assets does not exist and Total Current Assets exists, calculate it
-      if (!exists("Total Long Term Assets")) {
-        `Total Long Term Assets` = `Total Assets` - `Total Current Assets`
-      }
-      
-      # If Total Current Assets does not exist, create a new column
-      if (!exists("Total Current Assets")) {
-        `Total Current Assets` = `Total Assets` - `Total Long Term Assets`
-      }
-      
-      # If Other Current Assets does not exist, create a new column
-      `Other Current Assets` = if (!exists("Other Current Assets")) `Total Current Assets` - (coalesce(`Cash & Cash Equivalent`, 0) + coalesce(`Marketable Securities, Current`, 0) + coalesce(`Total Accounts Receivable`, 0) + coalesce(`Total Inventory`, 0)) else `Other Current Assets`
-      
-      # If Other Non Current Assets does not exist, create a new column
-      `Other Non Current Assets` = if (!exists("Other Non Current Assets")) `Total Long Term Assets` - (coalesce(`Marketable Securities, Non Current`, 0) + coalesce(`Property, Plant and Equipment`, 0) + coalesce(`Intangible Assets (excl. goodwill)`, 0) + coalesce(`Goodwill`, 0)) else `Other Non Current Assets`
-      
-      # Check if both Total Long Term Liabilities and Total Current Liabilities exist
-      if (!exists("Total Long Term Liabilities") && !exists("Total Current Liabilities")) {
-        stop("This entity does not have a standard filing style and therefore it is excluded from the analysis")
-      }
-      
-      # If Total Long Term Liabilities does not exist and Total Current Liabilities exists, calculate it
-      if (!exists("Total Long Term Liabilities")) {
-        `Total Long Term Liabilities` = `Total Liabilities` - `Total Current Liabilities`
-      }
-      
-      # If Total Current Liabilities does not exist, create a new column
-      if (!exists("Total Current Liabilities")) {
-        `Total Current Liabilities` = `Total Liabilities` - `Total Long Term Liabilities`
-      }
-      
-      # If Other Current Liabilities does not exist, create a new column
-      `Other Current Liabilities` = if (!exists("Other Current Liabilities")) `Total Current Liabilities` - (coalesce(`Accounts Payable`, 0) + coalesce(`Tax Payable`, 0) + coalesce(`Commercial papers`, 0) + coalesce(`Short-Term Debt`, 0) + coalesce(`Operating Lease, Liability, Current`, 0) + coalesce(`Finance Lease, Liability, Current`, 0)) else `Other Current Liabilities`
-      
-      # If Other Long Term Liabilities does not exist, create a new column
-      `Other Long Term Liabilities` = if (!exists("Other Long Term Liabilities")) `Total Long Term Liabilities` - (coalesce(`Long Term Debts`, 0) + coalesce(`Operating Lease, Liability, Non Current`, 0) + coalesce(`Finance Lease, Liability, Non Current`, 0)) else `Other Long Term Liabilities`
-      
-      # Check if Total Company Stockholders Equity exists
-      if (!exists("Total Company Stockholders Equity")) {
-        stop("This entity does not have a standard filing style and therefore it is excluded from the analysis")
-      }
-      
-      # If Other Stockholders Equity does not exist, create a new column
-      `Other Stockholders Equity` = if (!exists("Other Stockholders Equity")) `Total Company Stockholders Equity` - (coalesce(`Common Stock & Additional paid-in capital`, 0) + coalesce(`Common Stock, Value, Issued`, 0) + coalesce(`Additional Paid in Capital`, 0) + coalesce(`Preferred Stock`, 0) + coalesce(`Retained Earnings`, 0) + coalesce(`Accumulated other comprehensive income (loss)`, 0))
-    })
-
+    # Pivot the data using standardized_balancesheet_label as column names
+    pivot_wider(
+      names_from = standardized_balancesheet_label,
+      values_from = val
+    ) %>%
+    # Arrange the dataframe in descending order based on the 'end' column
+    arrange(desc(end))
+  
+  # 03 - Add new columns for standardization of the financial report -----------------------------------
+  # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
+  
+  # Step 1 - identify missing columns from standardized_balancesheet
+  df_std_BS_missing <- setdiff(standardized_balancesheet$standardized_balancesheet_label, 
+                               colnames(df_std_BS)) 
+  
+  # Step 2 - Checks existance of key financial Facts
+  if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
+    stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
+  }
+  
+  if (!("Total Liabilities & Stockholders Equity" %in% colnames(df_std_BS))) {
+    stop("Total Liabilities & Stockholders Equity is missing. The entity is not adequate for financial analysis.")
+  }
+  
+  if (!("Total Current Assets" %in% colnames(df_std_BS)) && !("Total Non Current Assets" %in% colnames(df_std_BS))) {
+    stop("Both Total Current Assets and Total Non Current Assets are missing. The entity is not adequate for financial analysis.")
+  }
+  
+  if (!("Total Current Liabilities" %in% colnames(df_std_BS)) && !("Total Non Current Liabilities" %in% colnames(df_std_BS))) {
+    stop("Both Total Current Liabilities and Total Non Current Liabilities are missing. The entity is not adequate for financial analysis.")
+  }
+  
+  # Step 3 - add missing columns
+  df_std_BS[,c(df_std_BS_missing)] <- NA
+  
+  # It creates a vector columns_to_add containing the names of the columns you want to add.
+  columns_to_add <- c("Total Current Assets", "Total Non Current Assets", "Other Current Assets", "Other Non Current Assets","Other Current Liabilities","Other Non Current Liabilities")
+  
+  # It checks which columns from columns_to_add are not already present in df_std_BS using the !(columns_to_add %in% colnames(df_std_BS)) condition.
+  columns_to_add <- columns_to_add[!(columns_to_add %in% colnames(df_std_BS))]
+  
+  # It then adds only the missing columns to df_std_BS and initializes them with NA.
+  if (length(columns_to_add) > 0) {
+    df_std_BS[, columns_to_add] <- NA
+  }
+  
+  # Step 4 - evaluate missing columns and other
+  df_std_BSt <- df_std_BS %>%
+    mutate(
+      # Evaluate expressions for newly added columns with NA
+      `Total Current Assets` = ifelse(is.na(`Total Current Assets`), `Total Assets` - `Total Non Current Assets`, `Total Current Assets`),
+      `Total Non Current Assets` = ifelse(is.na(`Total Non Current Assets`), `Total Assets` - `Total Current Assets`, `Total Non Current Assets`),
+      `Other Current Assets` = ifelse(is.na(`Other Current Assets`), `Total Current Assets` - (`Cash & Cash Equivalent` + `Marketable Securities Current` + `Total Accounts Receivable` + `Total Inventory`), `Other Current Assets`),
+      `Other Non Current Assets` = ifelse(is.na(`Other Non Current Assets`), `Total Non Current Assets` - (`Marketable Securities Non Current` + `Property Plant and Equipment` + `Intangible Assets (excl. goodwill)` + `Goodwill`), `Other Non Current Assets`),
+      `Total Current Liabilities` = ifelse(is.na(`Total Current Liabilities`), `Total Liabilities` - `Total Non Current Liabilities`, `Total Current Liabilities`),
+      `Other Current Liabilities` = ifelse(is.na(`Other Current Liabilities`), `Total Current Liabilities` - (`Accounts Payable` + `Tax Payable` +  `Short Term Debt` + `Operating Lease Liability Current` + `Finance Lease Liability Current`), `Other Current Liabilities`),
+      `Other Non Current Liabilities` = ifelse(is.na(`Other Non Current Liabilities`), `Total Non Current Liabilities` - (`Non Current Debts` + `Operating Lease Liability Non Current` + `Finance Lease Liability Non Current`), `Other Non Current Liabilities`),
+      `Total Stockholders Equity` = ifelse(is.na(`Total Stockholders Equity`), `Total Liabilities & Stockholders Equity` - `Total Liabilities`, `Total Stockholders Equity`),
+      `Total Liabilities & Stockholders Equity` = ifelse(is.na(`Total Liabilities & Stockholders Equity`), `Total Assets`, `Total Liabilities & Stockholders Equity`)
+    )
+  
+  # Step 5 - Order columns based on standardized_balancesheet_label
+  column_order <- standardized_balancesheet$standardized_balancesheet_label
+  df_std_BS <- df_std_BS[, c("end", column_order)]
+  
   return(df_std_BS)
 }
 

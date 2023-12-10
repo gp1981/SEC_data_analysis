@@ -108,20 +108,17 @@ There are instances in which the the filing (e.g. 10-K) of a specific fiscal per
 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE}
 
+# Retrieve balance sheet of JAKKS Pacific Inc. in standardized format
+df_std_BS <- bs_std(df_Facts)
 
-# Retrieve balance sheet of JAKKS Pacific Inc. in standardizeformat
-# df_std_BS <- bs_std(df_Facts)
-
-# # Print the resulting data.frame
-# df_std_BS %>% head() %>% as.data.frame() %>% 
-#   kable("html") %>% 
-#   kable_styling(
-#     full_width = TRUE,
-#     bootstrap_options = c("striped", "hover", "condensed"),
-#     font_size = 8  # Adjust the font size as needed
-#   ) %>% 
-#   column_spec(1, width = "200px")  # Adjust the width as needed for other columns
-
+# Print the resulting data.frame
+df_std_BS %>% head() %>% as.data.frame() %>%
+  kable("html") %>%
+  kable_styling(
+    full_width = TRUE,
+    bootstrap_options = c("striped", "hover", "condensed"),
+    font_size = 8  # Adjust the font size as needed
+  )
 
 ```
 

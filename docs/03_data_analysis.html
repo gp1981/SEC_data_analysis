@@ -554,19 +554,245 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of JAKKS Pacific Inc. in standardizeformat</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS &lt;- bs_std(df_Facts)</span></span>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of JAKKS Pacific Inc. in standardized format</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="ot">&lt;-</span> <span class="fu">bs_std</span>(df_Facts)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># # Print the resulting data.frame</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co"># df_std_BS %&gt;% head() %&gt;% as.data.frame() %&gt;% </span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable("html") %&gt;% </span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   kable_styling(</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a><span class="co">#     full_width = TRUE,</span></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#     bootstrap_options = c("striped", "hover", "condensed"),</span></span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a><span class="co">#     font_size = 8  # Adjust the font size as needed</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ) %&gt;% </span></span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   column_spec(1, width = "200px")  # Adjust the width as needed for other columns</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the resulting data.frame</span></span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">full_width =</span> <span class="cn">TRUE</span>,</span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>),</span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">font_size =</span> <span class="dv">8</span>  <span class="co"># Adjust the font size as needed</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output-display">
+<table class="table table-striped table-hover table-condensed table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Cash &amp; Cash Equivalent</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Marketable Securities Current</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Accounts Receivable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Inventory</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Current Assets</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Marketable Securities Non Current</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Property Plant and Equipment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Intangible Assets (excl. goodwill)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Goodwill</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Total Non Current Assets</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Assets</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Accounts Payable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Tax Payable</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Short Term Debt</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Operating Lease Liability Current</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Finance Lease Liability Current</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Current Liabilities</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Non Current Debts</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Operating Lease Liability Non Current</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Finance Lease Liability Non Current</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Total Non Current Liabilities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Liabilities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Preferred Stock</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Retained Earnings</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Accumulated other comprehensive income (loss)</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Minority interest</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">Total Stockholders Equity</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Total Liabilities &amp; Stockholders Equity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: right;">96.252</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">206.751</td>
+<td style="text-align: right;">68.832</td>
+<td style="text-align: right;">378.751</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">14.628</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.083</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">514.281</td>
+<td style="text-align: right;">94.409</td>
+<td style="text-align: right;">17.422</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">6.415</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">255.344</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">309.957</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">-62.744</td>
+<td style="text-align: right;">-16.808</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">514.281</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2023-06-30</td>
+<td style="text-align: right;">32.228</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">132.479</td>
+<td style="text-align: right;">65.059</td>
+<td style="text-align: right;">241.196</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">17.278</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.083</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">368.941</td>
+<td style="text-align: right;">57.768</td>
+<td style="text-align: right;">5.808</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">9.226</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">175.713</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">212.697</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">-110.876</td>
+<td style="text-align: right;">-16.021</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">368.941</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2023-03-31</td>
+<td style="text-align: right;">38.103</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">85.171</td>
+<td style="text-align: right;">63.988</td>
+<td style="text-align: right;">200.309</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">16.169</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.083</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">329.386</td>
+<td style="text-align: right;">27.714</td>
+<td style="text-align: right;">6.241</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">10.009</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">122.533</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">182.309</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">-117.331</td>
+<td style="text-align: right;">-17.150</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">329.386</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2022-12-31</td>
+<td style="text-align: right;">85.297</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">102.771</td>
+<td style="text-align: right;">80.619</td>
+<td style="text-align: right;">275.211</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">14.862</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.083</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">405.342</td>
+<td style="text-align: right;">33.687</td>
+<td style="text-align: right;">8.165</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">10.746</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">177.822</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">254.154</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">-112.018</td>
+<td style="text-align: right;">-17.482</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">405.342</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">2022-09-30</td>
+<td style="text-align: right;">76.418</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">204.856</td>
+<td style="text-align: right;">109.171</td>
+<td style="text-align: right;">401.747</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">15.360</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.083</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">477.114</td>
+<td style="text-align: right;">77.126</td>
+<td style="text-align: right;">14.084</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">10.515</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">265.440</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">366.656</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">-149.987</td>
+<td style="text-align: right;">-18.594</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">477.114</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">2022-06-30</td>
+<td style="text-align: right;">62.283</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">164.020</td>
+<td style="text-align: right;">123.666</td>
+<td style="text-align: right;">364.488</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">16.243</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.083</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">443.637</td>
+<td style="text-align: right;">86.660</td>
+<td style="text-align: right;">2.333</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">10.239</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">247.775</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">361.798</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-180.680</td>
+<td style="text-align: right;">-15.765</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: left;">NA</td>
+<td style="text-align: right;">443.637</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
 </div>
 </section>
 <section id="income-statement" class="level4">
