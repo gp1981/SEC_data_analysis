@@ -86,9 +86,25 @@ df_Facts %>%  select(-c(description,accn)) %>%
 
 The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).
 
+::: {#Note_List .Note style="background-color: #f0f0f0; padding: 10px; color: gray"}
+
+------------------------------------------------------------------------
+
+Note
+
+As mentioned in the previous chapter, the `df_Facts` dataframe contains financial data along with corresponding reporting information, such as `df_Facts$end`, `df_Facts$fy`, `df_Facts$fp`, and `df_Facts$form`. However, there are instances where a filing (e.g., 10-K) for a specific fiscal period (`fy` and `fp`) includes a comparison with previous fiscal periods. In these cases, the financial data may actually refer to a different period, as indicated by `df_Facts$end`, rather than the period specified by `fy` and `fp`.
+
+To handle this scenario, we construct a dataframe of financial data based on the end date (`df_Facts$end`) of the reporting period and remove the remaining attributes such as `fy`, `fp`, etc. This ensures that we focus on the actual reporting period for the financial data.
+
+
+------------------------------------------------------------------------
+:::
+
+
 #### Balance Sheet
 
-The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx), part of the repository of this website.
+The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx).
+There are instances in which the the filing (e.g. 10-K) of a specific fiscal period (`df_Facts$fy` and `df_Facts$fp`) include a comparison with previous fiscal periods. In these cases we refer to the end date `df_Facts$end` of the reporting period which is associated with the financial data. 
 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE}
 

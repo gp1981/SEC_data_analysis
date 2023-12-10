@@ -335,10 +335,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>The output reveals that <strong><code>company_Data</code></strong> structure comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
 <div id="Note_List" class="Note" style="background-color: #f0f0f0; padding: 10px; color: gray">
-<hr>
-<p><em>In R, a <strong>list</strong> is a versatile data structure capable of holding elements of different data types. It offers flexibility, allowing each element to be of a different type.</em></p>
-<p><em>For <strong><code>company_Data</code></strong>, the list structure organizes various pieces of information, accommodating different data types. Understanding this structure is crucial for navigating and extracting specific information from complex datasets.</em></p>
-<hr>
+<table class="table">
+<colgroup>
+<col style="width: 100%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Note</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">In R, a <strong>list</strong> is a powerful data structure that can hold elements of <strong>different data types</strong>. This flexibility allows each element to be unique and cater to specific data requirements.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">For the <code>company_Data</code> object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types.</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Understanding the <strong>organization and structure</strong> of the <code>company_Data</code> list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation.</td>
+</tr>
+</tbody>
+</table>
 </div>
 <p>To access the lists we use the symbol <code>$</code> in after the object e.g.&nbsp;<code>company_Data$company_Metadata</code>.</p>
 <p>Next, we split the <code>company_Data</code> into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>

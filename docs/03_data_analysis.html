@@ -540,10 +540,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).</p>
+<div id="Note_List" class="Note" style="background-color: #f0f0f0; padding: 10px; color: gray">
+<hr>
+<p>Note</p>
+<p>As mentioned in the previous chapter, the <code>df_Facts</code> dataframe contains financial data along with corresponding reporting information, such as <code>df_Facts$end</code>, <code>df_Facts$fy</code>, <code>df_Facts$fp</code>, and <code>df_Facts$form</code>. However, there are instances where a filing (e.g., 10-K) for a specific fiscal period (<code>fy</code> and <code>fp</code>) includes a comparison with previous fiscal periods. In these cases, the financial data may actually refer to a different period, as indicated by <code>df_Facts$end</code>, rather than the period specified by <code>fy</code> and <code>fp</code>.</p>
+<p>To handle this scenario, we construct a dataframe of financial data based on the end date (<code>df_Facts$end</code>) of the reporting period and remove the remaining attributes such as <code>fy</code>, <code>fp</code>, etc. This ensures that we focus on the actual reporting period for the financial data.</p>
+<hr>
+</div>
 </section>
 <section id="balance-sheet" class="level4">
 <h4 class="anchored" data-anchor-id="balance-sheet">Balance Sheet</h4>
-<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx), part of the repository of this website.</p>
+<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx). There are instances in which the the filing (e.g.&nbsp;10-K) of a specific fiscal period (<code>df_Facts$fy</code> and <code>df_Facts$fp</code>) include a comparison with previous fiscal periods. In these cases we refer to the end date <code>df_Facts$end</code> of the reporting period which is associated with the financial data.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
