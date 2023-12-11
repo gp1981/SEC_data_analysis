@@ -27,7 +27,7 @@ To access the SEC API, we need to define user headers. These headers will be use
 ```{r headers, warning=FALSE, message=FALSE}
 # Define user headers
 headers <- c('User-Agent' = 'email@address.com')
-kable(headers)
+kable(headers, "html", class = "custom-table custom-narrow-table")
 ```
 
 It's essential to set user headers as a standard practice when accessing web APIs to identify the source of the requests.
@@ -39,7 +39,7 @@ Our first step in data retrieval is to obtain the list of companies available on
 ```{r company_list, eval=TRUE, warning=FALSE, message=FALSE}
 # Retrieve company list
 company_List <- retrieve_Company_List(headers)
-kable(head(company_List))
+kable(head(company_List), "html", class = "custom-table custom-narrow-table")
 ```
 
 ## Selecting a Company: JAKKS Pacific Inc. (AAPL)
@@ -54,7 +54,7 @@ cik <- "0001009829"  # CIK for JAKKS Pacific Inc.
 company_Data <- retrieve_Company_Data(headers, cik)
 
 # this the first row of the company list as a quick check
-company_List[1,] %>% kable()
+company_List[1,] %>% kable("html", class = "custom-table custom-narrow-table")
 ```
 
 By following these steps, we've imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for JAKKS Pacific Inc.

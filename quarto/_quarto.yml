@@ -36,7 +36,8 @@ website:
 format:
   html:
     theme: cosmo
-    css: styles.css
+    css:
+      - styles.css
     toc: true
     code-fold: true
     code-summary: "Show the code"
@@ -44,9 +45,5 @@ format:
     code-overflow: wrap
     code-block-bg: true
     code-block-border-left: "#31BAE9"
-
-comments:
-  hypothesis:
-    theme: clean 
-
-
+    styles:
+      "custom-str-output": "font-size: 12px; background-color: #f5f5f5; padding: 10px;"

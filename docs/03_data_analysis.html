@@ -93,12 +93,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script type="application/json" class="js-hypothesis-config">
-{
-  "theme": "clean"
-}
-</script>
-<script async="" src="https://hypothes.is/embed.js"></script>
 
 <script src="site_libs/kePrint-0.0.1/kePrint.js"></script>
 <link href="site_libs/lightable-0.0.1/lightable.css" rel="stylesheet">
@@ -417,11 +411,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>  <span class="co"># Print the size in human-readable format</span></span>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the size in human-readable format</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"df_Facts includes:"</span>, <span class="fu">format</span>(<span class="fu">nrow</span>(df_Facts), <span class="at">units =</span> <span class="st">"auto"</span>), <span class="st">"records </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>df_Facts includes: 17258 records </code></pre>
+<pre class="custom-str-output"><code>df_Facts includes: 17258 records </code></pre>
 </div>
 </div>
 <p>From the extract of the <code>df_Facts</code> above, we see repeated Concepts. Each of them is associated with a different fiscal period. The code next provides number of unique Concepts used historically JAKKS Pacific Inc.&nbsp;in their financial reports.</p>
@@ -434,7 +428,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">"df_Facts includes:"</span>, <span class="fu">format</span>(<span class="fu">nrow</span>(df_Facts_distinct), <span class="at">units =</span> <span class="st">"auto"</span>), <span class="st">"distinct Concepts </span><span class="sc">\n</span><span class="st">"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>df_Facts includes: 487 distinct Concepts </code></pre>
+<pre class="custom-str-output"><code>df_Facts includes: 487 distinct Concepts </code></pre>
 </div>
 </div>
 <p>By arranging these records by date indicated in <code>df_Fact$end</code> we can see the the full financial reports for each period in a data frame format.</p>
@@ -447,7 +441,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Show first rows of df_Facts_BS </span></span>
 <span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span>  <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
 <span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>( <span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -540,7 +534,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <p>The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).</p>
-<div id="Note_List" class="Note" style="background-color: #f0f0f0; padding: 10px; color: gray">
+<div class="Note custom-note">
 <hr>
 <p>Note</p>
 <p>As mentioned in the previous chapter, the <code>df_Facts</code> dataframe contains financial data along with corresponding reporting information, such as <code>df_Facts$end</code>, <code>df_Facts$fy</code>, <code>df_Facts$fp</code>, and <code>df_Facts$form</code>. However, there are instances where a filing (e.g., 10-K) for a specific fiscal period (<code>fy</code> and <code>fp</code>) includes a comparison with previous fiscal periods. In these cases, the financial data may actually refer to a different period, as indicated by <code>df_Facts$end</code>, rather than the period specified by <code>fy</code> and <code>fp</code>.</p>
@@ -550,7 +544,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="balance-sheet" class="level4">
 <h4 class="anchored" data-anchor-id="balance-sheet">Balance Sheet</h4>
-<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx). There are instances in which the the filing (e.g.&nbsp;10-K) of a specific fiscal period (<code>df_Facts$fy</code> and <code>df_Facts$fp</code>) include a comparison with previous fiscal periods. In these cases we refer to the end date <code>df_Facts$end</code> of the reporting period which is associated with the financial data.</p>
+<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx). There are instances in which the the filing (e.g.&nbsp;10-K) of a specific fiscal period (<code>df_Facts$fy</code> and <code>df_Facts$fp</code>) includes a comparison with previous fiscal periods. In these cases we refer to the end date <code>df_Facts$end</code> of the reporting period which is associated with the financial data.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
@@ -559,15 +553,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the resulting data.frame</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>(<span class="st">"html"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(</span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">full_width =</span> <span class="cn">TRUE</span>,</span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"striped"</span>, <span class="st">"hover"</span>, <span class="st">"condensed"</span>),</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">font_size =</span> <span class="dv">8</span>  <span class="co"># Adjust the font size as needed</span></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>( <span class="st">"html"</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display">
-<table class="table table-striped table-hover table-condensed table-sm small" data-quarto-postprocess="true">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
 <thead>
 <tr class="header">
 <th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
@@ -603,7 +595,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">2023-09-30</td>
+<td style="text-align: left; width: 250px;">2023-09-30</td>
 <td style="text-align: right;">96.252</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">206.751</td>
@@ -634,7 +626,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">514.281</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">2023-06-30</td>
+<td style="text-align: left; width: 250px;">2023-06-30</td>
 <td style="text-align: right;">32.228</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">132.479</td>
@@ -665,7 +657,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">368.941</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">2023-03-31</td>
+<td style="text-align: left; width: 250px;">2023-03-31</td>
 <td style="text-align: right;">38.103</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">85.171</td>
@@ -696,7 +688,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">329.386</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">2022-12-31</td>
+<td style="text-align: left; width: 250px;">2022-12-31</td>
 <td style="text-align: right;">85.297</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">102.771</td>
@@ -727,7 +719,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">405.342</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">2022-09-30</td>
+<td style="text-align: left; width: 250px;">2022-09-30</td>
 <td style="text-align: right;">76.418</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">204.856</td>
@@ -758,7 +750,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: right;">477.114</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">2022-06-30</td>
+<td style="text-align: left; width: 250px;">2022-06-30</td>
 <td style="text-align: right;">62.283</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">164.020</td>

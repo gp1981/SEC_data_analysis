@@ -93,12 +93,6 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Search"
   }
 }</script>
-<script type="application/json" class="js-hypothesis-config">
-{
-  "theme": "clean"
-}
-</script>
-<script async="" src="https://hypothes.is/embed.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -324,33 +318,27 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Data </span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Data, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Data, <span class="at">max.level =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 3
+<pre class="custom-str-output"><code>List of 3
  $ company_Metadata:List of 22
  $ company_Facts   :List of 3
  $ company_Concept :List of 7</code></pre>
 </div>
 </div>
 <p>The output reveals that <strong><code>company_Data</code></strong> structure comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
-<div id="Note_List" class="Note" style="background-color: #f0f0f0; padding: 10px; color: gray">
+<div class="Note custom-note">
 <table class="table">
 <colgroup>
 <col style="width: 100%">
 </colgroup>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Note</td>
+<td style="text-align: left;"><strong>Note</strong></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">In R, a <strong>list</strong> is a powerful data structure that can hold elements of <strong>different data types</strong>. This flexibility allows each element to be unique and cater to specific data requirements.</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">For the <code>company_Data</code> object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types.</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Understanding the <strong>organization and structure</strong> of the <code>company_Data</code> list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation.</td>
+<td style="text-align: left;">In R, a <strong>list</strong> is a powerful data structure that can hold elements of <strong>different data types</strong>. This flexibility allows each element to be unique and cater to specific data requirements. For the <code>company_Data</code> object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types. Understanding the <strong>organization and structure</strong> of the <code>company_Data</code> list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation.</td>
 </tr>
 </tbody>
 </table>
@@ -377,7 +365,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Metadata, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 22
+<pre class="custom-str-output"><code>List of 22
  $ cik                              : chr "1009829"
  $ entityType                       : chr "operating"
  $ sic                              : chr "3944"
@@ -410,7 +398,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Metadata<span class="sc">$</span>filing, <span class="at">max.level =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 2
+<pre class="custom-str-output"><code>List of 2
  $ recent:List of 14
   ..$ accessionNumber      : chr [1:1000] "0001185185-23-001232" "0001185185-23-001194" "0001185185-23-001154" "0001185185-23-001142" ...
   ..$ filingDate           : chr [1:1000] "2023-11-22" "2023-11-14" "2023-11-09" "2023-11-03" ...
@@ -446,7 +434,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 3
+<pre class="custom-str-output"><code>List of 3
  $ cik       : int 1009829
  $ entityName: chr "JAKKS Pacific, Inc."
  $ facts     :List of 2</code></pre>
@@ -460,7 +448,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts<span class="sc">$</span>facts, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 2
+<pre class="custom-str-output"><code>List of 2
  $ dei    :List of 2
  $ us-gaap:List of 487</code></pre>
 </div>
@@ -473,7 +461,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Facts_us_gaap <span class="ot">&lt;-</span> <span class="fu">str</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 5
+<pre class="custom-str-output"><code>List of 5
  $ AccountsPayableCurrent        :List of 3
  $ AccountsReceivableNetCurrent  :List of 3
  $ AccruedAdvertisingCurrent     :List of 3
@@ -489,7 +477,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>[<span class="dv">1</span>], <span class="at">max.level =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 1
+<pre class="custom-str-output"><code>List of 1
  $ AccountsPayableCurrent:List of 3
   ..$ label      : chr "Accounts Payable, Current"
   ..$ description: chr "Carrying value as of the balance sheet date of liabilities incurred (and for which invoices have typically been"| __truncated__
@@ -525,9 +513,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </ul></li>
 </ul>
 <p>This hierarchical structure provides a detailed view of the financial concept “Accounts Payable (Deprecated 2009-01-31)” within the <strong><code>us-gaap</code></strong> section, including its label, description, and historical data with unit details.</p>
-<div id="Note_List2" class="Note" style="background-color: #f0f0f0; padding: 10px;">
+<div class="Note_List2 custom-note">
 <hr>
-<p><em>Most of the SEC data required for fundamentals analysis is included in a structure of nested lists. Its understanding is critical to properly retrieve the data. Once we automate the process of “un-nesting” the lists, we will be able to verify that this process led to a dataframe structure where the data is properly located.</em></p>
+<p><em>Most of the SEC data required for fundamentals analysis is included in a structure of nested lists. Its understanding is critical to properly retrieve the data.</em></p>
 <hr>
 </div>
 </section>
@@ -541,7 +529,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Concept, <span class="at">max.level =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>List of 7
+<pre class="custom-str-output"><code>List of 7
  $ cik        : int 1009829
  $ taxonomy   : chr "us-gaap"
  $ tag        : chr "Assets"
