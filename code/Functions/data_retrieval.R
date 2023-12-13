@@ -74,6 +74,7 @@ retrieve_Company_Data <- function(headers, cik) {
 # Function to rebuild the balancesheet financial statement ---------------------------------------
 
 bs_std <- function(df_Facts) {
+  # 01 - Join standardized_balancesheet ------------------------------------------------------
   # Define the standardized balancesheet file path
   balancesheet_path <- here(data_dir, "standardized_balancesheet.xlsx")
   
@@ -89,7 +90,7 @@ bs_std <- function(df_Facts) {
     left_join(standardized_balancesheet, by = "label") %>% 
     select(standardized_balancesheet_label, everything())
   
-  # 01 - Data cleaning ------------------------------------------------------
+  # 02 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
   
   df_std_BS <- df_std_BS %>%
@@ -148,7 +149,7 @@ bs_std <- function(df_Facts) {
     # Remove grouping for further operations
     ungroup()
   
-  # 02 - Pivot df_std_BS in a dataframe format -----------------------------------
+  # 03 - Pivot df_std_BS in a dataframe format -----------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
   
   df_std_BS <- df_std_BS %>%
@@ -160,14 +161,14 @@ bs_std <- function(df_Facts) {
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
   
-  # 03 - Add new columns for standardization of the financial report -----------------------------------
+  # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
   # Step 1 - identify missing columns from standardized_balancesheet
   df_std_BS_missing <- setdiff(standardized_balancesheet$standardized_balancesheet_label, 
                                colnames(df_std_BS)) 
   
-  # Step 2 - Checks existance of key financial Facts
+  # Step 2 - Check if key financial Facts exist
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
   }
@@ -185,37 +186,103 @@ bs_std <- function(df_Facts) {
   }
   
   # Step 3 - add missing columns
-  df_std_BS[,c(df_std_BS_missing)] <- NA
+  # It creates a vector columns_to_add containing the names of the columns to add.
+  columns_to_add <- c("Total Current Assets", "Total Non Current Assets", "Other Current Assets", "Other Non Current Assets", "Other Current Liabilities", "Other Non Current Liabilities")
   
-  # It creates a vector columns_to_add containing the names of the columns you want to add.
-  columns_to_add <- c("Total Current Assets", "Total Non Current Assets", "Other Current Assets", "Other Non Current Assets","Other Current Liabilities","Other Non Current Liabilities")
-  
-  # It checks which columns from columns_to_add are not already present in df_std_BS using the !(columns_to_add %in% colnames(df_std_BS)) condition.
+  # It checks which columns from columns_to_add are not already present in df_std_BS
   columns_to_add <- columns_to_add[!(columns_to_add %in% colnames(df_std_BS))]
   
   # It then adds only the missing columns to df_std_BS and initializes them with NA.
   if (length(columns_to_add) > 0) {
-    df_std_BS[, columns_to_add] <- NA
+    # Create a tibble with NAs and the columns to add
+    columns_to_add_df <- tibble(!!columns_to_add := NA_real_)
+    
+    # Left join the new columns to df_std_BS
+    df_std_BS <- left_join(df_std_BS, columns_to_add_df, by = character())
   }
   
   # Step 4 - evaluate missing columns and other
-  df_std_BSt <- df_std_BS %>%
+  df_std_BS <- df_std_BS %>%
     mutate(
+      # Replace NAs with empty values
+      across(everything(), ~ifelse(is.na(.), NA, as.numeric(.))),
       # Evaluate expressions for newly added columns with NA
-      `Total Current Assets` = ifelse(is.na(`Total Current Assets`), `Total Assets` - `Total Non Current Assets`, `Total Current Assets`),
-      `Total Non Current Assets` = ifelse(is.na(`Total Non Current Assets`), `Total Assets` - `Total Current Assets`, `Total Non Current Assets`),
-      `Other Current Assets` = ifelse(is.na(`Other Current Assets`), `Total Current Assets` - (`Cash & Cash Equivalent` + `Marketable Securities Current` + `Total Accounts Receivable` + `Total Inventory`), `Other Current Assets`),
-      `Other Non Current Assets` = ifelse(is.na(`Other Non Current Assets`), `Total Non Current Assets` - (`Marketable Securities Non Current` + `Property Plant and Equipment` + `Intangible Assets (excl. goodwill)` + `Goodwill`), `Other Non Current Assets`),
-      `Total Current Liabilities` = ifelse(is.na(`Total Current Liabilities`), `Total Liabilities` - `Total Non Current Liabilities`, `Total Current Liabilities`),
-      `Other Current Liabilities` = ifelse(is.na(`Other Current Liabilities`), `Total Current Liabilities` - (`Accounts Payable` + `Tax Payable` +  `Short Term Debt` + `Operating Lease Liability Current` + `Finance Lease Liability Current`), `Other Current Liabilities`),
-      `Other Non Current Liabilities` = ifelse(is.na(`Other Non Current Liabilities`), `Total Non Current Liabilities` - (`Non Current Debts` + `Operating Lease Liability Non Current` + `Finance Lease Liability Non Current`), `Other Non Current Liabilities`),
-      `Total Stockholders Equity` = ifelse(is.na(`Total Stockholders Equity`), `Total Liabilities & Stockholders Equity` - `Total Liabilities`, `Total Stockholders Equity`),
-      `Total Liabilities & Stockholders Equity` = ifelse(is.na(`Total Liabilities & Stockholders Equity`), `Total Assets`, `Total Liabilities & Stockholders Equity`)
+      `Total Current Assets` = case_when(
+        is.na(`Total Current Assets`) ~ `Total Assets` - `Total Non Current Assets`,
+        TRUE ~ `Total Current Assets`
+      ),
+      `Total Non Current Assets` = case_when(
+        is.na(`Total Non Current Assets`) ~ `Total Assets` - `Total Current Assets`,
+        TRUE ~ `Total Non Current Assets`
+      ),
+      `Other Current Assets` = case_when(
+        is.na(`Other Current Assets`) ~ `Total Current Assets` - (`Cash & Cash Equivalent` + `Marketable Securities Current` + `Total Accounts Receivable` + `Total Inventory`),
+        TRUE ~ `Other Current Assets`
+      ),
+      `Other Non Current Assets` = case_when(
+        is.na(`Other Non Current Assets`) ~ `Total Non Current Assets` - (`Marketable Securities Non Current` + `Property Plant and Equipment` + `Intangible Assets (excl. goodwill)` + `Goodwill`),
+        TRUE ~ `Other Non Current Assets`
+      ),
+      `Total Current Liabilities` = case_when(
+        is.na(`Total Current Liabilities`) ~ `Total Liabilities` - `Total Non Current Liabilities`,
+        TRUE ~ `Total Current Liabilities`
+      ),
+      `Other Current Liabilities` = case_when(
+        is.na(`Other Current Liabilities`) ~ `Total Current Liabilities` - (`Accounts Payable` + `Tax Payable` +  `Short Term Debt` + `Operating Lease Liability Current` + `Finance Lease Liability Current`),
+        TRUE ~ `Other Current Liabilities`
+      ),
+      `Other Non Current Liabilities` = case_when(
+        is.na(`Other Non Current Liabilities`) ~ `Total Non Current Liabilities` - (`Non Current Debts` + `Operating Lease Liability Non Current` + `Finance Lease Liability Non Current`),
+        TRUE ~ `Other Non Current Liabilities`
+      ),
+      `Total Stockholders Equity` = case_when(
+        is.na(`Total Stockholders Equity`) ~ `Total Liabilities & Stockholders Equity` - `Total Liabilities`,
+        TRUE ~ `Total Stockholders Equity`
+      ),
+      `Total Liabilities & Stockholders Equity` = case_when(
+        is.na(`Total Liabilities & Stockholders Equity`) ~ `Total Assets`,
+        TRUE ~ `Total Liabilities & Stockholders Equity`
+      )
     )
   
+  
+  
   # Step 5 - Order columns based on standardized_balancesheet_label
-  column_order <- standardized_balancesheet$standardized_balancesheet_label
-  df_std_BS <- df_std_BS[, c("end", column_order)]
+  custom_order <- c(
+    "Cash & Cash Equivalent",
+    "Marketable Securities Current",
+    "Total Inventory",
+    "Other Current Assets",
+    "Total Current Assets",
+    "Marketable Securities Non Current",
+    "Property Plant and Equipment",
+    "Intangible Assets (excl. goodwill)",
+    "Goodwill",
+    "Other Non Current Assets",
+    "Total Non Current Assets",
+    "Total Assets",
+    "Accounts Payable",
+    "Tax Payable",
+    "Short Term Debt",
+    "Operating Lease Liability Current",
+    "Finance Lease Liability Current",
+    "Other Current Liabilities",
+    "Total Current Liabilities",
+    "Non Current Debts",
+    "Operating Lease Liability Non Current",
+    "Finance Lease Liability Non Current",
+    "Other Non Current Liabilities",
+    "Total Non Current Liabilities",
+    "Total Liabilities",
+    "Preferred Stock",
+    "Retained Earnings",
+    "Accumulated other comprehensive income (loss)",
+    "Minority interest",
+    "Total Stockholders Equity",
+    "Total Liabilities & Stockholders Equity")
+  
+  
+  df_std_BS <- df_std_BS[, c("end", custom_order)]
   
   return(df_std_BS)
 }
