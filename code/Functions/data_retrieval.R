@@ -70,38 +70,34 @@ retrieve_Company_Data <- function(headers, cik) {
   )
   return(company_Data)
 }
-# Function to unnest list company_Facts ----------------------------------
 
-# Un-nest the company_Facts (and nested unit list)
+# Function to unnest list company_Facts  ---------------------------------------
+
+# Function to unnest list company_Facts using parallel processing. This function takes a list of financial facts (company_Facts_us_gaap) and unnests it, creating a data frame with relevant information including values, labels, descriptions, and references to the original list.
+
 FactsList_to_Dataframe <- function(company_Facts_us_gaap) {
-  # Initialize an empty data frame to store the results
-  df_Facts <- tibble()
-  
-  # Iterate over each list in company_Facts_us_gaap
-  for (list_name in names(company_Facts_us_gaap)) {
-    # Extract the relevant information from the 'units' list
+  # Use parallel processing with future_map_dfr to apply the operation on each list concurrently
+  df_units <- furrr::future_map_dfr(names(company_Facts_us_gaap), function(list_name) {
+    # Extract the relevant information from the 'units' list and create a tibble
     df_list <- company_Facts_us_gaap[[list_name]]$units$USD %>%
       as_tibble() %>%
-      unnest(cols = everything())
-    
-    # Add columns with 'label', 'description', and 'us_gaap_reference'
-    df_list <- df_list %>%
+      # Add columns with 'label', 'description', and 'us_gaap_reference'
       mutate(
         label = company_Facts_us_gaap[[list_name]]$label,
         description = company_Facts_us_gaap[[list_name]]$description,
         us_gaap_reference = list_name
       )
     
-    # Append the current list to the result data frame
-    df_Facts <- bind_rows(df_Facts, df_list)
-  }
+    return(df_list)
+  })
   
   # Mutate to reduce values in millions by dividing by 1 million
-  df_Facts <- df_Facts %>%
+  df_units <- df_units %>%
     mutate(val = val / 1e6)
   
-  return(df_Facts)
+  return(df_units)
 }
+
 
 # Example usage:
 # df_Facts_result <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
