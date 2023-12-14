@@ -70,6 +70,45 @@ retrieve_Company_Data <- function(headers, cik) {
   )
   return(company_Data)
 }
+# Function to unnest list company_Facts ----------------------------------
+
+# Un-nest the company_Facts (and nested unit list)
+FactsList_to_Dataframe <- function(company_Facts_us_gaap) {
+  # Initialize an empty data frame to store the results
+  df_Facts <- tibble()
+  
+  # Iterate over each list in company_Facts_us_gaap
+  for (list_name in names(company_Facts_us_gaap)) {
+    # Extract the relevant information from the 'units' list
+    df_list <- company_Facts_us_gaap[[list_name]]$units$USD %>%
+      as_tibble() %>%
+      unnest(cols = everything())
+    
+    # Add columns with 'label', 'description', and 'us_gaap_reference'
+    df_list <- df_list %>%
+      mutate(
+        label = company_Facts_us_gaap[[list_name]]$label,
+        description = company_Facts_us_gaap[[list_name]]$description,
+        us_gaap_reference = list_name
+      )
+    
+    # Append the current list to the result data frame
+    df_Facts <- bind_rows(df_Facts, df_list)
+  }
+  
+  # Mutate to reduce values in millions by dividing by 1 million
+  df_Facts <- df_Facts %>%
+    mutate(val = val / 1e6)
+  
+  return(df_Facts)
+}
+
+# Example usage:
+# df_Facts_result <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
+
+
+# Example usage:
+# df_Facts_result <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
 
 # Function to rebuild the balancesheet financial statement ---------------------------------------
 
@@ -81,14 +120,22 @@ bs_std <- function(df_Facts) {
   # Read the standardized_balancesheet.xlsx file
   standardized_balancesheet <- read.xlsx(balancesheet_path, sheet = "Sheet1")
   
-  # Rename standardized_balancesheet column df_Facts_label to perform left_join
+  # Rename standardized_balancesheet column df_Fact_Description to perform left_join
   standardized_balancesheet <- standardized_balancesheet %>% 
-    rename(label = df_Facts_label)
+    rename(description = df_Fact_Description)
   
-  # Merge df_Facts with standardized_balancesheet
+  # Merge df_Facts with standardized_balancesheet based on description and period
   df_std_BS <- df_Facts %>%
-    left_join(standardized_balancesheet, by = "label") %>% 
+    left_join(standardized_balancesheet, by = "description") %>%
     select(standardized_balancesheet_label, everything())
+  
+  # Sum the "val" values for rows with the same standardized_balancesheet_label
+  df_std_BS <- df_std_BS %>%
+    group_by(standardized_balancesheet_label) %>%
+    summarise(val = sum(val, na.rm = TRUE),
+              description = paste(description, collapse = "\n")) %>%
+    ungroup()
+  
   
   # 02 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
