@@ -118,7 +118,7 @@ bs_std <- function(df_Facts) {
   
   # Rename standardized_balancesheet column df_Fact_Description to perform left_join
   standardized_balancesheet <- standardized_balancesheet %>% 
-    rename(description = df_Fact_Description)
+    rename(description = df_Facts_Description)
   
   # Merge df_Facts with standardized_balancesheet based on description and period
   df_std_BS <- df_Facts %>%
@@ -127,7 +127,9 @@ bs_std <- function(df_Facts) {
   
   # Sum the "val" values for rows with the same standardized_balancesheet_label
   df_std_BS <- df_std_BS %>%
-    group_by(standardized_balancesheet_label) %>%
+    group_by(end,standardized_balancesheet_label) %>%
+    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
+    filter(row_number() == 1) %>%    # Keep only the first row within each group
     summarise(val = sum(val, na.rm = TRUE),
               description = paste(description, collapse = "\n")) %>%
     ungroup()

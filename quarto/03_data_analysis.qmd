@@ -23,7 +23,7 @@ company_Concept <- company_Data$company_Concept
 
 The use of specific labels to indicate financial report items is regulated by accounting standards set forth by authoritative bodies. In the United States, the Financial Accounting Standards Board (FASB) establishes generally accepted accounting principles (GAAP), which provide guidelines for the preparation of financial statements, including the standardization of labels and concepts.
 
-Different comapnies may use different reporting styles to indicate Facts in different ways. The use of different labels however affect our ability to efficiently retrieve the appropriate financial data.
+Different companies may use different reporting styles to indicate Facts in different ways. The use of different labels however affect our ability to efficiently retrieve the appropriate financial data.
 
 The objective here is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.
 
@@ -33,9 +33,9 @@ Let's create now a dataframe including the data retrieved from `` company_Facts$
 
 The first step is un-nest the dataset, in particular the financial data, in `company_Facts`, nested in various sub-lists.
 
-The following code can be used to un-nest the list within `company_Facts` and create a dataframe easy to visualize and useful for our purpose[^02_data_exploration-2].
+The following code can be used to un-nest the list within `company_Facts` and create a dataframe easy to visualize and useful for our purpose[^03_data_analysis-1].
 
-[^02_data_exploration-2]: For visualization purpose we have omitted from the printed table below the variables (columns) `df_Facts$description` and `df_Facts$accn`.
+[^03_data_analysis-1]: For visualization purpose we have omitted from the printed table below the variables (columns) `df_Facts$description` and `df_Facts$accn`.
 
 ```{r unnesting_company_Facts, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
@@ -52,7 +52,7 @@ df_Facts %>% select(-c(description,accn)) %>%
 
 The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial Concept (e.g. Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.
 
-To recreate a financial statement from the data in `df_Facts` of JAKKS Pacific Inc., we need to extract the values of the various Concepts and corresponding date in `df_Fact$end`.
+To recreate a financial statement from the data in `df_Facts` of JAKKS Pacific Inc., we need to extract the values in `df_Fact$val` of the various Concepts and corresponding date in `df_Fact$end`.
 
 `df_Fact` has a long list of Concepts for multiple fiscal periods. The following code shows the large number of Concepts included in `df_Fact`, related to all financial reports.
 
@@ -62,7 +62,8 @@ To recreate a financial statement from the data in `df_Facts` of JAKKS Pacific I
 cat("df_Facts includes:", format(nrow(df_Facts), units = "auto"), "records \n")
 ```
 
-From the extract of the `df_Facts` above, we see repeated Concepts. Each of them is associated with a different fiscal period. The code next provides number of unique Concepts used historically JAKKS Pacific Inc. in their financial reports.
+From an extract of the `df_Facts` above, we would see repeated Concepts. Each of them is associated with a different fiscal period. The code next provides number of unique Concepts used historically JAKKS Pacific Inc. in their financial reports.
+
 ```{r summarize_Facts3, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-str-output"}
 # Print the number of unique records of df_Facts
 df_Facts_distinct <- df_Facts %>% select(label,description) %>% distinct()
@@ -96,15 +97,12 @@ As mentioned in the previous chapter, the `df_Facts` dataframe contains financia
 
 To handle this scenario, we construct a dataframe of financial data based on the end date (`df_Facts$end`) of the reporting period and remove the remaining attributes such as `fy`, `fp`, etc. This ensures that we focus on the actual reporting period for the financial data.
 
-
 ------------------------------------------------------------------------
 :::
 
-
 #### Balance Sheet
 
-The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx).
-There are instances in which the the filing (e.g. 10-K) of a specific fiscal period (`df_Facts$fy` and `df_Facts$fp`) includes a comparison with previous fiscal periods. In these cases we refer to the end date `df_Facts$end` of the reporting period which is associated with the financial data. 
+The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx). There are instances in which the the filing (e.g. 10-K) of a specific fiscal period (`df_Facts$fy` and `df_Facts$fp`) includes a comparison with previous fiscal periods. In these cases we refer to the end date `df_Facts$end` of the reporting period which is associated with the financial data.
 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
