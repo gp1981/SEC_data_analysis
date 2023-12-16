@@ -125,16 +125,6 @@ bs_std <- function(df_Facts) {
     left_join(standardized_balancesheet, by = "description") %>%
     select(standardized_balancesheet_label, everything())
   
-  # Sum the "val" values for rows with the same standardized_balancesheet_label
-  df_std_BS <- df_std_BS %>%
-    group_by(end,standardized_balancesheet_label) %>%
-    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
-    filter(row_number() == 1) %>%    # Keep only the first row within each group
-    summarise(val = sum(val, na.rm = TRUE),
-              description = paste(description, collapse = "\n")) %>%
-    ungroup()
-  
-  
   # 02 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
   
@@ -154,7 +144,7 @@ bs_std <- function(df_Facts) {
     # - Retain rows with /A if there's at least one row with /A in the group
     filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
     # Select relevant columns
-    select(label,standardized_balancesheet_label, end, val) %>%
+    select(end, standardized_balancesheet_label, everything()) %>%
     # Arrange by descending end date
     arrange(desc(end)) %>% 
     # Remove grouping
@@ -167,37 +157,20 @@ bs_std <- function(df_Facts) {
     # Remove grouping
     ungroup()
   
-  # This code ensures that for each standardized_balancesheet_label and end combination, only the row with the most recent filing date is retained
-  
-  # Clear the dataframe with the most recent form for each end period
+  # Sum the "val" values for rows with the same standardized_balancesheet_label
   df_std_BS <- df_std_BS %>%
-    # Filter out rows without standardized_balancesheet_label
-    filter(!is.na(standardized_balancesheet_label)) %>% 
-    # Convert 'end' column to date format using lubridate (ymd function)
-    mutate(end = ymd(end),) %>%
-    # Group by standardized_balancesheet_label and end date
-    group_by(standardized_balancesheet_label, end) %>%
-    # Filter rows with the most recent filing date within each group
-    filter(end == max(end)) %>%
-    # Remove grouping to perform further operations
-    ungroup() %>%
-    # Select relevant columns
-    select(end,standardized_balancesheet_label, val)
-  
-  # This code ensures that for each unique combination of label and end, only the row with the highest "val" is kept, effectively handling duplicates in the dataset
-  df_std_BS <- df_std_BS %>%
-    # Group by standardized_balancesheet_label, end, and arrange by descending val
-    group_by(standardized_balancesheet_label, end) %>%
-    arrange(desc(val)) %>%
-    # Retain only the first row within each group (highest val)
-    slice_head(n = 1) %>%
-    # Remove grouping for further operations
+    group_by(end,standardized_balancesheet_label) %>%
+    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
+    filter(row_number() == 1) %>%    # Keep only the first row within each group
+    summarise(val = sum(val, na.rm = TRUE),
+              description = paste(description, collapse = "\n")) %>%
     ungroup()
   
   # 03 - Pivot df_std_BS in a dataframe format -----------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
   
   df_std_BS <- df_std_BS %>%
+    select(end,standardized_balancesheet_label,val) %>% 
     # Pivot the data using standardized_balancesheet_label as column names
     pivot_wider(
       names_from = standardized_balancesheet_label,
@@ -210,7 +183,7 @@ bs_std <- function(df_Facts) {
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
   # Step 1 - identify missing columns from standardized_balancesheet
-  df_std_BS_missing <- setdiff(standardized_balancesheet$standardized_balancesheet_label, 
+  df_std_BS_missing <- setdiff(standardized_balancesheet$standardized_balancesheet_label,
                                colnames(df_std_BS)) 
   
   # Step 2 - Check if key financial Facts exist
@@ -237,7 +210,7 @@ bs_std <- function(df_Facts) {
   # It checks which columns from columns_to_add are not already present in df_std_BS
   columns_to_add <- columns_to_add[!(columns_to_add %in% colnames(df_std_BS))]
   
-  # It then adds only the missing columns to df_std_BS and initializes them with NA.
+  #<<<<>>>>> It then adds only the missing columns to df_std_BS and initializes them with NA.
   if (length(columns_to_add) > 0) {
     # Create a tibble with NAs and the columns to add
     columns_to_add_df <- tibble(!!columns_to_add := NA_real_)
