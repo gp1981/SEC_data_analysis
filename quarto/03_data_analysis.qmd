@@ -39,7 +39,7 @@ The following code can be used to un-nest the list within `company_Facts` and cr
 
 ```{r unnesting_company_Facts, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
-df_Facts <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
+df_Facts <- Fundamentals_to_Dataframe(company_Data)
 
 # Select the columns to print out and present the output with wrapped text and formatted numbers
 df_Facts %>% select(-c(description,accn)) %>% 
@@ -107,7 +107,7 @@ The following code will create a standardized Balance Sheet (`df_std_BS`) based 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
 # Retrieve balance sheet of JAKKS Pacific Inc. in standardized format
-# df_std_BS <- bs_std(df_Facts)
+df_std_BS <- bs_std(df_Facts)
 
 # Print the resulting data.frame
 # df_std_BS %>% head() %>% as.data.frame() %>%

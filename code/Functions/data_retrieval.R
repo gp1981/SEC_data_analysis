@@ -71,11 +71,33 @@ retrieve_Company_Data <- function(headers, cik) {
   return(company_Data)
 }
 
-# Function to unnest list company_Facts  ---------------------------------------
+# Function to create a dataframe of fundamentals  ---------------------------------------
 
-# Function to unnest list company_Facts using parallel processing. This function takes a list of financial facts (company_Facts_us_gaap) and unnests it, creating a data frame with relevant information including values, labels, descriptions, and references to the original list.
+# Function to unnest list company_Facts using parallel processing. This function takes company_Data and unnests it, creating a data frame with relevant information including values, labels, descriptions, etc.
 
-FactsList_to_Dataframe <- function(company_Facts_us_gaap) {
+Fundamentals_to_Dataframe <- function(company_Data) {
+  # Ensure cik has 10 digits
+  company_details_cik <- sprintf("%010d", company_Data$company_Facts$cik)
+  
+  # Extract tickers separately
+  company_details_ticker <- company_Data$company_Metadata$tickers[1]
+  
+  # Create a vector with the modified details
+  company_details <- c(
+    company_details_cik,
+    company_Data$company_Facts$entityName,
+    company_Data$company_Metadata$sic,
+    company_Data$company_Metadata$sicDescription,
+    company_details_ticker
+  )
+  
+  # Create a data frame with the details
+  details_df <- as.data.frame(t(company_details))
+  colnames(details_df) <- c("cik", "entityName", "sic", "sicDescription","tickers")
+  
+  # Retrieve company_Facts data
+  company_Facts_us_gaap <- company_Data$company_Facts$facts$`us-gaap`
+  
   # Use parallel processing with future_map_dfr to apply the operation on each list concurrently
   df_units <- furrr::future_map_dfr(names(company_Facts_us_gaap), function(list_name) {
     # Extract the relevant information from the 'units' list and create a tibble
@@ -91,20 +113,22 @@ FactsList_to_Dataframe <- function(company_Facts_us_gaap) {
     return(df_list)
   })
   
+  # Replicate details_df to match the number of rows in df_units
+  details_replicated <- details_df[rep(seq_len(nrow(details_df)), each = nrow(df_units)), ]
+  
+  # Bind the two data frames together
+  df_units <- bind_cols(df_units, details_replicated)
+  
+  
   # Mutate to reduce values in millions by dividing by 1 million
   df_units <- df_units %>%
-    mutate(val = val / 1e6)
+    mutate(
+      val = val / 1e6
+    )
+  
   
   return(df_units)
 }
-
-
-# Example usage:
-# df_Facts_result <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
-
-
-# Example usage:
-# df_Facts_result <- FactsList_to_Dataframe(company_Facts$facts$`us-gaap`)
 
 # Function to rebuild the balancesheet financial statement ---------------------------------------
 
@@ -166,7 +190,7 @@ bs_std <- function(df_Facts) {
               description = paste(description, collapse = "\n")) %>%
     ungroup()
   
-  # 03 - Pivot df_std_BS in a dataframe format -----------------------------------
+  # 03 - Pivot df_std_BS in a dataframe format ------------------------------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
   
   df_std_BS <- df_std_BS %>%
@@ -182,11 +206,7 @@ bs_std <- function(df_Facts) {
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
-  # Step 1 - identify missing columns from standardized_balancesheet
-  df_std_BS_missing <- setdiff(standardized_balancesheet$standardized_balancesheet_label,
-                               colnames(df_std_BS)) 
-  
-  # Step 2 - Check if key financial Facts exist
+  ## Step 1 - Check if key financial Facts exist -----------------------------------
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
   }
@@ -203,27 +223,29 @@ bs_std <- function(df_Facts) {
     stop("Both Total Current Liabilities and Total Non Current Liabilities are missing. The entity is not adequate for financial analysis.")
   }
   
-  # Step 3 - add missing columns
-  # It creates a vector columns_to_add containing the names of the columns to add.
-  columns_to_add <- c("Total Current Assets", "Total Non Current Assets", "Other Current Assets", "Other Non Current Assets", "Other Current Liabilities", "Other Non Current Liabilities")
-  
+  ## Step 2 - add missing columns -----------------------------------
   # It checks which columns from columns_to_add are not already present in df_std_BS
-  columns_to_add <- columns_to_add[!(columns_to_add %in% colnames(df_std_BS))]
+  columns_to_add <- setdiff(standardized_balancesheet$standardized_balancesheet_label,
+                            colnames(df_std_BS)) 
   
-  #<<<<>>>>> It then adds only the missing columns to df_std_BS and initializes them with NA.
+  #It then adds only the missing columns to df_std_BS and initializes them with NA.
   if (length(columns_to_add) > 0) {
-    # Create a tibble with NAs and the columns to add
-    columns_to_add_df <- tibble(!!columns_to_add := NA_real_)
     
-    # Left join the new columns to df_std_BS
-    df_std_BS <- left_join(df_std_BS, columns_to_add_df, by = character())
+    # Add columns to the dataframe
+    df_std_BS[,columns_to_add] <- 0
   }
+  # Prepare company details to add to df_std_BS as additional columns
+  df_Facts_columns_to_add <- df_Facts[1:nrow(df_std_BS), ]
   
-  # Step 4 - evaluate missing columns and other
+  # Add company details columns to df_std_BS
+  df_std_BS <- cbind(df_std_BS,df_Facts_columns_to_add[,c("cik","entityName","sic","sicDescription","tickers")])
+  
+  ## Step 3 - evaluate the value of specific columns -----------------------------------
+  df_std_BS <- df_std_BS %>%
+    mutate(end = as.Date(end))
+  
   df_std_BS <- df_std_BS %>%
     mutate(
-      # Replace NAs with empty values
-      across(everything(), ~ifelse(is.na(.), NA, as.numeric(.))),
       # Evaluate expressions for newly added columns with NA
       `Total Current Assets` = case_when(
         is.na(`Total Current Assets`) ~ `Total Assets` - `Total Non Current Assets`,
@@ -233,7 +255,8 @@ bs_std <- function(df_Facts) {
         is.na(`Total Non Current Assets`) ~ `Total Assets` - `Total Current Assets`,
         TRUE ~ `Total Non Current Assets`
       ),
-      `Other Current Assets` = case_when(
+   #<<>>><<>>><<>>>   NOT WORKING OTHER CURRENT ASSETS >>><<<>><<<>><<<
+   `Other Current Assets` = case_when(
         is.na(`Other Current Assets`) ~ `Total Current Assets` - (`Cash & Cash Equivalent` + `Marketable Securities Current` + `Total Accounts Receivable` + `Total Inventory`),
         TRUE ~ `Other Current Assets`
       ),
@@ -263,10 +286,8 @@ bs_std <- function(df_Facts) {
       )
     )
   
-  
-  
-  # Step 5 - Order columns based on standardized_balancesheet_label
-  custom_order <- c(
+  ## Step 4 - Order columns based on standardized_balancesheet_label -----------------------------------
+ custom_order <- c(
     "Cash & Cash Equivalent",
     "Marketable Securities Current",
     "Total Inventory",
@@ -297,8 +318,8 @@ bs_std <- function(df_Facts) {
     "Accumulated other comprehensive income (loss)",
     "Minority interest",
     "Total Stockholders Equity",
-    "Total Liabilities & Stockholders Equity")
-  
+    "Total Liabilities & Stockholders Equity"
+    )
   
   df_std_BS <- df_std_BS[, c("end", custom_order)]
   
