@@ -206,7 +206,7 @@ bs_std <- function(df_Facts) {
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
-  ## Step 1 - Check if key financial Facts exist -----------------------------------
+  ## Step 1 - Check if key financial Concepts exist -----------------------------------
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
   }
@@ -232,7 +232,7 @@ bs_std <- function(df_Facts) {
   if (length(columns_to_add) > 0) {
     
     # Add columns to the dataframe
-    df_std_BS[,columns_to_add] <- 0
+    df_std_BS[,columns_to_add] <- NA
   }
   # Prepare company details to add to df_std_BS as additional columns
   df_Facts_columns_to_add <- df_Facts[1:nrow(df_std_BS), ]
@@ -248,49 +248,50 @@ bs_std <- function(df_Facts) {
     mutate(
       # Evaluate expressions for newly added columns with NA
       `Total Current Assets` = case_when(
-        is.na(`Total Current Assets`) ~ `Total Assets` - `Total Non Current Assets`,
-        TRUE ~ `Total Current Assets`
+        is.na(`Total Current Assets`) ~ coalesce(`Total Assets`,0) - coalesce(`Total Non Current Assets`,0),
+        TRUE ~ coalesce(`Total Current Assets`,0)
       ),
       `Total Non Current Assets` = case_when(
-        is.na(`Total Non Current Assets`) ~ `Total Assets` - `Total Current Assets`,
-        TRUE ~ `Total Non Current Assets`
+        is.na(`Total Non Current Assets`) ~ coalesce(`Total Assets`,0) - coalesce(`Total Current Assets`,0),
+        TRUE ~ coalesce(`Total Non Current Assets`,0)
       ),
-   #<<>>><<>>><<>>>   NOT WORKING OTHER CURRENT ASSETS >>><<<>><<<>><<<
-   `Other Current Assets` = case_when(
-        is.na(`Other Current Assets`) ~ `Total Current Assets` - (`Cash & Cash Equivalent` + `Marketable Securities Current` + `Total Accounts Receivable` + `Total Inventory`),
-        TRUE ~ `Other Current Assets`
+      `Other Current Assets` = case_when(
+        is.na(`Other Current Assets`) ~ coalesce(`Total Current Assets`,0) - (coalesce(`Cash & Cash Equivalent`,0) + coalesce(`Marketable Securities Current`,0) + coalesce(`Total Accounts Receivable`,0) + coalesce(`Total Inventory`,0) + coalesce(`Prepaid Expenses`,0)),
+        TRUE ~ coalesce(`Other Current Assets`,0)
       ),
       `Other Non Current Assets` = case_when(
-        is.na(`Other Non Current Assets`) ~ `Total Non Current Assets` - (`Marketable Securities Non Current` + `Property Plant and Equipment` + `Intangible Assets (excl. goodwill)` + `Goodwill`),
-        TRUE ~ `Other Non Current Assets`
+        is.na(`Other Non Current Assets`) ~ coalesce(`Total Non Current Assets`,0) - (coalesce(`Marketable Securities Non Current`,0) + coalesce(`Property Plant and Equipment`,0) + coalesce(`Intangible Assets (excl. goodwill)`,0) + coalesce(`Goodwill`,0)),
+        TRUE ~ coalesce(`Other Non Current Assets`,0)
       ),
       `Total Current Liabilities` = case_when(
-        is.na(`Total Current Liabilities`) ~ `Total Liabilities` - `Total Non Current Liabilities`,
-        TRUE ~ `Total Current Liabilities`
+        is.na(`Total Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Non Current Liabilities`,0),
+        TRUE ~ coalesce(`Total Current Liabilities`,0)
+      ),
+      `Total Non Current Liabilities` = case_when(
+        is.na(`Total Non Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Current Liabilities`,0),
+        TRUE ~ coalesce(`Total Non Current Liabilities`,0)
       ),
       `Other Current Liabilities` = case_when(
-        is.na(`Other Current Liabilities`) ~ `Total Current Liabilities` - (`Accounts Payable` + `Tax Payable` +  `Short Term Debt` + `Operating Lease Liability Current` + `Finance Lease Liability Current`),
-        TRUE ~ `Other Current Liabilities`
+        is.na(`Other Current Liabilities`) ~ coalesce(`Total Current Liabilities`,0) - (coalesce(`Accounts Payable`,0) + coalesce(`Tax Payable`,0) +  coalesce(`Current Debts`,0) + coalesce(`Operating Lease Liability Current`,0)),
+        TRUE ~ coalesce(`Other Current Liabilities`,0)
       ),
       `Other Non Current Liabilities` = case_when(
-        is.na(`Other Non Current Liabilities`) ~ `Total Non Current Liabilities` - (`Non Current Debts` + `Operating Lease Liability Non Current` + `Finance Lease Liability Non Current`),
-        TRUE ~ `Other Non Current Liabilities`
+        is.na(`Other Non Current Liabilities`) ~ coalesce(`Total Non Current Liabilities`,0) - (coalesce(`Non Current Debts`,0) + coalesce(`Operating Lease Liability Non Current`,0)),
+        TRUE ~ coalesce(`Other Non Current Liabilities`,0)
       ),
       `Total Stockholders Equity` = case_when(
-        is.na(`Total Stockholders Equity`) ~ `Total Liabilities & Stockholders Equity` - `Total Liabilities`,
-        TRUE ~ `Total Stockholders Equity`
-      ),
-      `Total Liabilities & Stockholders Equity` = case_when(
-        is.na(`Total Liabilities & Stockholders Equity`) ~ `Total Assets`,
-        TRUE ~ `Total Liabilities & Stockholders Equity`
+        is.na(`Total Stockholders Equity`) ~ coalesce(`Total Liabilities & Stockholders Equity`,0) - coalesce(`Total Liabilities`,0),
+        TRUE ~ coalesce(`Total Stockholders Equity`,0)
       )
     )
   
   ## Step 4 - Order columns based on standardized_balancesheet_label -----------------------------------
- custom_order <- c(
+  custom_order <- c(
     "Cash & Cash Equivalent",
     "Marketable Securities Current",
+    "Total Accounts Receivable",
     "Total Inventory",
+    "Prepaid Expenses",
     "Other Current Assets",
     "Total Current Assets",
     "Marketable Securities Non Current",
@@ -302,24 +303,22 @@ bs_std <- function(df_Facts) {
     "Total Assets",
     "Accounts Payable",
     "Tax Payable",
-    "Short Term Debt",
+    "Current Debts",
     "Operating Lease Liability Current",
-    "Finance Lease Liability Current",
     "Other Current Liabilities",
     "Total Current Liabilities",
     "Non Current Debts",
     "Operating Lease Liability Non Current",
-    "Finance Lease Liability Non Current",
     "Other Non Current Liabilities",
     "Total Non Current Liabilities",
     "Total Liabilities",
     "Preferred Stock",
-    "Retained Earnings",
+    "Retained Earnings or Accumulated Deficit",
     "Accumulated other comprehensive income (loss)",
     "Minority interest",
     "Total Stockholders Equity",
     "Total Liabilities & Stockholders Equity"
-    )
+  )
   
   df_std_BS <- df_std_BS[, c("end", custom_order)]
   
