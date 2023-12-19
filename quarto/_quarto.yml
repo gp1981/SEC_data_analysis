@@ -11,6 +11,7 @@ website:
       menu:
       - text: Source code
         url: https://github.com/gp1981/SEC_data_analysis
+  page-navigation: true
   sidebar: 
     style: "docked"
     search: true
