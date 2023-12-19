@@ -1,5 +1,5 @@
 # Import required libraries
-packages <- c("tm", "proxy","httr","jsonlite","tidyverse", "readxl","magrittr", "kableExtra" ,"tibble","knitr", "here","openxlsx")
+packages <- c("tm", "proxy","httr","jsonlite","tidyverse", "readxl","magrittr", "kableExtra" ,"tibble","knitr", "here","openxlsx", "furrr")
 
 for (package in packages) {
   if (!(package %in% installed.packages())) {

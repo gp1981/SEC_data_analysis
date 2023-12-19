@@ -56,15 +56,11 @@ str(company_Data, max.level = 1)
 The output reveals that **`company_Data`** structure comprises three lists with nested lists, such as **`company_Metadata`** with 22 lists.
 
 ::: {.Note .custom-note}
-------------------------------------------------------------------------
-**Note**
-
-In R, a **list** is a powerful data structure that can hold elements of **different data types**. This flexibility allows each element to be unique and cater to specific data requirements.
-For the `company_Data` object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types.
-Understanding the **organization and structure** of the `company_Data` list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation.
-------------------------------------------------------------------------
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+|:-----------------------------------------------------------------------|
+| **Note**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| In R, a **list** is a powerful data structure that can hold elements of **different data types**. This flexibility allows each element to be unique and cater to specific data requirements. For the `company_Data` object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types. Understanding the **organization and structure** of the `company_Data` list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation. |
 :::
-
 
 To access the lists we use the symbol `$` in after the object e.g. `company_Data$company_Metadata`.
 
@@ -88,7 +84,14 @@ Let's start with `company_Metadata` which includes 22 elements: characters, inte
 str(company_Metadata, max.level = 1)
 ```
 
-For our purpose, the most relevant information of `company_Metadata` are included in the elemnent `filing` which is a nested list and contains the filing attributes. Here the structure of `company_Metadata`:
+For our purpose, the most relevant information of `company_Metadata` are:
+
+1.  `cik`, as described above.
+2.  `sic`, standard industrial classification. The SIC codes were used to classify companies into specific industry segments based on their primary business activities. Each four-digit SIC code represented a different industry or sector.
+3.  `sicDescription` the description of the standard industrial classification
+4.  `name`, name of the company 5 `tickers`, identifier a publicly traded company's stock on a particular stock market
+5.  `filing`  which includes the filing attributes. 
+Here the structure of `company_Metadata`:
 
 ```{r str_company_Metadata_Filing, eval=TRUE, warning=FALSE, message=FALSE, class.output="custom-str-output"}
 # Visualize structure of the company_Metadata
@@ -97,7 +100,7 @@ str(company_Metadata$filing, max.level = 2)
 
 The format of the dataset as printed is not very useful. We see that there are useful information on the forms (e.g. 10K) and dates (e.g. filing dates).
 
-For now we will keep it as is and we will come back later on how to improve the readibility
+For now we will keep it as is and we will come back later on how to improve the readability
 
 #### Company Facts
 
@@ -115,7 +118,7 @@ For our purpose, the last element `company_Facts$facts` is the most relevant one
 str(company_Facts$facts, max.level = 1)
 ```
 
-The **`us-gaap`** list includes relevant Facts, containing 498 nested elements. Let's examine the first five.
+The **`us-gaap`** list includes relevant Facts, containing 487 nested elements. Let's examine the first five.
 
 ```{r str_company_Facts_us_gaap_head, eval=TRUE, warning=FALSE, message=FALSE, class.output="custom-str-output"}
 
@@ -123,7 +126,7 @@ The **`us-gaap`** list includes relevant Facts, containing 498 nested elements. 
 Facts_us_gaap <- str(company_Facts$facts$`us-gaap`[1:5], max.level = 1)
 ```
 
-These elements include essential fundamentals of the company and are themselves nested lists. Let's explore the structure of the first one.
+These elements, to which we will refer as `us_gaap_reference`, include essential fundamentals of the company and are themselves nested lists. Let's explore the structure of the first one.
 
 ```{r str_company_Facts_us_gaap, eval=TRUE, warning=FALSE, message=FALSE, class.output="custom-str-output"}
 
@@ -163,7 +166,7 @@ This hierarchical structure provides a detailed view of the financial concept "A
 
 ------------------------------------------------------------------------
 
-*Most of the SEC data required for fundamentals analysis is included in a structure of nested lists. Its understanding is critical to properly retrieve the data.*
+*Most of the SEC data required for fundamentals analysis is included in a structure of nested lists. We will see in the next section how to properly retrieve this data.*
 
 ------------------------------------------------------------------------
 :::
@@ -178,3 +181,5 @@ str(company_Concept, max.level = 3)
 ```
 
 The output shows the structure associated with the `Asset` of the company under the taxonomy of `us-gaap`.
+
+For the purpose of our analysis, we will use `company_Facts` which includes also the `us_gaap_reference`.

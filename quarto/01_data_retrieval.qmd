@@ -42,9 +42,9 @@ company_List <- retrieve_Company_List(headers)
 kable(head(company_List), "html", class = "custom-table custom-narrow-table")
 ```
 
-## Selecting a Company: JAKKS Pacific Inc. (AAPL)
+## Selecting a Company: JAKKS Pacific Inc. (JAKK)
 
-For our analysis, we'll use JAKKS Pacific Inc. (AAPL) as the company of interest. The CIK for JAKKS Pacific Inc. is 0000320193.
+For our analysis, we'll use JAKKS Pacific Inc. (JAKK) as the company of interest. The CIK for JAKKS Pacific Inc. is 0000320193.
 
 Let's now select JAKKS Pacific Inc. by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the `company_Data` object for further analysis:
 
@@ -53,8 +53,10 @@ Let's now select JAKKS Pacific Inc. by its CIK and retrieve its data from the SE
 cik <- "0001009829"  # CIK for JAKKS Pacific Inc.
 company_Data <- retrieve_Company_Data(headers, cik)
 
-# this the first row of the company list as a quick check
-company_List[1,] %>% kable("html", class = "custom-table custom-narrow-table")
+# this the corresponding row of the company list
+company_List %>% 
+  filter(cik_str == cik) %>% 
+  kable("html", class = "custom-table custom-narrow-table")
 ```
 
 By following these steps, we've imported the necessary libraries, sourced relevant files, and initiated the retrieval of financial data from the SEC. In the subsequent chapters, we will delve deeper into exploring and analyzing the SEC data for JAKKS Pacific Inc.

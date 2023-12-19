@@ -71,25 +71,85 @@ retrieve_Company_Data <- function(headers, cik) {
   return(company_Data)
 }
 
+# Function to create a dataframe of fundamentals  ---------------------------------------
+
+# Function to unnest list company_Facts using parallel processing. This function takes company_Data and unnests it, creating a data frame with relevant information including values, labels, descriptions, etc.
+
+Fundamentals_to_Dataframe <- function(company_Data) {
+  # Ensure cik has 10 digits
+  company_details_cik <- sprintf("%010d", company_Data$company_Facts$cik)
+  
+  # Extract tickers separately
+  company_details_ticker <- company_Data$company_Metadata$tickers[1]
+  
+  # Create a vector with the modified details
+  company_details <- c(
+    company_details_cik,
+    company_Data$company_Facts$entityName,
+    company_Data$company_Metadata$sic,
+    company_Data$company_Metadata$sicDescription,
+    company_details_ticker
+  )
+  
+  # Create a data frame with the details
+  details_df <- as.data.frame(t(company_details))
+  colnames(details_df) <- c("cik", "entityName", "sic", "sicDescription","tickers")
+  
+  # Retrieve company_Facts data
+  company_Facts_us_gaap <- company_Data$company_Facts$facts$`us-gaap`
+  
+  # Use parallel processing with future_map_dfr to apply the operation on each list concurrently
+  df_units <- furrr::future_map_dfr(names(company_Facts_us_gaap), function(list_name) {
+    # Extract the relevant information from the 'units' list and create a tibble
+    df_list <- company_Facts_us_gaap[[list_name]]$units$USD %>%
+      as_tibble() %>%
+      # Add columns with 'label', 'description', and 'us_gaap_reference'
+      mutate(
+        label = company_Facts_us_gaap[[list_name]]$label,
+        description = company_Facts_us_gaap[[list_name]]$description,
+        us_gaap_reference = list_name
+      )
+    
+    return(df_list)
+  })
+  
+  # Replicate details_df to match the number of rows in df_units
+  details_replicated <- details_df[rep(seq_len(nrow(details_df)), each = nrow(df_units)), ]
+  
+  # Bind the two data frames together
+  df_units <- bind_cols(df_units, details_replicated)
+  
+  
+  # Mutate to reduce values in millions by dividing by 1 million
+  df_units <- df_units %>%
+    mutate(
+      val = val / 1e6
+    )
+  
+  
+  return(df_units)
+}
+
 # Function to rebuild the balancesheet financial statement ---------------------------------------
 
 bs_std <- function(df_Facts) {
+  # 01 - Join standardized_balancesheet ------------------------------------------------------
   # Define the standardized balancesheet file path
   balancesheet_path <- here(data_dir, "standardized_balancesheet.xlsx")
   
   # Read the standardized_balancesheet.xlsx file
   standardized_balancesheet <- read.xlsx(balancesheet_path, sheet = "Sheet1")
   
-  # Rename standardized_balancesheet column df_Facts_label to perform left_join
+  # Rename standardized_balancesheet column df_Fact_Description to perform left_join
   standardized_balancesheet <- standardized_balancesheet %>% 
-    rename(label = df_Facts_label)
+    rename(description = df_Facts_Description)
   
-  # Merge df_Facts with standardized_balancesheet
+  # Merge df_Facts with standardized_balancesheet based on description and period
   df_std_BS <- df_Facts %>%
-    left_join(standardized_balancesheet, by = "label") %>% 
+    left_join(standardized_balancesheet, by = "description") %>%
     select(standardized_balancesheet_label, everything())
   
-  # 01 - Data cleaning ------------------------------------------------------
+  # 02 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
   
   df_std_BS <- df_std_BS %>%
@@ -108,7 +168,7 @@ bs_std <- function(df_Facts) {
     # - Retain rows with /A if there's at least one row with /A in the group
     filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
     # Select relevant columns
-    select(label,standardized_balancesheet_label, end, val) %>%
+    select(end, standardized_balancesheet_label, everything()) %>%
     # Arrange by descending end date
     arrange(desc(end)) %>% 
     # Remove grouping
@@ -121,37 +181,20 @@ bs_std <- function(df_Facts) {
     # Remove grouping
     ungroup()
   
-  # This code ensures that for each standardized_balancesheet_label and end combination, only the row with the most recent filing date is retained
-  
-  # Clear the dataframe with the most recent form for each end period
+  # Sum the "val" values for rows with the same standardized_balancesheet_label
   df_std_BS <- df_std_BS %>%
-    # Filter out rows without standardized_balancesheet_label
-    filter(!is.na(standardized_balancesheet_label)) %>% 
-    # Convert 'end' column to date format using lubridate (ymd function)
-    mutate(end = ymd(end),) %>%
-    # Group by standardized_balancesheet_label and end date
-    group_by(standardized_balancesheet_label, end) %>%
-    # Filter rows with the most recent filing date within each group
-    filter(end == max(end)) %>%
-    # Remove grouping to perform further operations
-    ungroup() %>%
-    # Select relevant columns
-    select(end,standardized_balancesheet_label, val)
-  
-  # This code ensures that for each unique combination of label and end, only the row with the highest "val" is kept, effectively handling duplicates in the dataset
-  df_std_BS <- df_std_BS %>%
-    # Group by standardized_balancesheet_label, end, and arrange by descending val
-    group_by(standardized_balancesheet_label, end) %>%
-    arrange(desc(val)) %>%
-    # Retain only the first row within each group (highest val)
-    slice_head(n = 1) %>%
-    # Remove grouping for further operations
+    group_by(end,standardized_balancesheet_label) %>%
+    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
+    filter(row_number() == 1) %>%    # Keep only the first row within each group
+    summarise(val = sum(val, na.rm = TRUE),
+              description = paste(description, collapse = "\n")) %>%
     ungroup()
   
-  # 02 - Pivot df_std_BS in a dataframe format -----------------------------------
+  # 03 - Pivot df_std_BS in a dataframe format ------------------------------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
   
   df_std_BS <- df_std_BS %>%
+    select(end,standardized_balancesheet_label,val) %>% 
     # Pivot the data using standardized_balancesheet_label as column names
     pivot_wider(
       names_from = standardized_balancesheet_label,
@@ -160,14 +203,11 @@ bs_std <- function(df_Facts) {
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
   
-  # 03 - Add new columns for standardization of the financial report -----------------------------------
+  # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
-  # Step 1 - identify missing columns from standardized_balancesheet
-  df_std_BS_missing <- setdiff(standardized_balancesheet$standardized_balancesheet_label, 
-                               colnames(df_std_BS)) 
-  
-  # Step 2 - Checks existance of key financial Facts
+  ## Step 1 - Check if key financial Concepts -----------------------------------
+  # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
   }
@@ -184,38 +224,112 @@ bs_std <- function(df_Facts) {
     stop("Both Total Current Liabilities and Total Non Current Liabilities are missing. The entity is not adequate for financial analysis.")
   }
   
-  # Step 3 - add missing columns
-  df_std_BS[,c(df_std_BS_missing)] <- NA
+  # Remove rows where Total Liabilities & Stockholders Equity is empty (or NA)
+  df_std_BS <- df_std_BS %>%
+    filter(!is.na(`Total Liabilities & Stockholders Equity`) & `Total Liabilities & Stockholders Equity` != "")
   
-  # It creates a vector columns_to_add containing the names of the columns you want to add.
-  columns_to_add <- c("Total Current Assets", "Total Non Current Assets", "Other Current Assets", "Other Non Current Assets","Other Current Liabilities","Other Non Current Liabilities")
+  # Remove rows where Total Assets or Total Liabilities are empty (or NA)
+  df_std_BS <- df_std_BS %>%
+    filter(!is.na(`Total Assets`) & `Total Assets` != "" & !is.na(`Total Liabilities`) & `Total Liabilities` != "")
   
-  # It checks which columns from columns_to_add are not already present in df_std_BS using the !(columns_to_add %in% colnames(df_std_BS)) condition.
-  columns_to_add <- columns_to_add[!(columns_to_add %in% colnames(df_std_BS))]
+  ## Step 2 - Add missing columns -----------------------------------
+  # It checks which columns from columns_to_add are not already present in df_std_BS
+  columns_to_add <- setdiff(standardized_balancesheet$standardized_balancesheet_label,colnames(df_std_BS)) 
   
-  # It then adds only the missing columns to df_std_BS and initializes them with NA.
+  #It then adds only the missing columns to df_std_BS and initializes them with NA.
   if (length(columns_to_add) > 0) {
-    df_std_BS[, columns_to_add] <- NA
+    
+    # Add columns to the dataframe
+    df_std_BS[,columns_to_add] <- NA
   }
+  # Prepare company details to add to df_std_BS as additional columns
+  df_Facts_columns_to_add <- df_Facts[1:nrow(df_std_BS), ]
   
-  # Step 4 - evaluate missing columns and other
-  df_std_BSt <- df_std_BS %>%
+  # Add company details columns to df_std_BS
+  df_std_BS <- cbind(df_std_BS,df_Facts_columns_to_add[,c("cik","entityName","sic","sicDescription","tickers")])
+  
+  ## Step 3 - Calculate newly added columns columns -----------------------------------
+  # Evaluate expressions for newly added columns 
+  
+  df_std_BS <- df_std_BS %>%
+    mutate(end = as.Date(end))
+  
+  df_std_BS <- df_std_BS %>%
     mutate(
-      # Evaluate expressions for newly added columns with NA
-      `Total Current Assets` = ifelse(is.na(`Total Current Assets`), `Total Assets` - `Total Non Current Assets`, `Total Current Assets`),
-      `Total Non Current Assets` = ifelse(is.na(`Total Non Current Assets`), `Total Assets` - `Total Current Assets`, `Total Non Current Assets`),
-      `Other Current Assets` = ifelse(is.na(`Other Current Assets`), `Total Current Assets` - (`Cash & Cash Equivalent` + `Marketable Securities Current` + `Total Accounts Receivable` + `Total Inventory`), `Other Current Assets`),
-      `Other Non Current Assets` = ifelse(is.na(`Other Non Current Assets`), `Total Non Current Assets` - (`Marketable Securities Non Current` + `Property Plant and Equipment` + `Intangible Assets (excl. goodwill)` + `Goodwill`), `Other Non Current Assets`),
-      `Total Current Liabilities` = ifelse(is.na(`Total Current Liabilities`), `Total Liabilities` - `Total Non Current Liabilities`, `Total Current Liabilities`),
-      `Other Current Liabilities` = ifelse(is.na(`Other Current Liabilities`), `Total Current Liabilities` - (`Accounts Payable` + `Tax Payable` +  `Short Term Debt` + `Operating Lease Liability Current` + `Finance Lease Liability Current`), `Other Current Liabilities`),
-      `Other Non Current Liabilities` = ifelse(is.na(`Other Non Current Liabilities`), `Total Non Current Liabilities` - (`Non Current Debts` + `Operating Lease Liability Non Current` + `Finance Lease Liability Non Current`), `Other Non Current Liabilities`),
-      `Total Stockholders Equity` = ifelse(is.na(`Total Stockholders Equity`), `Total Liabilities & Stockholders Equity` - `Total Liabilities`, `Total Stockholders Equity`),
-      `Total Liabilities & Stockholders Equity` = ifelse(is.na(`Total Liabilities & Stockholders Equity`), `Total Assets`, `Total Liabilities & Stockholders Equity`)
+      `Total Current Assets` = pmax(0, case_when(
+        is.na(`Total Current Assets`) ~ coalesce(`Total Assets`,0) - coalesce(`Total Non Current Assets`,0),
+        TRUE ~ coalesce(`Total Current Assets`,0)
+      )),
+      `Total Non Current Assets` = pmax(0, case_when(
+        is.na(`Total Non Current Assets`) ~ coalesce(`Total Assets`,0) - coalesce(`Total Current Assets`,0),
+        TRUE ~ coalesce(`Total Non Current Assets`,0)
+      )),
+      `Other Current Assets` = pmax(0, case_when(
+        is.na(`Other Current Assets`) ~ coalesce(`Total Current Assets`,0) - (coalesce(`Cash & Cash Equivalent`,0) + coalesce(`Marketable Securities Current`,0) + coalesce(`Total Accounts Receivable`,0) + coalesce(`Total Inventory`,0) + coalesce(`Prepaid Expenses`,0)),
+        TRUE ~ coalesce(`Other Current Assets`,0)
+      )),
+      `Other Non Current Assets` = pmax(0, case_when(
+        is.na(`Other Non Current Assets`) ~ coalesce(`Total Non Current Assets`,0) - (coalesce(`Marketable Securities Non Current`,0) + coalesce(`Property Plant and Equipment`,0) + coalesce(`Intangible Assets (excl. goodwill)`,0) + coalesce(`Goodwill`,0)),
+        TRUE ~ coalesce(`Other Non Current Assets`,0)
+      )),
+      `Total Current Liabilities` = pmax(0, case_when(
+        is.na(`Total Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Non Current Liabilities`,0),
+        TRUE ~ coalesce(`Total Current Liabilities`,0)
+      )),
+      `Total Non Current Liabilities` = pmax(0, case_when(
+        is.na(`Total Non Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Current Liabilities`,0),
+        TRUE ~ coalesce(`Total Non Current Liabilities`,0)
+      )),
+      `Other Current Liabilities` = pmax(0, case_when(
+        is.na(`Other Current Liabilities`) ~ coalesce(`Total Current Liabilities`,0) - (coalesce(`Accounts Payable`,0) + coalesce(`Tax Payable`,0) +  coalesce(`Current Debts`,0) + coalesce(`Operating Lease Liability Current`,0)),
+        TRUE ~ coalesce(`Other Current Liabilities`,0)
+      )),
+      `Other Non Current Liabilities` = pmax(0, case_when(
+        is.na(`Other Non Current Liabilities`) ~ coalesce(`Total Non Current Liabilities`,0) - (coalesce(`Non Current Debts`,0) + coalesce(`Operating Lease Liability Non Current`,0)),
+        TRUE ~ coalesce(`Other Non Current Liabilities`,0)
+      )),
+      `Total Stockholders Equity` = case_when(
+        is.na(`Total Stockholders Equity`) ~ coalesce(`Total Liabilities & Stockholders Equity`,0) - coalesce(`Total Liabilities`,0),
+        TRUE ~ coalesce(`Total Stockholders Equity`,0)
+      )
     )
   
-  # Step 5 - Order columns based on standardized_balancesheet_label
-  column_order <- standardized_balancesheet$standardized_balancesheet_label
-  df_std_BS <- df_std_BS[, c("end", column_order)]
+  ## Step 4 - Order columns based on standardized_balancesheet_label -----------------------------------
+  custom_order <- c(
+    "Cash & Cash Equivalent",
+    "Marketable Securities Current",
+    "Total Accounts Receivable",
+    "Total Inventory",
+    "Prepaid Expenses",
+    "Other Current Assets",
+    "Total Current Assets",
+    "Marketable Securities Non Current",
+    "Property Plant and Equipment",
+    "Intangible Assets (excl. goodwill)",
+    "Goodwill",
+    "Other Non Current Assets",
+    "Total Non Current Assets",
+    "Total Assets",
+    "Accounts Payable",
+    "Tax Payable",
+    "Current Debts",
+    "Operating Lease Liability Current",
+    "Other Current Liabilities",
+    "Total Current Liabilities",
+    "Non Current Debts",
+    "Operating Lease Liability Non Current",
+    "Other Non Current Liabilities",
+    "Total Non Current Liabilities",
+    "Total Liabilities",
+    "Preferred Stock",
+    "Retained Earnings or Accumulated Deficit",
+    "Accumulated other comprehensive income (loss)",
+    "Minority interest",
+    "Total Stockholders Equity",
+    "Total Liabilities & Stockholders Equity"
+  )
+  
+  df_std_BS <- df_std_BS[, c("end", custom_order)]
   
   return(df_std_BS)
 }
