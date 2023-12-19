@@ -1,3 +1,3 @@
-# R script: Functions
+# Appendix A2: R script functions
 
 Work in progress [..]

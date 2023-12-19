@@ -206,7 +206,8 @@ bs_std <- function(df_Facts) {
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
-  ## Step 1 - Check if key financial Concepts exist -----------------------------------
+  ## Step 1 - Check if key financial Concepts -----------------------------------
+  # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
   }
@@ -223,10 +224,17 @@ bs_std <- function(df_Facts) {
     stop("Both Total Current Liabilities and Total Non Current Liabilities are missing. The entity is not adequate for financial analysis.")
   }
   
-  ## Step 2 - add missing columns -----------------------------------
+  # Remove rows where Total Liabilities & Stockholders Equity is empty (or NA)
+  df_std_BS <- df_std_BS %>%
+    filter(!is.na(`Total Liabilities & Stockholders Equity`) & `Total Liabilities & Stockholders Equity` != "")
+  
+  # Remove rows where Total Assets or Total Liabilities are empty (or NA)
+  df_std_BS <- df_std_BS %>%
+    filter(!is.na(`Total Assets`) & `Total Assets` != "" & !is.na(`Total Liabilities`) & `Total Liabilities` != "")
+  
+  ## Step 2 - Add missing columns -----------------------------------
   # It checks which columns from columns_to_add are not already present in df_std_BS
-  columns_to_add <- setdiff(standardized_balancesheet$standardized_balancesheet_label,
-                            colnames(df_std_BS)) 
+  columns_to_add <- setdiff(standardized_balancesheet$standardized_balancesheet_label,colnames(df_std_BS)) 
   
   #It then adds only the missing columns to df_std_BS and initializes them with NA.
   if (length(columns_to_add) > 0) {
@@ -240,45 +248,46 @@ bs_std <- function(df_Facts) {
   # Add company details columns to df_std_BS
   df_std_BS <- cbind(df_std_BS,df_Facts_columns_to_add[,c("cik","entityName","sic","sicDescription","tickers")])
   
-  ## Step 3 - evaluate the value of specific columns -----------------------------------
+  ## Step 3 - Calculate newly added columns columns -----------------------------------
+  # Evaluate expressions for newly added columns 
+  
   df_std_BS <- df_std_BS %>%
     mutate(end = as.Date(end))
   
   df_std_BS <- df_std_BS %>%
     mutate(
-      # Evaluate expressions for newly added columns with NA
-      `Total Current Assets` = case_when(
+      `Total Current Assets` = pmax(0, case_when(
         is.na(`Total Current Assets`) ~ coalesce(`Total Assets`,0) - coalesce(`Total Non Current Assets`,0),
         TRUE ~ coalesce(`Total Current Assets`,0)
-      ),
-      `Total Non Current Assets` = case_when(
+      )),
+      `Total Non Current Assets` = pmax(0, case_when(
         is.na(`Total Non Current Assets`) ~ coalesce(`Total Assets`,0) - coalesce(`Total Current Assets`,0),
         TRUE ~ coalesce(`Total Non Current Assets`,0)
-      ),
-      `Other Current Assets` = case_when(
+      )),
+      `Other Current Assets` = pmax(0, case_when(
         is.na(`Other Current Assets`) ~ coalesce(`Total Current Assets`,0) - (coalesce(`Cash & Cash Equivalent`,0) + coalesce(`Marketable Securities Current`,0) + coalesce(`Total Accounts Receivable`,0) + coalesce(`Total Inventory`,0) + coalesce(`Prepaid Expenses`,0)),
         TRUE ~ coalesce(`Other Current Assets`,0)
-      ),
-      `Other Non Current Assets` = case_when(
+      )),
+      `Other Non Current Assets` = pmax(0, case_when(
         is.na(`Other Non Current Assets`) ~ coalesce(`Total Non Current Assets`,0) - (coalesce(`Marketable Securities Non Current`,0) + coalesce(`Property Plant and Equipment`,0) + coalesce(`Intangible Assets (excl. goodwill)`,0) + coalesce(`Goodwill`,0)),
         TRUE ~ coalesce(`Other Non Current Assets`,0)
-      ),
-      `Total Current Liabilities` = case_when(
+      )),
+      `Total Current Liabilities` = pmax(0, case_when(
         is.na(`Total Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Non Current Liabilities`,0),
         TRUE ~ coalesce(`Total Current Liabilities`,0)
-      ),
-      `Total Non Current Liabilities` = case_when(
+      )),
+      `Total Non Current Liabilities` = pmax(0, case_when(
         is.na(`Total Non Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Current Liabilities`,0),
         TRUE ~ coalesce(`Total Non Current Liabilities`,0)
-      ),
-      `Other Current Liabilities` = case_when(
+      )),
+      `Other Current Liabilities` = pmax(0, case_when(
         is.na(`Other Current Liabilities`) ~ coalesce(`Total Current Liabilities`,0) - (coalesce(`Accounts Payable`,0) + coalesce(`Tax Payable`,0) +  coalesce(`Current Debts`,0) + coalesce(`Operating Lease Liability Current`,0)),
         TRUE ~ coalesce(`Other Current Liabilities`,0)
-      ),
-      `Other Non Current Liabilities` = case_when(
+      )),
+      `Other Non Current Liabilities` = pmax(0, case_when(
         is.na(`Other Non Current Liabilities`) ~ coalesce(`Total Non Current Liabilities`,0) - (coalesce(`Non Current Debts`,0) + coalesce(`Operating Lease Liability Non Current`,0)),
         TRUE ~ coalesce(`Other Non Current Liabilities`,0)
-      ),
+      )),
       `Total Stockholders Equity` = case_when(
         is.na(`Total Stockholders Equity`) ~ coalesce(`Total Liabilities & Stockholders Equity`,0) - coalesce(`Total Liabilities`,0),
         TRUE ~ coalesce(`Total Stockholders Equity`,0)

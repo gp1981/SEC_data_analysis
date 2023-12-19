@@ -102,19 +102,20 @@ To handle this scenario, we construct a dataframe of financial data based on the
 
 #### Balance Sheet
 
-The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table prepopulated in excel (standardized_balancehseet.xlsx). There are instances in which the the filing (e.g. 10-K) of a specific fiscal period (`df_Facts$fy` and `df_Facts$fp`) includes a comparison with previous fiscal periods. In these cases we refer to the end date `df_Facts$end` of the reporting period which is associated with the financial data.
+The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table in excel (standardized_balancehseet.xlsx). The standardized Balance Sheet includes Concepts that are not necessarily present in the filing (e.g. 10-K) of all companies. In these cases the function will estimate their values. More details on the function are included in [Appendix A2](#appendix-a2-r-script-functions)
+
 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
 # Retrieve balance sheet of JAKKS Pacific Inc. in standardized format
 df_std_BS <- bs_std(df_Facts)
 
-# Print the resulting data.frame
-# df_std_BS %>% head() %>% as.data.frame() %>%
-#   head() %>% as.data.frame() %>% 
-#   kable( "html") %>% 
-#   kable_styling(full_width = FALSE) %>% 
-#   column_spec(1,width = "250px")
+# Print the standardized balancesheet
+df_std_BS %>% head() %>% as.data.frame() %>%
+  head() %>% as.data.frame() %>%
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1,width = "250px")
 
 
 ```
