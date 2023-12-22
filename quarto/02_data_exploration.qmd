@@ -1,6 +1,26 @@
 # Explore data retrieved from SEC
 
-In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, and understanding this structure is vital for effective analysis.
+In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, utilizing XBRL (eXtensible Business Reporting Language). XBRL is a standardized language designed to enhance the accuracy and reliability of financial reporting.
+
+## Understanding XBRL
+
+**XBRL (eXtensible Business Reporting Language):** XBRL is a structured, machine-readable format ensuring consistency and comparability across companies and filings. As specialized language for business and financial data, XBRL enables standardized communication and presentation of financial information. It uses XML (eXtensible Markup Language) to tag financial data with labels that provide context and meaning. This tagging allows for easier analysis, comparability, and extraction of data by both humans and machines.
+
+### Why XBRL?
+
+1.  **Consistency:** XBRL ensures consistency in financial reporting by providing a standardized set of tags for financial concepts, making it easier to compare data across different companies and periods.
+
+2.  **Efficiency:** The use of XBRL streamlines the process of collecting, analyzing, and disseminating financial information, reducing the need for manual data entry and interpretation.
+
+3.  **Transparency:** XBRL enhances the transparency of financial data, as each financial concept is tagged with a specific label, providing clear identification and context.
+
+### Key Elements of XBRL in SEC Data
+
+Within the SEC data retrieved through the API, XBRL is utilized to structure financial information. .
+
+A basic understanding XBRL[^02_data_exploration-1] is necessary for navigating and interpreting the structured financial data retrieved from the SEC. It ensures a standardized approach to financial reporting, facilitating meaningful analysis and comparison.
+
+[^02_data_exploration-1]: The definitions provided on this website are crafted for non-practitioners and may lack the rigor and precision required by experts. For a more thorough understanding of XBRL financial reporting, we recommend referring to [XBRL-based structured digital financial reporting](http://xbrl.squarespace.com "XBRL-based structured digital financial reporting") where you can find a comprehensive and rigorous explanation. To delve deeper into the subject, we suggest reading the following authoritative texts: [Essentials of XBRL-based Digital Financial Reporting](http://xbrlsite.azurewebsites.net/2021/essentials/EssentialsOfXBRLBasedDigitalFinancialReporting.pdf) and [Mastering XBRL-based Digital Financial Reporting](http://xbrl.squarespace.com/mastering-xbrl/) by C. Hoffman.
 
 First, we load the required libraries and files.
 
@@ -11,22 +31,18 @@ source("setup.qmd")
 Now, let's retrieve the necessary objects for data exploration:
 
 ```{r load_object1, eval=TRUE, warning=FALSE, message=FALSE}
-# Load company_Data
-company_Data <- readRDS("company_data.RDS")
+# Load company_data
+company_data <- readRDS("company_data.RDS")
 cik <- readRDS("cik.RDS")
 ```
 
-## Structure of the SEC data: XBRL
-
-The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards. It utilizes XBRL (eXtensible Business Reporting Language)[^02_data_exploration-1], a structured, machine-readable format ensuring consistency and comparability across companies and filings.
-
-[^02_data_exploration-1]: The definitions provided on this website are crafted for non-practitioners and may lack the rigor and precision required by experts. For a more thorough understanding of XBRL financial reporting, we recommend referring to [XBRL-based structured digital financial reporting](http://xbrl.squarespace.com "XBRL-based structured digital financial reporting") where you can find a comprehensive and rigorous explanation. To delve deeper into the subject, we suggest reading the following authoritative texts: [Essentials of XBRL-based Digital Financial Reporting](http://xbrlsite.azurewebsites.net/2021/essentials/EssentialsOfXBRLBasedDigitalFinancialReporting.pdf) and [Mastering XBRL-based Digital Financial Reporting](http://xbrl.squarespace.com/mastering-xbrl/) by C. Hoffman.
+The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards.
 
 To navigate through this structure for analysis, consider the following key elements:
 
 -   **`cik`**: The Central Index Key (CIK) is a unique identifier assigned to each company filing reports with the U.S. Securities and Exchange Commission (SEC).
 
--   **`entityName`**: This is the name of the company, such as "Apple Inc."
+-   **`entityName`**: This is the name of the company, in our case "JAKKS Pacific, Inc."
 
 -   **`facts`**: The main container for financial data, housing two critical sections:
 
@@ -44,33 +60,33 @@ Within these sections, financial data is organized as a list of items, each with
 
 Effectively analyzing this data involves selecting relevant concepts and `Fact`, potentially transforming or pivoting the data for further processing and visualization.
 
-### Understanding the dataset: `company_Data`
+### Understanding the dataset
 
-Let's start by exploring the structure of **`company_Data`**:
+Let's start by exploring the structure of **`company_data`**:
 
-```{r str_company_Data, eval=TRUE, message=FALSE, warning=FALSE, class.output="custom-str-output"}
-# Visualize structure of the company_Data 
-str(company_Data, max.level = 1) 
+```{r str_company_data, eval=TRUE, message=FALSE, warning=FALSE, class.output="custom-str-output"}
+# Visualize structure of the company_data 
+str(company_data, max.level = 1) 
 ```
 
-The output reveals that **`company_Data`** structure comprises three lists with nested lists, such as **`company_Metadata`** with 22 lists.
+The output reveals that **`company_data`** structure comprises three lists with nested lists, such as **`company_Metadata`** with 22 lists.
 
 ::: {.Note .custom-note}
 |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 |:-----------------------------------------------------------------------|
 | **Note**                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
-| In R, a **list** is a powerful data structure that can hold elements of **different data types**. This flexibility allows each element to be unique and cater to specific data requirements. For the `company_Data` object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types. Understanding the **organization and structure** of the `company_Data` list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation. |
+| In R, a **list** is a powerful data structure that can hold elements of **different data types**. This flexibility allows each element to be unique and cater to specific data requirements. For the `company_data` object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types. Understanding the **organization and structure** of the `company_data` list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation. |
 :::
 
-To access the lists we use the symbol `$` in after the object e.g. `company_Data$company_Metadata`.
+To access the lists we use the symbol `$` in after the object e.g. `company_data$company_Metadata`.
 
-Next, we split the `company_Data` into separate lists: **`company_Metadata`**, **`company_Facts`**, **`company_Concept`**.
+Next, we split the `company_data` into separate lists: **`company_Metadata`**, **`company_Facts`**, **`company_Concept`**.
 
-```{r split_company_Data, eval=TRUE, warning=FALSE, message=FALSE}
-# Split the lists in company_Data
-company_Metadata <- company_Data$company_Metadata
-company_Facts <- company_Data$company_Facts
-company_Concept <- company_Data$company_Concept
+```{r split_company_data, eval=TRUE, warning=FALSE, message=FALSE}
+# Split the lists in company_data
+company_Metadata <- company_data$company_Metadata
+company_Facts <- company_data$company_Facts
+company_Concept <- company_data$company_Concept
 ```
 
 Now, let's examine the structures and content of these lists:
@@ -90,8 +106,7 @@ For our purpose, the most relevant information of `company_Metadata` are:
 2.  `sic`, standard industrial classification. The SIC codes were used to classify companies into specific industry segments based on their primary business activities. Each four-digit SIC code represented a different industry or sector.
 3.  `sicDescription` the description of the standard industrial classification
 4.  `name`, name of the company 5 `tickers`, identifier a publicly traded company's stock on a particular stock market
-5.  `filing`  which includes the filing attributes. 
-Here the structure of `company_Metadata`:
+5.  `filing` which includes the filing attributes. Here the structure of `company_Metadata`:
 
 ```{r str_company_Metadata_Filing, eval=TRUE, warning=FALSE, message=FALSE, class.output="custom-str-output"}
 # Visualize structure of the company_Metadata

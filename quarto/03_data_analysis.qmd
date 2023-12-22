@@ -9,14 +9,14 @@ source("setup.qmd")
 Now, let's retrieve the necessary objects for data exploration:
 
 ```{r load_object1, eval=TRUE, warning=FALSE, message=FALSE}
-# Load company_Data
-company_Data <- readRDS("company_data.RDS")
+# Load company_data
+company_data <- readRDS("company_data.RDS")
 cik <- readRDS("cik.RDS")
 
-# Split the lists in company_Data
-company_Metadata <- company_Data$company_Metadata
-company_Facts <- company_Data$company_Facts
-company_Concept <- company_Data$company_Concept
+# Split the lists in company_data
+company_Metadata <- company_data$company_Metadata
+company_Facts <- company_data$company_Facts
+company_Concept <- company_data$company_Concept
 ```
 
 ### Rebuilding the financial reports
@@ -39,7 +39,7 @@ The following code can be used to un-nest the list within `company_Facts` and cr
 
 ```{r unnesting_company_Facts, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
-df_Facts <- Fundamentals_to_Dataframe(company_Data)
+df_Facts <- Fundamentals_to_Dataframe(company_data)
 
 # Select the columns to print out and present the output with wrapped text and formatted numbers
 df_Facts %>% select(-c(description,accn)) %>% 
