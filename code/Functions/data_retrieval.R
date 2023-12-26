@@ -153,6 +153,9 @@ BS_std <- function(df_Facts) {
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
   
   df_std_BS <- df_std_BS %>%
+    mutate(end = as.Date(end))
+  
+  df_std_BS <- df_std_BS %>%
     # Filter out rows without standardized_balancesheet_label
     filter(!is.na(standardized_balancesheet_label)) %>% 
     # Group by end period (end) and label
@@ -173,9 +176,9 @@ BS_std <- function(df_Facts) {
     arrange(desc(end)) %>% 
     # Remove grouping
     ungroup() %>%
-    # Group by and arrange by descending end date within each group
+    # Group by and arrange by descending filed date within each group
     group_by(label, end) %>%
-    arrange(desc(end)) %>%
+    arrange(desc(filed)) %>%
     # Retain only the first row within each group
     slice_head(n = 1) %>%
     # Remove grouping
@@ -249,10 +252,6 @@ BS_std <- function(df_Facts) {
   
   ## Step 3 - Calculate newly added columns columns -----------------------------------
   # Evaluate expressions for newly added columns 
-  
-  df_std_BS <- df_std_BS %>%
-    mutate(end = as.Date(end))
-  
   df_std_BS <- df_std_BS %>%
     mutate(
       `Total Current Assets` = pmax(0, case_when(
@@ -354,6 +353,8 @@ IS_std <- function(df_Facts) {
   
   # 02 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
+  df_std_IS <- df_std_IS %>%
+    mutate(end = as.Date(end))
   
   df_std_IS <- df_std_IS %>%
     # Filter out rows without standardized_incomestatement_label and no frame e.g CY2023Q3 
@@ -376,9 +377,9 @@ IS_std <- function(df_Facts) {
     arrange(desc(end)) %>% 
     # Remove grouping
     ungroup() %>%
-    # Group by and arrange by descending end date within each group
+    # Group by and arrange by descending filed date within each group
     group_by(standardized_incomestatement_label, end) %>%
-    arrange(desc(end)) %>%
+    arrange(desc(filed)) %>%
     # Retain only the first row within each group
     slice_head(n = 1) %>%
     # Remove grouping
@@ -386,13 +387,13 @@ IS_std <- function(df_Facts) {
   
   # Add rows for the fourth quarter for each us_gaap_reference
   df_std_IS <- df_std_IS %>%
-    group_by(label, end, fy) %>%
+    group_by(standardized_incomestatement_label, year = format(end, "%Y")) %>%
     summarise(val_Q4 = ifelse(fp == "Q4", val, 0)) %>%
-    group_by(label, fy) %>%
+    group_by(standardized_incomestatement_label) %>%
     mutate(val_Q4 = cumsum(val_Q4)) %>%
     ungroup() %>%
     filter(fp == "Q3") %>%
-    mutate(fp = "Q4", end = as.Date(paste0(fy, "-12-31")), val = val_Q4) %>%
+    mutate(fp = "Q4", end = as.Date(paste0(year, "-12-31")), val = val_Q4) %>%
     select(-val_Q4) %>%
     bind_rows(df_std_IS, .)
   
