@@ -130,9 +130,9 @@ Fundamentals_to_Dataframe <- function(company_Data) {
   return(df_units)
 }
 
-# Function to rebuild the balancesheet financial statement ---------------------------------------
+# Function to rebuild the balancesheet statement ---------------------------------------
 
-bs_std <- function(df_Facts) {
+BS_std <- function(df_Facts) {
   # 01 - Join standardized_balancesheet ------------------------------------------------------
   # Define the standardized balancesheet file path
   balancesheet_path <- here(data_dir, "standardized_balancesheet.xlsx")
@@ -224,11 +224,10 @@ bs_std <- function(df_Facts) {
     stop("Both Total Current Liabilities and Total Non Current Liabilities are missing. The entity is not adequate for financial analysis.")
   }
   
-  # Remove rows where Total Liabilities & Stockholders Equity is empty (or NA)
+  # Remove rows where key financial Concepts are empty (or NA)
   df_std_BS <- df_std_BS %>%
     filter(!is.na(`Total Liabilities & Stockholders Equity`) & `Total Liabilities & Stockholders Equity` != "")
   
-  # Remove rows where Total Assets or Total Liabilities are empty (or NA)
   df_std_BS <- df_std_BS %>%
     filter(!is.na(`Total Assets`) & `Total Assets` != "" & !is.na(`Total Liabilities`) & `Total Liabilities` != "")
   
@@ -334,5 +333,158 @@ bs_std <- function(df_Facts) {
   return(df_std_BS)
 }
 
+# Function to rebuild the income statement ---------------------------------------
 
-
+IS_std <- function(df_Facts) {
+  # 01 - Join standardized_incomestatement ------------------------------------------------------
+  # Define the standardized incomestatement file path
+  incomestatement_path <- here(data_dir, "standardized_incomestatement.xlsx")
+  
+  # Read the standardized_incomestatement.xlsx file
+  standardized_incomestatement <- read.xlsx(incomestatement_path, sheet = "Sheet1")
+  
+  # Rename standardized_incomestatement column df_Fact_Description to perform left_join
+  standardized_incomestatement <- standardized_incomestatement %>%
+    rename(description = df_Facts_Description)
+  
+  # Merge df_Facts with standardized_incomestatement based on description and period
+  df_std_IS <- df_Facts %>%
+    left_join(standardized_incomestatement, by = "description") %>%
+    select(standardized_incomestatement_label, everything())
+  
+  # 02 - Data cleaning ------------------------------------------------------
+  # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
+  
+  df_std_IS <- df_std_IS %>%
+    # Filter out rows without standardized_incomestatement_label and no frame e.g CY2023Q3 
+    filter(!is.na(standardized_incomestatement_label) & !is.na(frame)) %>% 
+    # Group by end period (end) and label
+    group_by(end, label) %>%
+    # Arrange by descending end date within each group
+    arrange(desc(end)) %>%
+    # Add a column indicating if any row in the group has a form ending with /A
+    mutate(
+      has_form_A = any(grepl("/A$", form))
+    ) %>%
+    # Filter rows based on the condition:
+    # - Retain rows without /A
+    # - Retain rows with /A if there's at least one row with /A in the group
+    filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
+    # Select relevant columns
+    select(end, standardized_incomestatement_label, everything()) %>%
+    # Arrange by descending end date
+    arrange(desc(end)) %>% 
+    # Remove grouping
+    ungroup() %>%
+    # Group by and arrange by descending end date within each group
+    group_by(label, end) %>%
+    arrange(desc(end)) %>%
+    # Retain only the first row within each group
+    slice_head(n = 1) %>%
+    # Remove grouping
+    ungroup()
+  
+  # Add rows for the fourth quarter for each us_gaap_reference
+  df_std_IS <- df_std_IS %>%
+    group_by(label, end, fy) %>%
+    summarise(val_Q4 = ifelse(fp == "Q4", val, 0)) %>%
+    group_by(label, fy) %>%
+    mutate(val_Q4 = cumsum(val_Q4)) %>%
+    ungroup() %>%
+    filter(fp == "Q3") %>%
+    mutate(fp = "Q4", end = as.Date(paste0(fy, "-12-31")), val = val_Q4) %>%
+    select(-val_Q4) %>%
+    bind_rows(df_std_IS, .)
+  
+  # Sum the "val" values for rows with the same standardized_incomestatement_label
+  df_std_IS <- df_std_IS %>%
+    group_by(end,standardized_incomestatement_label) %>%
+    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
+    filter(row_number() == 1) %>%    # Keep only the first row within each group
+    summarise(val = sum(val, na.rm = TRUE),
+              description = paste(description, collapse = "\n")) %>%
+    ungroup()
+  
+  # 03 - Pivot df_std_IS in a dataframe format ------------------------------------------------------
+  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
+  
+  df_std_IS <- df_std_IS %>%
+    select(end,standardized_incomestatement_label,val) %>% 
+    # Pivot the data using standardized_incomestatement_label as column names
+    pivot_wider(
+      names_from = standardized_incomestatement_label,
+      values_from = val
+    ) %>%
+    # Arrange the dataframe in descending order based on the 'end' column
+    arrange(desc(end))
+  
+  # 04 - Add new columns for standardization -----------------------------------
+  # This code add the missing columns to the df_std_BS based on the standardized_incomestatement.xls and perform checks
+  
+  ## Step 1 - Check if key financial Concepts -----------------------------------
+  # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
+  if (!("Gross Profit" %in% colnames(df_std_IS)) || !("Net Income (loss)" %in% colnames(df_std_IS)) ) {
+    stop("Gross Profit or Operating Income or Net Income (loss) is missing. The entity is not adequate for financial analysis.")
+  }
+  
+  # Remove rows where where key financial Concepts are empty (or NA)
+  df_std_IS <- df_std_IS %>%
+    filter(!is.na(`Operating Income`) & `Gross Profit` != "") %>% 
+    filter(!is.na(`Gross Profit`) & `Operating Income` != "")
+  
+  ## Step 2 - Add missing columns -----------------------------------
+  # It checks which columns from columns_to_add are not already present in df_std_IS
+  columns_to_add <- setdiff(standardized_incomestatement$standardized_incomestatement_label,colnames(df_std_IS)) 
+  
+  #It then adds only the missing columns to df_std_IS and initializes them with NA.
+  if (length(columns_to_add) > 0) {
+    
+    # Add columns to the dataframe
+    df_std_IS[,columns_to_add] <- NA
+  }
+  # Prepare company details to add to df_std_BS as additional columns
+  df_Facts_columns_to_add <- df_Facts[1:nrow(df_std_IS), ]
+  
+  # Add company details columns to df_std_BS
+  df_std_IS <- cbind(df_std_IS,df_Facts_columns_to_add[,c("cik","entityName","sic","sicDescription","tickers")])
+  
+  ## Step 3 - Calculate newly added columns columns -----------------------------------
+  # Evaluate expressions for key financial Concepts 
+  
+  df_std_IS <- df_std_IS %>%
+    mutate(end = as.Date(end))
+  
+  df_std_IS <- df_std_IS %>%
+    mutate(
+      `Operating Income` = pmax(0, case_when(
+        is.na(`Operating Income`) ~ coalesce(`Revenue`,0) - (coalesce(`Cost of Revenue`,0) + coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Other Non Operating Income (Loss) Net`,0)),
+        TRUE ~ coalesce(`Operating Income`,0)
+      ))
+    )
+  
+  ## Step 4 - Calculate missing quarters  -----------------------------------
+  # Identify missing quarters in the dataframe
+  missing_quarters <- setdiff(unique(df_std_IS$frame), unique(df_Facts$frame))
+  
+  # Iterate over each missing quarter and calculate the values
+  for (quarter in missing_quarters) {
+    # Create a subset of df_Facts for the missing quarter
+    subset_data <- df_Facts[df_Facts$frame == quarter, ]
+    
+    # Calculate the values for each column based on the subset_data
+    # Adjust the expressions based on your specific calculation logic
+    df_std_IS <- df_std_IS %>%
+      mutate(
+        `Operating Income` = ifelse(end %in% subset_data$end,
+                                    subset_data$`Operating Income`,
+                                    `Operating Income`)
+        # Add similar lines for other columns as needed
+      )
+  }
+  
+  
+  
+  df_std_IS <- df_std_IS[, c("end", custom_order)]
+  
+  return(df_std_IS)
+}

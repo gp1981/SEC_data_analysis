@@ -108,7 +108,7 @@ The following code will create a standardized Balance Sheet (`df_std_BS`) based 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
 # Retrieve balance sheet of JAKKS Pacific Inc. in standardized format
-df_std_BS <- bs_std(df_Facts)
+df_std_BS <- BS_std(df_Facts)
 
 # Print the standardized balancesheet
 df_std_BS %>% head() %>% as.data.frame() %>%
