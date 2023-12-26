@@ -51,7 +51,7 @@ Let's now select JAKKS Pacific Inc. by its CIK and retrieve its data from the SE
 ```{r company_selecte, eval=TRUE, warning=FALSE, message=FALSE, paged.print=TRUE}
 # Select JAKKS Pacific Inc. (AAPL) by CIK
 cik <- "0001009829"  # CIK for JAKKS Pacific Inc.
-company_data <- retrieve_company_data(headers, cik)
+company_data <- retrieve_Company_Data(headers, cik)
 
 # this the corresponding row of the company list
 company_List %>% 

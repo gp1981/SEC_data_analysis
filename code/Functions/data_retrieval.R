@@ -377,7 +377,7 @@ IS_std <- function(df_Facts) {
     # Remove grouping
     ungroup() %>%
     # Group by and arrange by descending end date within each group
-    group_by(label, end) %>%
+    group_by(standardized_incomestatement_label, end) %>%
     arrange(desc(end)) %>%
     # Retain only the first row within each group
     slice_head(n = 1) %>%
@@ -462,25 +462,7 @@ IS_std <- function(df_Facts) {
       ))
     )
   
-  ## Step 4 - Calculate missing quarters  -----------------------------------
-  # Identify missing quarters in the dataframe
-  missing_quarters <- setdiff(unique(df_std_IS$frame), unique(df_Facts$frame))
   
-  # Iterate over each missing quarter and calculate the values
-  for (quarter in missing_quarters) {
-    # Create a subset of df_Facts for the missing quarter
-    subset_data <- df_Facts[df_Facts$frame == quarter, ]
-    
-    # Calculate the values for each column based on the subset_data
-    # Adjust the expressions based on your specific calculation logic
-    df_std_IS <- df_std_IS %>%
-      mutate(
-        `Operating Income` = ifelse(end %in% subset_data$end,
-                                    subset_data$`Operating Income`,
-                                    `Operating Income`)
-        # Add similar lines for other columns as needed
-      )
-  }
   
   
   
