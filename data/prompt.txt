@@ -1,0 +1,218 @@
+Currently the function i have written to rebuild the income statement financial report is:
+IS_std <- function(df_Facts) {
+  # 01 - Join standardized_incomestatement ------------------------------------------------------
+  # Define the standardized incomestatement file path
+  incomestatement_path <- here(data_dir, "standardized_incomestatement.xlsx")
+  
+  # Read the standardized_incomestatement.xlsx file
+  standardized_incomestatement <- read.xlsx(incomestatement_path, sheet = "Sheet1")
+  
+  # Rename standardized_incomestatement column df_Fact_Description to perform left_join
+  standardized_incomestatement <- standardized_incomestatement %>%
+    rename(description = df_Facts_Description)
+  
+  # Merge df_Facts with standardized_incomestatement based on description and period
+  df_std_IS <- df_Facts %>%
+    left_join(standardized_incomestatement, by = "description") %>%
+    select(standardized_incomestatement_label, everything())
+  
+  # 02 - Data cleaning ------------------------------------------------------
+  # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
+  df_std_IS <- df_std_IS %>%
+    mutate(end = as.Date(end),
+	   start = as.Date(star))
+  
+  df_std_IS <- df_std_IS %>%
+    # Filter out rows without standardized_incomestatement_label and no frame e.g CY2023Q3 
+    filter(!is.na(standardized_incomestatement_label) & !is.na(frame)) %>% 
+    # Group by end period (end) and label
+    group_by(end, label) %>%
+    # Arrange by descending end date within each group
+    arrange(desc(end)) %>%
+    # Add a column indicating if any row in the group has a form ending with /A
+    mutate(
+      has_form_A = any(grepl("/A$", form))
+    ) %>%
+    # Filter rows based on the condition:
+    # - Retain rows without /A
+    # - Retain rows with /A if there's at least one row with /A in the group
+    filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
+    # Select relevant columns
+    select(end, standardized_incomestatement_label, everything()) %>%
+    # Arrange by descending end date
+    arrange(desc(end)) %>% 
+    # Remove grouping
+    ungroup() %>%
+    # Group by and arrange by descending filed date within each group
+    group_by(standardized_incomestatement_label, end) %>%
+    arrange(desc(filed)) %>%
+    # Retain only the first row within each group
+    slice_head(n = 1) %>%
+    # Remove grouping
+    ungroup()
+  
+  # Add rows for the fourth quarter for each us_gaap_reference
+  # [...]
+
+  
+  # Sum the "val" values for rows with the same standardized_incomestatement_label
+  df_std_IS <- df_std_IS %>%
+    group_by(end,standardized_incomestatement_label) %>%
+    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
+    filter(row_number() == 1) %>%    # Keep only the first row within each group
+    summarise(val = sum(val, na.rm = TRUE),
+              description = paste(description, collapse = "\n")) %>%
+    ungroup()
+  
+  # 03 - Pivot df_std_IS in a dataframe format ------------------------------------------------------
+  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
+  
+  df_std_IS <- df_std_IS %>%
+    select(end,standardized_incomestatement_label,val) %>% 
+    # Pivot the data using standardized_incomestatement_label as column names
+    pivot_wider(
+      names_from = standardized_incomestatement_label,
+      values_from = val
+    ) %>%
+    # Arrange the dataframe in descending order based on the 'end' column
+    arrange(desc(end))
+  
+  # 04 - Add new columns for standardization -----------------------------------
+  # This code add the missing columns to the df_std_BS based on the standardized_incomestatement.xls and perform checks
+  
+  ## Step 1 - Check if key financial Concepts -----------------------------------
+  # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
+  if (!("Gross Profit" %in% colnames(df_std_IS)) || !("Net Income (loss)" %in% colnames(df_std_IS)) ) {
+    stop("Gross Profit or Operating Income or Net Income (loss) is missing. The entity is not adequate for financial analysis.")
+  }
+  
+  # Remove rows where where key financial Concepts are empty (or NA)
+  df_std_IS <- df_std_IS %>%
+    filter(!is.na(`Operating Income`) & `Gross Profit` != "") %>% 
+    filter(!is.na(`Gross Profit`) & `Operating Income` != "")
+  
+  ## Step 2 - Add missing columns -----------------------------------
+  # It checks which columns from columns_to_add are not already present in df_std_IS
+  columns_to_add <- setdiff(standardized_incomestatement$standardized_incomestatement_label,colnames(df_std_IS)) 
+  
+  #It then adds only the missing columns to df_std_IS and initializes them with NA.
+  if (length(columns_to_add) > 0) {
+    
+    # Add columns to the dataframe
+    df_std_IS[,columns_to_add] <- NA
+  }
+  # Prepare company details to add to df_std_BS as additional columns
+  df_Facts_columns_to_add <- df_Facts[1:nrow(df_std_IS), ]
+  
+  # Add company details columns to df_std_BS
+  df_std_IS <- cbind(df_std_IS,df_Facts_columns_to_add[,c("cik","entityName","sic","sicDescription","tickers")])
+  
+  ## Step 3 - Calculate newly added columns columns -----------------------------------
+  # Evaluate expressions for key financial Concepts 
+  
+  df_std_IS <- df_std_IS %>%
+    mutate(end = as.Date(end))
+  
+  df_std_IS <- df_std_IS %>%
+    mutate(
+      `Operating Income` = pmax(0, case_when(
+        is.na(`Operating Income`) ~ coalesce(`Revenue`,0) - (coalesce(`Cost of Revenue`,0) + coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Other Non Operating Income (Loss) Net`,0)),
+        TRUE ~ coalesce(`Operating Income`,0)
+      ))
+    )
+  
+  
+  
+  
+  
+  df_std_IS <- df_std_IS[, c("end", custom_order)]
+  
+  return(df_std_IS)
+}
+The data frame used as inputs in the function IS_std is df_Facts. This is filtered with !is.na(Frame) 
+> df_Facts %>% filter(us_gaap_reference == "OperatingIncomeLoss", !is.na(frame)) %>% select(end,us_gaap_reference, fy,fp,val,start, frame) %>% print(n=49)
+# A tibble: 66 × 7
+   end        us_gaap_reference      fy fp         val start      frame   
+   <chr>      <chr>               <int> <chr>    <dbl> <chr>      <chr>   
+ 1 2023-09-30 OperatingIncomeLoss  2023 Q3      62.4   2023-07-01 CY2023Q3
+ 2 2023-06-30 OperatingIncomeLoss  2023 Q2      16.4   2023-04-01 CY2023Q2
+ 3 2023-03-31 OperatingIncomeLoss  2023 Q1      -4.4   2023-01-01 CY2023Q1
+ 4 2022-12-31 OperatingIncomeLoss  2022 FY      61.0   2022-01-01 CY2022  
+ 5 2022-09-30 OperatingIncomeLoss  2023 Q3      53.7   2022-07-01 CY2022Q3
+ 6 2022-06-30 OperatingIncomeLoss  2023 Q2      23.7   2022-04-01 CY2022Q2
+ 7 2022-03-31 OperatingIncomeLoss  2023 Q1      -0.734 2022-01-01 CY2022Q1
+ 8 2021-12-31 OperatingIncomeLoss  2022 FY      38.8   2021-01-01 CY2021  
+ 9 2021-12-31 OperatingIncomeLoss  2021 FY       2.93  2021-10-01 CY2021Q4
+10 2021-09-30 OperatingIncomeLoss  2022 Q3      36.7   2021-07-01 CY2021Q3
+11 2021-06-30 OperatingIncomeLoss  2022 Q2       1.82  2021-04-01 CY2021Q2
+12 2021-03-31 OperatingIncomeLoss  2022 Q1      -2.72  2021-01-01 CY2021Q1
+13 2020-12-31 OperatingIncomeLoss  2022 FY      12.9   2020-01-01 CY2020  
+14 2020-12-31 OperatingIncomeLoss  2021 FY       1.13  2020-10-01 CY2020Q4
+15 2020-09-30 OperatingIncomeLoss  2021 FY      37.5   2020-07-01 CY2020Q3
+16 2020-06-30 OperatingIncomeLoss  2021 FY      -9.75  2020-04-01 CY2020Q2
+17 2020-03-31 OperatingIncomeLoss  2021 FY     -16.0   2020-01-01 CY2020Q1
+18 2019-12-31 OperatingIncomeLoss  2021 FY     -17.8   2019-01-01 CY2019  
+19 2019-12-31 OperatingIncomeLoss  2020 FY     -10.8   2019-10-01 CY2019Q4
+20 2019-09-30 OperatingIncomeLoss  2020 FY      35.7   2019-07-01 CY2019Q3
+21 2019-06-30 OperatingIncomeLoss  2020 FY     -18.6   2019-04-01 CY2019Q2
+22 2019-03-31 OperatingIncomeLoss  2020 FY     -24.0   2019-01-01 CY2019Q1
+23 2018-12-31 OperatingIncomeLoss  2020 FY     -32.2   2018-01-01 CY2018  
+24 2018-12-31 OperatingIncomeLoss  2019 FY      -4.42  2018-10-01 CY2018Q4
+25 2018-09-30 OperatingIncomeLoss  2019 FY      20.0   2018-07-01 CY2018Q3
+26 2018-06-30 OperatingIncomeLoss  2019 FY     -12.1   2018-04-01 CY2018Q2
+27 2018-03-31 OperatingIncomeLoss  2019 FY     -35.7   2018-01-01 CY2018Q1
+28 2017-12-31 OperatingIncomeLoss  2019 FY     -64.2   2017-01-01 CY2017  
+29 2017-12-31 OperatingIncomeLoss  2018 FY     -26.6   2017-10-01 CY2017Q4
+30 2017-09-30 OperatingIncomeLoss  2018 FY      -7.75  2017-07-01 CY2017Q3
+31 2017-06-30 OperatingIncomeLoss  2018 FY     -14.1   2017-04-01 CY2017Q2
+32 2017-03-31 OperatingIncomeLoss  2018 FY     -15.7   2017-01-01 CY2017Q1
+33 2016-12-31 OperatingIncomeLoss  2018 FY      17.1   2016-01-01 CY2016  
+34 2016-12-31 OperatingIncomeLoss  2017 FY      -2.39  2016-10-01 CY2016Q4
+35 2016-09-30 OperatingIncomeLoss  2017 Q3      34.4   2016-07-01 CY2016Q3
+36 2016-06-30 OperatingIncomeLoss  2017 FY      -1.1   2016-04-01 CY2016Q2
+37 2016-03-31 OperatingIncomeLoss  2017 FY     -13.8   2016-01-01 CY2016Q1
+38 2015-12-31 OperatingIncomeLoss  2017 FY      30.5   2015-01-01 CY2015  
+39 2015-12-31 OperatingIncomeLoss  2016 FY      -6.89  2015-10-01 CY2015Q4
+40 2015-09-30 OperatingIncomeLoss  2016 FY      44.6   2015-07-01 CY2015Q3
+41 2015-06-30 OperatingIncomeLoss  2016 FY      -3.01  2015-04-01 CY2015Q2
+42 2015-03-31 OperatingIncomeLoss  2016 FY      -4.20  2015-01-01 CY2015Q1
+43 2014-12-31 OperatingIncomeLoss  2016 FY      31.3   2014-01-01 CY2014  
+44 2014-12-31 OperatingIncomeLoss  2015 FY       7.26  2014-10-01 CY2014Q4
+45 2014-09-30 OperatingIncomeLoss  2015 FY      43.8   2014-07-01 CY2014Q3
+46 2014-06-30 OperatingIncomeLoss  2015 FY      -4.82  2014-04-01 CY2014Q2
+47 2014-03-31 OperatingIncomeLoss  2015 FY     -14.9   2014-01-01 CY2014Q1
+48 2013-12-31 OperatingIncomeLoss  2015 FY     -44.5   2013-01-01 CY2013  
+49 2013-12-31 OperatingIncomeLoss  2014 FY     -16.1   2013-10-01 CY2013Q4
+50 2013-09-30 OperatingIncomeLoss  2014 FY      39.7   2013-07-01 CY2013Q3
+51 2013-06-30 OperatingIncomeLoss  2014 FY     -44.3   2013-04-01 CY2013Q2
+52 2013-03-31 OperatingIncomeLoss  2014 FY     -23.8   2013-01-01 CY2013Q1
+53 2012-12-31 OperatingIncomeLoss  2014 FY     -13.2   2012-01-01 CY2012  
+54 2012-12-31 OperatingIncomeLoss  2013 FY     -31.2   2012-10-01 CY2012Q4
+55 2012-09-30 OperatingIncomeLoss  2013 FY      37.3   2012-07-01 CY2012Q3
+56 2012-06-30 OperatingIncomeLoss  2013 FY       0.107 2012-04-01 CY2012Q2
+57 2012-03-31 OperatingIncomeLoss  2013 FY     -19.4   2012-01-01 CY2012Q1
+58 2011-12-31 OperatingIncomeLoss  2013 FY       1.28  2011-01-01 CY2011  
+59 2011-12-31 OperatingIncomeLoss  2012 FY     -36.0   2011-10-01 CY2011Q4
+60 2011-09-30 OperatingIncomeLoss  2012 FY      50.1   2011-07-01 CY2011Q3
+61 2011-06-30 OperatingIncomeLoss  2012 FY       2.00  2011-04-01 CY2011Q2
+62 2011-03-31 OperatingIncomeLoss  2012 FY     -14.8   2011-01-01 CY2011Q1
+63 2010-12-31 OperatingIncomeLoss  2012 FY      50.2   2010-01-01 CY2010  
+64 2010-09-30 OperatingIncomeLoss  2011 Q3      51.6   2010-07-01 CY2010Q3
+65 2010-06-30 OperatingIncomeLoss  2011 Q2       1.27  2010-04-01 CY2010Q2
+66 2009-12-31 OperatingIncomeLoss  2011 FY    -452.    2009-01-01 CY2009  
+
+As you can see the filtered df_Facts dataframe includes the column "frame" that indicates historically the calendar year and fiscal quarter related to the record (i.e. dataframe's row). Grouping for "us_gaap_reference", there are five scenarios to be considered for the calculation of the values ("val") missing quarters. Here the scenarios using as an example the "us_gaap_reference" OperatingIncome, but the same applies for each us_gaap_references.
+1) there are all 4 quarters e.g. CY2016Q1,CY2016Q2,CY2016Q3,CY2016Q4 of OperatingIncome. And there is also the whole fiscal year CY2016. In this case we verify that the sum of "val" of all quarters of the fiscal year 2016 is equal to the "val" of CY2016.
+2) There is the whole fiscal year e.g. CY2022 and only 3 quarters e.g. CY2022Q1, CY2022Q2, CY2022Q3. In this case we need to add a new row replicating the row of the most recent quarter e.g. CY2022Q3, with:
+2.a) the variable "fp" into Q4
+2.b) calculate the "val" as the difference between the "val" of the whole fiscal year (e.g CY2022) and the sum of the "val" of the 3 quarters (CY2022Q1, CY2022Q2, CY2022Q3)
+2.c) the variable "start" into the date of start of the quarter that is for this example the first october of that year e.g. 2022 in format YYYY-MM-DD
+3)  There is the fiscal year e.g. CY2010 but only 2 quarters e.g. CY2010Q3 and CY210Q2. In this case we add 2 new rows with:
+3.a) the variable "fp" of the rows are the missing quarters for Q2 and Q3
+3.b) calculate the "val" of each new row as  difference between the "val" of the whole fiscal year (e.g CY2010)  and the sum of the existing quarters ( CY2010Q2, CY2010Q3) and divide the difference by the number of missing quarters, in this case 2.
+3.c) the variable "start" of each row into the date of start of the quarters added (first day of January, April, July, October) whatever is appropriate, of that year in the format YYYY-MM-DD
+4) THere is only the whole fiscal year e.g. CY2009. In this case we add 4 new rows with:
+4.a) the variable "fp" of the rows are the missing quarters for Q1, Q2, Q3 and Q4
+4.b) calculate the "val" of each new row as  difference the "val" of the whole fiscal year (e.g CY2009)  divided by the difference by the number of missing quarters, in this case 2.
+4.c) the variable "start" of each row into the date of start of the quarters added (first day of January, April, July, October) whatever is appropriate, of that year in the format YYYY-MM-DD
+Each new row that is createad has to be marked as "estimated" so that we can track it.

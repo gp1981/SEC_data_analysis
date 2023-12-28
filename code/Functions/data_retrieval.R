@@ -153,7 +153,8 @@ BS_std <- function(df_Facts) {
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
   
   df_std_BS <- df_std_BS %>%
-    mutate(end = as.Date(end))
+    mutate(end = as.Date(end),
+           start = as.Date(start))
   
   df_std_BS <- df_std_BS %>%
     # Filter out rows without standardized_balancesheet_label
@@ -354,7 +355,8 @@ IS_std <- function(df_Facts) {
   # 02 - Data cleaning ------------------------------------------------------
   # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
   df_std_IS <- df_std_IS %>%
-    mutate(end = as.Date(end))
+    mutate(end = as.Date(end),
+           start = as.Date(start))
   
   df_std_IS <- df_std_IS %>%
     # Filter out rows without standardized_incomestatement_label and no frame e.g CY2023Q3 
@@ -386,16 +388,8 @@ IS_std <- function(df_Facts) {
     ungroup()
   
   # Add rows for the fourth quarter for each us_gaap_reference
-  df_std_IS <- df_std_IS %>%
-    group_by(standardized_incomestatement_label, year = format(end, "%Y")) %>%
-    summarise(val_Q4 = ifelse(fp == "Q4", val, 0)) %>%
-    group_by(standardized_incomestatement_label) %>%
-    mutate(val_Q4 = cumsum(val_Q4)) %>%
-    ungroup() %>%
-    filter(fp == "Q3") %>%
-    mutate(fp = "Q4", end = as.Date(paste0(year, "-12-31")), val = val_Q4) %>%
-    select(-val_Q4) %>%
-    bind_rows(df_std_IS, .)
+  # [...]
+
   
   # Sum the "val" values for rows with the same standardized_incomestatement_label
   df_std_IS <- df_std_IS %>%
