@@ -411,57 +411,74 @@ IS_std <- function(df_Facts) {
   df_sum_quarters_years <- df_std_IS %>%
     group_by(us_gaap_reference, frame_year) %>%
     summarise(
-      total_quarters = n_distinct(frame_quarter),
+      total_quarters = n_distinct(frame_quarter) - n_distinct(frame_year),
       total_val_quarters = sum(val[frame_quarter != ""]),
       total_fiscal_year = sum(val[frame_quarter == ""]),
-      )
+      ) %>% 
+    filter(total_fiscal_year == 0) 
+  # <<<<>>>>> NEED TO FIX THE FILTERING OF 
   
-  # Calculate the difference between the sum of all quarter total values and the fiscal years
+  
+  # Calculate the difference between the sum of all quarter total values and the fiscal years values that is equal to the sum of values of the missing quarters
   df_sum_quarters_years <- df_sum_quarters_years %>% 
     mutate(
-      total_quarters_to_add = 5 - total_quarters,
+      total_quarters_to_add = 4 - total_quarters,
       total_val_of_missing_quarters = total_fiscal_year - total_val_quarters
     )
+  
+  # Calculate the quarterly value of the missing quarters
   df_sum_quarters_years <- df_sum_quarters_years %>% 
     mutate(
       val_missing_quarter = total_val_of_missing_quarters / total_quarters_to_add
     )
 
-  # Extract the unique missing quarters
+  # Extract the missing quarters
   missing_quarters <- df_sum_quarters_years %>%
     filter(total_quarters_to_add > 0) %>%
-    select(frame_year, val_missing_quarter) %>%
+    select(us_gaap_reference,frame_year, val_missing_quarter) %>%
     slice(rep(1:n(), each = 4)) %>%
-    mutate(frame_quarter = rep(c("Q1", "Q2", "Q3", "Q4"), n() / 4))
+    mutate(frame_quarter = rep(c("1", "2", "3", "4"), n() / 4))
 
-  # Create the missing rows for each us_gaap_reference and missing quarter
-  missing_rows <- df_std_IS %>%
-    select(us_gaap_reference, frame_year) %>%
-    distinct() %>%
-    left_join(missing_quarters, by = c("us_gaap_reference","frame_year")) %>%
+  # Create the missing rows for the missing quarters
+  missing_rows <- missing_quarters %>%
+    anti_join(df_std_IS, by = c("us_gaap_reference","frame_year","frame_quarter")) %>%
     mutate(
-      end = paste(frame_year, frame_quarter, "31", sep = "-"),
-      start = paste(frame_year, frame_quarter, "01", sep = "-"),
-      standardized_incomestatement_label = NA_character_,
-      label = NA_character_,
-      description = NA_character_,
-      cik = NA_character_,
-      entityName = NA_character_,
-      sic = NA_character_,
-      sicDescription = NA_character_,
-      df_Facts_us_gaap_references = NA_character_,
-      accn = NA_character_,
-      form = NA_character_,
-      filed = NA_character_,
-      frame = NA_character_,
-      fy = NA_integer_,
-      fp = NA_character_,
-      val = val_missing_quarter
-    ) %>%
-    select(end, start, standardized_incomestatement_label, label, description, cik, entityName, sic, sicDescription, df_Facts_us_gaap_references, accn, form, filed, frame, fy, fp, val)
-  
-  
-  # <<<< >>>>>>
+      # Set end and start dates based on frame_quarter
+      end = as.Date(case_when(
+        frame_quarter == "1" ~ paste(frame_year, "-03-31", sep = ""),
+        frame_quarter == "2" ~ paste(frame_year, "-06-30", sep = ""),
+        frame_quarter == "3" ~ paste(frame_year, "-09-30", sep = ""),
+        frame_quarter == "4" ~ paste(frame_year, "-12-31", sep = "")
+      )),
+      start = as.Date(case_when(
+        frame_quarter == "1" ~ paste(frame_year, "-01-01", sep = ""),
+        frame_quarter == "2" ~ paste(frame_year, "-04-01", sep = ""),
+        frame_quarter == "3" ~ paste(frame_year, "-07-01", sep = ""),
+        frame_quarter == "4" ~ paste(frame_year, "-10-01", sep = "")
+      )),
+      # Replicate content from df_std_IS
+      standardized_incomestatement_label = df_std_IS$standardized_incomestatement_label[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      val = val_missing_quarter,
+      label = df_std_IS$label[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      description = df_std_IS$description[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      entityName = df_std_IS$entityName[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      cik = df_std_IS$cik[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      sic = df_std_IS$sic[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      sicDescription = df_std_IS$sicDescription[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      tickers = df_std_IS$tickers[df_std_IS$us_gaap_reference == us_gaap_reference][1],
+      frame_year = frame_year,
+      frame_quarter = frame_quarter,
+      # Indicator that the val in the row is estimated
+      val_estimated = "TRUE"
+    ) %>% 
+    select(-val_missing_quarter)
+
+  # Ungroup missing_rows
+  missing_rows <- ungroup(missing_rows)
+
+  # Append missing_rows to df_std_IS
+  df_std_IS <- bind_rows(df_std_IS, missing_rows) %>% 
+    arrange(desc(frame_year),desc(frame_quarter))
   
   # Sum the "val" values for rows with the same standardized_incomestatement_label
   df_std_IS <- df_std_IS %>%
