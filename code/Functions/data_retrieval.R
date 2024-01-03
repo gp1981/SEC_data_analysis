@@ -415,7 +415,7 @@ IS_std <- function(df_Facts) {
     ) %>% 
     ungroup()
   
-  # Create the quarter_not_to_add column based on specified criteria
+  # Create the row_not_to_add column based on specified criteria. This column marks those years where there is no need to estimate the val of quarters since these are related to the quarters of the ongoing year or not yet filed.
   df_sum_quarters_years <- df_sum_quarters_years %>% 
     mutate(
       row_not_to_add = 
@@ -439,8 +439,10 @@ IS_std <- function(df_Facts) {
   # Extract the missing quarters
   missing_quarters <- df_sum_quarters_years %>%
     select(standardized_incomestatement_label,frame_year, val_missing_quarter) %>%
+    # Duplicate each row four times to represent the four quarters in a year
     slice(rep(1:n(), each = 4)) %>%
-    mutate(frame_quarter = as.integer(rep(c("1", "2", "3", "4"), n() / 4)))
+    # Create a new column 'frame_quarter' based on the duplicated rows
+    mutate(frame_quarter = as.integer(rep(c("1", "2", "3", "4"), n() / 4)))  
   
   # Create the missing rows for the missing quarters
   rows_to_add <- missing_quarters %>%
@@ -459,38 +461,43 @@ IS_std <- function(df_Facts) {
         frame_quarter == "3" ~ paste(frame_year, "-07-01", sep = ""),
         frame_quarter == "4" ~ paste(frame_year, "-10-01", sep = "")
       )),
-      val = val_missing_quarter,
-      # Replicate content from df_std_IS
-      us_gaap_reference = df_std_IS$us_gaap_reference[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      label = df_std_IS$label[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      description = df_std_IS$description[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      entityName = df_std_IS$entityName[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      cik = df_std_IS$cik[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      sic = df_std_IS$sic[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      sicDescription = df_std_IS$sicDescription[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      tickers = df_std_IS$tickers[df_std_IS$standardized_incomestatement_label == standardized_incomestatement_label][1],
-      frame_year = frame_year,
-      frame_quarter = frame_quarter,
-      # Indicator that the val in the row is estimated
-      val_estimated = "TRUE"
-    ) %>% 
-    select(-val_missing_quarter)
-  
-  # Ungroup missing_rows
-  missing_rows <- ungroup(missing_rows)
-  
-  # Append missing_rows to df_std_IS
-  df_std_IS <- bind_rows(df_std_IS, missing_rows) %>% 
-    arrange(desc(frame_year),desc(frame_quarter))
-  
-  # Sum the "val" values for rows with the same standardized_incomestatement_label
-  df_std_IS <- df_std_IS %>%
-    group_by(end,standardized_incomestatement_label) %>%
-    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
-    filter(row_number() == 1) %>%    # Keep only the first row within each group
-    summarise(val = sum(val, na.rm = TRUE),
-              description = paste(description, collapse = "\n")) %>%
+      estimated_val = "TRUE"
+      ) %>% 
+    rename(val = val_missing_quarter) %>% 
+    # Ungroup missing_rows
     ungroup()
+  
+  # Bind the rows to df_std_IS and fill in NA in added columns
+  df_std_IS <- df_std_IS %>% 
+    bind_rows(rows_to_add) %>% 
+    group_by(standardized_incomestatement_label) %>%
+    mutate(
+      # Fill in missing values in the added rows for description, label, and us_gaap_reference
+      description = first(description),
+      label = first(label),
+      us_gaap_reference = first(us_gaap_reference),
+      # Convert NA to FALSE in the estimated_val column
+      estimated_val = ifelse(is.na(estimated_val), FALSE, estimated_val)
+    ) %>%
+    ungroup()  %>% 
+    mutate(
+      # Fill in missing values based on conditions for fy, fp, form, filed, and frame
+      fy = ifelse(estimated_val == "TRUE", frame_year, df_std_IS$fy),
+      fp = ifelse(estimated_val == "TRUE", paste0("Q", frame_quarter), df_std_IS$fp),
+      form = ifelse(estimated_val == "TRUE", NA, df_std_IS$form),
+      filed = ifelse(estimated_val == "TRUE", NA, df_std_IS$filed),
+      frame = ifelse(estimated_val == "TRUE", paste0("CY", frame_year, "Q", frame_quarter), df_std_IS$frame)
+    ) %>% 
+    fill(
+      # Fill missing values downward for selected columns
+      accn, cik, entityName, sic, sicDescription, tickers,
+      .direction = "down"
+    ) %>% 
+    arrange(desc(end), standardized_incomestatement_label) 
+  
+  # Filter all rows that include the result of the fiscal year, retaining the ones that include only the results of the fiscal quarters.
+  df_std_IS <- df_std_IS %>% 
+    filter(!is.na(frame_quarter))
   
   # 03 - Pivot df_std_IS in a dataframe format ------------------------------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
