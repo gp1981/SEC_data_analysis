@@ -212,7 +212,7 @@ BS_std <- function(df_Facts) {
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
   
-  ## Step 1 - Check if key financial Concepts -----------------------------------
+  ## Step 1 - Check key financial Concepts -----------------------------------
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
@@ -330,8 +330,18 @@ BS_std <- function(df_Facts) {
     "Total Liabilities & Stockholders Equity"
   )
   
+  # Reorder the columns as per standardized_balancesheet.xlsx
   df_std_BS <- df_std_BS[, c("end", custom_order)]
-  
+  # Add the columns with the metadata
+  df_std_BS <- df_std_BS %>% 
+    mutate(
+      cik = df_Facts$cik[1],
+      entityName = df_Facts$entityName[1],
+      sic = df_Facts$sic[1],
+      sicDescription = df_Facts$sicDescription[1],
+      tickers = df_Facts$tickers[1]
+    )
+    
   return(df_std_BS)
 }
 
@@ -515,7 +525,7 @@ IS_std <- function(df_Facts) {
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_incomestatement.xls and perform checks
   
-  ## Step 1 - Check if key financial Concepts -----------------------------------
+  ## Step 1 - Check key financial Concepts -----------------------------------
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Gross Profit" %in% colnames(df_std_IS)) || !("Net Income (loss)" %in% colnames(df_std_IS)) ) {
     stop("Gross Profit or Operating Income or Net Income (loss) is missing. The entity is not adequate for financial analysis.")
@@ -536,31 +546,37 @@ IS_std <- function(df_Facts) {
     # Add columns to the dataframe
     df_std_IS[,columns_to_add] <- NA
   }
-  # Prepare company details to add to df_std_BS as additional columns
-  df_Facts_columns_to_add <- df_Facts[1:nrow(df_std_IS), ]
-  
-  # Add company details columns to df_std_BS
-  df_std_IS <- cbind(df_std_IS,df_Facts_columns_to_add[,c("cik","entityName","sic","sicDescription","tickers")])
   
   ## Step 3 - Calculate newly added columns columns -----------------------------------
   # Evaluate expressions for key financial Concepts 
   
-  df_std_IS <- df_std_IS %>%
-    mutate(end = as.Date(end))
+  # df_std_IS <- df_std_IS %>%
+  #   mutate(end = as.Date(end))
+  # 
+  # df_std_IS <- df_std_IS %>%
+  #   mutate(
+  #     `Operating Income` = pmax(0, case_when(
+  #       is.na(`Operating Income`) ~ coalesce(`Revenue`,0) - (coalesce(`Cost of Revenue`,0) + coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Other Non Operating Income (Loss) Net`,0)),
+  #       TRUE ~ coalesce(`Operating Income`,0)
+  #     ))
+  #   )
+  # 
   
-  df_std_IS <- df_std_IS %>%
+  
+  
+  
+  # Reorder the columns as per standardized_incomestatement.xlsx
+  df_std_IS <- df_std_IS[, c("end", custom_order)]
+  # Add the columns with the metadata
+  df_std_IS <- df_std_IS %>% 
     mutate(
-      `Operating Income` = pmax(0, case_when(
-        is.na(`Operating Income`) ~ coalesce(`Revenue`,0) - (coalesce(`Cost of Revenue`,0) + coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Other Non Operating Income (Loss) Net`,0)),
-        TRUE ~ coalesce(`Operating Income`,0)
-      ))
+      cik = df_Facts$cik[1],
+      entityName = df_Facts$entityName[1],
+      sic = df_Facts$sic[1],
+      sicDescription = df_Facts$sicDescription[1],
+      tickers = df_Facts$tickers[1]
     )
   
-  
-  
-  
-  
-  df_std_IS <- df_std_IS[, c("end", custom_order)]
   
   return(df_std_IS)
 }
