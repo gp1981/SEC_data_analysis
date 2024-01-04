@@ -197,7 +197,7 @@ BS_std <- function(df_Facts) {
     ungroup()
   
   # 03 - Pivot df_std_BS in a dataframe format ------------------------------------------------------
-  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
+  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
   df_std_BS <- df_std_BS %>%
     select(end,standardized_balancesheet_label,val) %>% 
@@ -402,7 +402,7 @@ IS_std <- function(df_Facts) {
     # Remove grouping
     ungroup()
   
-  # 03 - Handling missing quarter ------------------------------------------------------
+  # 03 - Handling missing quarters ------------------------------------------------------
   # This code generates estimates of the Income Statement Facts associated with quarters missing in the data downloaded.
   
   # Split the 'frame' column into 'frame_year' and 'frame_quarter'
@@ -510,7 +510,7 @@ IS_std <- function(df_Facts) {
     filter(!is.na(frame_quarter))
   
   # 03 - Pivot df_std_IS in a dataframe format ------------------------------------------------------
-  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different labels
+  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
   df_std_IS <- df_std_IS %>%
     select(end,standardized_incomestatement_label,val) %>% 
@@ -523,18 +523,19 @@ IS_std <- function(df_Facts) {
     arrange(desc(end))
   
   # 04 - Add new columns for standardization -----------------------------------
-  # This code add the missing columns to the df_std_BS based on the standardized_incomestatement.xls and perform checks
+  # This code add the missing columns to the df_std_IS based on the standardized_incomestatement.xls and perform checks
   
   ## Step 1 - Check key financial Concepts -----------------------------------
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
-  if (!("Gross Profit" %in% colnames(df_std_IS)) || !("Net Income (loss)" %in% colnames(df_std_IS)) ) {
+  if (!("Gross Profit" %in% colnames(df_std_IS)) || !("Operating Income" %in% colnames(df_std_IS)) || !("Net Income (loss)" %in% colnames(df_std_IS)) ) {
     stop("Gross Profit or Operating Income or Net Income (loss) is missing. The entity is not adequate for financial analysis.")
   }
   
-  # Remove rows where where key financial Concepts are empty (or NA)
-  df_std_IS <- df_std_IS %>%
-    filter(!is.na(`Operating Income`) & `Gross Profit` != "") %>% 
-    filter(!is.na(`Gross Profit`) & `Operating Income` != "")
+  # Remove rows where key financial Concepts are empty (or NA)
+  df_std_IS_1 <- df_std_IS %>%
+    filter(!is.na(`Operating Income`) & `Operating Income` != "" &
+             !is.na(`Gross Profit`) & `Gross Profit` != "" &
+             !is.na(`Net Income (loss)`) & `Net Income (loss)` != "")
   
   ## Step 2 - Add missing columns -----------------------------------
   # It checks which columns from columns_to_add are not already present in df_std_IS
