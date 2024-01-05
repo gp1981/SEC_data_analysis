@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -400,13 +400,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="selecting-a-company-jakks-pacific-inc.-jakk" class="level2">
 <h2 class="anchored" data-anchor-id="selecting-a-company-jakks-pacific-inc.-jakk">Selecting a Company: JAKKS Pacific Inc.&nbsp;(JAKK)</h2>
 <p>For our analysis, we’ll use JAKKS Pacific Inc.&nbsp;(JAKK) as the company of interest. The CIK for JAKKS Pacific Inc.&nbsp;is 0000320193.</p>
-<p>Let’s now select JAKKS Pacific Inc.&nbsp;by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the <code>company_Data</code> object for further analysis:</p>
+<p>Let’s now select JAKKS Pacific Inc.&nbsp;by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the <code>company_data</code> object for further analysis:</p>
 <div class="cell" data-paged.print="true">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Select JAKKS Pacific Inc. (AAPL) by CIK</span></span>
 <span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="st">"0001009829"</span>  <span class="co"># CIK for JAKKS Pacific Inc.</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">retrieve_Company_Data</span>(headers, cik)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>company_data <span class="ot">&lt;-</span> <span class="fu">retrieve_Company_Data</span>(headers, cik)</span>
 <span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a><span class="co"># this the corresponding row of the company list</span></span>
 <span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>company_List <span class="sc">%&gt;%</span> </span>
@@ -425,13 +425,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">3547</td>
+<td style="text-align: left;">3554</td>
 <td style="text-align: left;">0001009829</td>
 <td style="text-align: left;">JAKK</td>
 <td style="text-align: left;">JAKKS PACIFIC INC</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">9624</td>
+<td style="text-align: left;">10401</td>
 <td style="text-align: left;">0001009829</td>
 <td style="text-align: left;">JAKP</td>
 <td style="text-align: left;">JAKKS PACIFIC INC</td>
@@ -447,8 +447,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_Data</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(company_Data, <span class="at">file =</span> <span class="st">"company_Data.RDS"</span>) </span>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(company_data, <span class="at">file =</span> <span class="st">"company_data.RDS"</span>) </span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="fu">saveRDS</span>(cik, <span class="at">file =</span> <span class="st">"cik.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>

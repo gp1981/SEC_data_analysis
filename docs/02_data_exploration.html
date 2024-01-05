@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -261,9 +261,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <ul>
   <li><a href="#explore-data-retrieved-from-sec" id="toc-explore-data-retrieved-from-sec" class="nav-link active" data-scroll-target="#explore-data-retrieved-from-sec">Explore data retrieved from SEC</a>
   <ul class="collapse">
-  <li><a href="#structure-of-the-sec-data-xbrl" id="toc-structure-of-the-sec-data-xbrl" class="nav-link" data-scroll-target="#structure-of-the-sec-data-xbrl">Structure of the SEC data: XBRL</a>
+  <li><a href="#understanding-xbrl" id="toc-understanding-xbrl" class="nav-link" data-scroll-target="#understanding-xbrl">Understanding XBRL</a>
   <ul class="collapse">
-  <li><a href="#understanding-the-dataset-company_data" id="toc-understanding-the-dataset-company_data" class="nav-link" data-scroll-target="#understanding-the-dataset-company_data">Understanding the dataset: <code>company_Data</code></a></li>
+  <li><a href="#why-xbrl" id="toc-why-xbrl" class="nav-link" data-scroll-target="#why-xbrl">Why XBRL?</a></li>
+  <li><a href="#key-elements-of-xbrl-in-sec-data" id="toc-key-elements-of-xbrl-in-sec-data" class="nav-link" data-scroll-target="#key-elements-of-xbrl-in-sec-data">Key Elements of XBRL in SEC Data</a></li>
+  <li><a href="#understanding-the-dataset" id="toc-understanding-the-dataset" class="nav-link" data-scroll-target="#understanding-the-dataset">Understanding the dataset</a></li>
   </ul></li>
   </ul></li>
   </ul>
@@ -276,7 +278,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <section id="explore-data-retrieved-from-sec" class="level1">
 <h1>Explore data retrieved from SEC</h1>
-<p>In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, and understanding this structure is vital for effective analysis.</p>
+<p>In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, utilizing XBRL (eXtensible Business Reporting Language). XBRL is a standardized language designed to enhance the accuracy and reliability of financial reporting.</p>
+<section id="understanding-xbrl" class="level2">
+<h2 class="anchored" data-anchor-id="understanding-xbrl">Understanding XBRL</h2>
+<p><strong>XBRL (eXtensible Business Reporting Language):</strong> XBRL is a structured, machine-readable format ensuring consistency and comparability across companies and filings. As specialized language for business and financial data, XBRL enables standardized communication and presentation of financial information. It uses XML (eXtensible Markup Language) to tag financial data with labels that provide context and meaning. This tagging allows for easier analysis, comparability, and extraction of data by both humans and machines.</p>
+<section id="why-xbrl" class="level3">
+<h3 class="anchored" data-anchor-id="why-xbrl">Why XBRL?</h3>
+<ol type="1">
+<li><p><strong>Consistency:</strong> XBRL ensures consistency in financial reporting by providing a standardized set of tags for financial concepts, making it easier to compare data across different companies and periods.</p></li>
+<li><p><strong>Efficiency:</strong> The use of XBRL streamlines the process of collecting, analyzing, and disseminating financial information, reducing the need for manual data entry and interpretation.</p></li>
+<li><p><strong>Transparency:</strong> XBRL enhances the transparency of financial data, as each financial concept is tagged with a specific label, providing clear identification and context.</p></li>
+</ol>
+</section>
+<section id="key-elements-of-xbrl-in-sec-data" class="level3">
+<h3 class="anchored" data-anchor-id="key-elements-of-xbrl-in-sec-data">Key Elements of XBRL in SEC Data</h3>
+<p>Within the SEC data retrieved through the API, XBRL is utilized to structure financial information. .</p>
+<p>A basic understanding XBRL<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> is necessary for navigating and interpreting the structured financial data retrieved from the SEC. It ensures a standardized approach to financial reporting, facilitating meaningful analysis and comparison.</p>
 <p>First, we load the required libraries and files.</p>
 <div class="cell">
 <details>
@@ -288,18 +305,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_Data</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"cik.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
-<section id="structure-of-the-sec-data-xbrl" class="level2">
-<h2 class="anchored" data-anchor-id="structure-of-the-sec-data-xbrl">Structure of the SEC data: XBRL</h2>
-<p>The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards. It utilizes XBRL (eXtensible Business Reporting Language)<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a>, a structured, machine-readable format ensuring consistency and comparability across companies and filings.</p>
+<p>The data retrieved from the SEC API is structured financial data compliant with SEC reporting standards.</p>
 <p>To navigate through this structure for analysis, consider the following key elements:</p>
 <ul>
 <li><p><strong><code>cik</code></strong>: The Central Index Key (CIK) is a unique identifier assigned to each company filing reports with the U.S. Securities and Exchange Commission (SEC).</p></li>
-<li><p><strong><code>entityName</code></strong>: This is the name of the company, such as “Apple Inc.”</p></li>
+<li><p><strong><code>entityName</code></strong>: This is the name of the company, in our case “JAKKS Pacific, Inc.”</p></li>
 <li><p><strong><code>facts</code></strong>: The main container for financial data, housing two critical sections:</p>
 <ul>
 <li><p><strong><code>dei</code></strong>: Contains Document and Entity Information (DEI), providing basic company details.</p></li>
@@ -313,14 +328,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><p><strong>Attributes</strong>: Additional attributes providing context for the data, such as reporting period, currency unit, or data precision.</p></li>
 </ul>
 <p>Effectively analyzing this data involves selecting relevant concepts and <code>Fact</code>, potentially transforming or pivoting the data for further processing and visualization.</p>
-<section id="understanding-the-dataset-company_data" class="level3">
-<h3 class="anchored" data-anchor-id="understanding-the-dataset-company_data">Understanding the dataset: <code>company_Data</code></h3>
-<p>Let’s start by exploring the structure of <strong><code>company_Data</code></strong>:</p>
+</section>
+<section id="understanding-the-dataset" class="level3">
+<h3 class="anchored" data-anchor-id="understanding-the-dataset">Understanding the dataset</h3>
+<p>Let’s start by exploring the structure of <strong><code>company_data</code></strong>:</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Data </span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Data, <span class="at">max.level =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_data </span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_data, <span class="at">max.level =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre class="custom-str-output"><code>List of 3
@@ -329,7 +345,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ company_Concept :List of 7</code></pre>
 </div>
 </div>
-<p>The output reveals that <strong><code>company_Data</code></strong> structure comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
+<p>The output reveals that <strong><code>company_data</code></strong> structure comprises three lists with nested lists, such as <strong><code>company_Metadata</code></strong> with 22 lists.</p>
 <div class="Note custom-note">
 <table class="table">
 <colgroup>
@@ -340,20 +356,20 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;"><strong>Note</strong></td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">In R, a <strong>list</strong> is a powerful data structure that can hold elements of <strong>different data types</strong>. This flexibility allows each element to be unique and cater to specific data requirements. For the <code>company_Data</code> object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types. Understanding the <strong>organization and structure</strong> of the <code>company_Data</code> list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation.</td>
+<td style="text-align: left;">In R, a <strong>list</strong> is a powerful data structure that can hold elements of <strong>different data types</strong>. This flexibility allows each element to be unique and cater to specific data requirements. For the <code>company_data</code> object, the list structure plays a crucial role in organizing various pieces of information, including financial data, company descriptions, and filing details. This heterogeneous nature of the data necessitates a flexible data structure like a list to accommodate these diverse data types. Understanding the <strong>organization and structure</strong> of the <code>company_data</code> list is essential for effective navigation and extraction of specific information. By grasping the relationships between the list elements, users can efficiently retrieve the desired data elements for analysis and interpretation.</td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>To access the lists we use the symbol <code>$</code> in after the object e.g.&nbsp;<code>company_Data$company_Metadata</code>.</p>
-<p>Next, we split the <code>company_Data</code> into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>
+<p>To access the lists we use the symbol <code>$</code> in after the object e.g.&nbsp;<code>company_data$company_Metadata</code>.</p>
+<p>Next, we split the <code>company_data</code> into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_Data</span></span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Metadata</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Facts</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>company_Concept <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Concept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_data</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Metadata</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Facts</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>company_Concept <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Concept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now, let’s examine the structures and content of these lists:</p>
@@ -409,25 +425,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell-output cell-output-stdout">
 <pre class="custom-str-output"><code>List of 2
  $ recent:List of 14
-  ..$ accessionNumber      : chr [1:1000] "0001185185-23-001232" "0001185185-23-001194" "0001185185-23-001154" "0001185185-23-001142" ...
-  ..$ filingDate           : chr [1:1000] "2023-11-22" "2023-11-14" "2023-11-09" "2023-11-03" ...
-  ..$ reportDate           : chr [1:1000] "2023-11-20" "2023-09-30" "" "2023-12-15" ...
-  ..$ acceptanceDateTime   : chr [1:1000] "2023-11-22T08:00:21.000Z" "2023-11-14T15:37:25.000Z" "2023-11-08T18:02:08.000Z" "2023-11-03T16:53:20.000Z" ...
-  ..$ act                  : chr [1:1000] "" "34" "34" "34" ...
-  ..$ form                 : chr [1:1000] "4" "10-Q" "DEFR14A" "DEF 14A" ...
-  ..$ fileNumber           : chr [1:1000] "" "001-35448" "001-35448" "001-35448" ...
-  ..$ filmNumber           : chr [1:1000] "" "231405279" "231389465" "231377115" ...
-  ..$ items                : chr [1:1000] "" "" "" "" ...
-  ..$ size                 : int [1:1000] 9905 6541114 885640 871257 872244 6302419 861605 179689 5468658 147552 ...
-  ..$ isXBRL               : int [1:1000] 0 1 0 0 1 1 1 1 1 0 ...
-  ..$ isInlineXBRL         : int [1:1000] 0 1 0 0 1 1 1 1 1 0 ...
-  ..$ primaryDocument      : chr [1:1000] "xslF345X05/ownership.xml" "jakkspacif20230930_10q.htm" "jakkspacif20231107_defr14a.htm" "jakkspacif20231102_def14a.htm" ...
-  ..$ primaryDocDescription: chr [1:1000] "" "FORM 10-Q" "FORM DEFR14A" "FORM DEF 14A" ...
+  ..$ accessionNumber      : chr [1:1000] "0001185185-24-000028" "0001185185-24-000026" "0001185185-24-000024" "0001185185-23-001335" ...
+  ..$ filingDate           : chr [1:1000] "2024-01-03" "2024-01-03" "2024-01-03" "2023-12-21" ...
+  ..$ reportDate           : chr [1:1000] "2023-11-17" "2023-11-20" "2024-01-01" "2023-12-15" ...
+  ..$ acceptanceDateTime   : chr [1:1000] "2024-01-03T21:40:15.000Z" "2024-01-03T21:24:31.000Z" "2024-01-03T21:22:43.000Z" "2023-12-21T16:07:57.000Z" ...
+  ..$ act                  : chr [1:1000] "" "" "" "34" ...
+  ..$ form                 : chr [1:1000] "4" "4" "4" "8-K" ...
+  ..$ fileNumber           : chr [1:1000] "" "" "" "001-35448" ...
+  ..$ filmNumber           : chr [1:1000] "" "" "" "231505376" ...
+  ..$ items                : chr [1:1000] "" "" "" "5.03,5.07,9.01" ...
+  ..$ size                 : int [1:1000] 6585 23553 29169 195910 9905 6541114 885640 871257 872244 6302419 ...
+  ..$ isXBRL               : int [1:1000] 0 0 0 1 0 1 0 0 1 1 ...
+  ..$ isInlineXBRL         : int [1:1000] 0 0 0 1 0 1 0 0 1 1 ...
+  ..$ primaryDocument      : chr [1:1000] "xslF345X05/ownership.xml" "xslF345X05/ownership.xml" "xslF345X05/ownership.xml" "jakkspacif20231220c_8k.htm" ...
+  ..$ primaryDocDescription: chr [1:1000] "" "" "" "FORM 8-K" ...
  $ files :'data.frame': 1 obs. of  4 variables:
   ..$ name       : chr "CIK0001009829-submissions-001.json"
-  ..$ filingCount: int 123
+  ..$ filingCount: int 127
   ..$ filingFrom : chr "1996-06-07"
-  ..$ filingTo   : chr "2002-09-29"</code></pre>
+  ..$ filingTo   : chr "2002-10-29"</code></pre>
 </div>
 </div>
 <p>The format of the dataset as printed is not very useful. We see that there are useful information on the forms (e.g.&nbsp;10K) and dates (e.g.&nbsp;filing dates).</p>

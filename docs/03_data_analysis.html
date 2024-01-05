@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.433">
+<meta name="generator" content="quarto-1.3.450">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
@@ -287,14 +287,14 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_Data</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_Data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_data</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"cik.RDS"</span>)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_Data</span></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Metadata</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Facts</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>company_Concept <span class="ot">&lt;-</span> company_Data<span class="sc">$</span>company_Concept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_data</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Metadata</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Facts</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>company_Concept <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Concept</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="rebuilding-the-financial-reports" class="level3">
@@ -310,7 +310,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="ot">&lt;-</span> <span class="fu">Fundamentals_to_Dataframe</span>(company_Data)</span>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="ot">&lt;-</span> <span class="fu">Fundamentals_to_Dataframe</span>(company_data)</span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Select the columns to print out and present the output with wrapped text and formatted numbers</span></span>
 <span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>df_Facts <span class="sc">%&gt;%</span> <span class="fu">select</span>(<span class="sc">-</span><span class="fu">c</span>(description,accn)) <span class="sc">%&gt;%</span> </span>
@@ -630,12 +630,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="balance-sheet" class="level4">
 <h4 class="anchored" data-anchor-id="balance-sheet">Balance Sheet</h4>
-<p>The following code will create a standardized Balance Sheet (<code>df_std_BS</code>) based on a matching table in excel (standardized_balancehseet.xlsx). The standardized Balance Sheet includes Concepts that are not necessarily present in the filing (e.g.&nbsp;10-K) of all companies. In these cases the function will estimate their values. More details on the function are included in <a href="#appendix-a2-r-script-functions">Appendix A2</a></p>
+<p>The following code will generate a standardized Balance Sheet (df_std_BS) based on a matching table in Excel (standardized_balancehseet.xlsx). The standardized Balance Sheet includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. If financial values (Facts) are missing, they will be estimated.</p>
+<p>For more details on the function, refer to Appendix A2.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve balance sheet of JAKKS Pacific Inc. in standardized format</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="ot">&lt;-</span> <span class="fu">bs_std</span>(df_Facts)</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="ot">&lt;-</span> <span class="fu">BS_std</span>(df_Facts)</span>
 <span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the standardized balancesheet</span></span>
 <span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a>df_std_BS <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
@@ -680,6 +681,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <th style="text-align: left;" data-quarto-table-cell-role="th">Minority interest</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Total Stockholders Equity</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">Total Liabilities &amp; Stockholders Equity</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">cik</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">entityName</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sic</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sicDescription</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">tickers</th>
 </tr>
 </thead>
 <tbody>
@@ -716,6 +722,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">NA</td>
 <td style="text-align: right;">198.716</td>
 <td style="text-align: right;">514.281</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
 </tr>
 <tr class="even">
 <td style="text-align: left; width: 250px;">2023-06-30</td>
@@ -750,6 +761,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">NA</td>
 <td style="text-align: right;">151.014</td>
 <td style="text-align: right;">368.941</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left; width: 250px;">2023-03-31</td>
@@ -784,6 +800,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">NA</td>
 <td style="text-align: right;">142.220</td>
 <td style="text-align: right;">329.386</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
 </tr>
 <tr class="even">
 <td style="text-align: left; width: 250px;">2022-12-31</td>
@@ -818,10 +839,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">NA</td>
 <td style="text-align: right;">146.698</td>
 <td style="text-align: right;">405.342</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left; width: 250px;">2022-09-30</td>
-<td style="text-align: right;">76.418</td>
+<td style="text-align: right;">76.596</td>
 <td style="text-align: right;">NA</td>
 <td style="text-align: right;">204.856</td>
 <td style="text-align: right;">109.171</td>
@@ -852,6 +878,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">NA</td>
 <td style="text-align: right;">106.330</td>
 <td style="text-align: right;">477.114</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
 </tr>
 <tr class="even">
 <td style="text-align: left; width: 250px;">2022-06-30</td>
@@ -886,6 +917,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">NA</td>
 <td style="text-align: right;">78.068</td>
 <td style="text-align: right;">443.637</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
 </tr>
 </tbody>
 </table>
@@ -896,7 +932,178 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="income-statement" class="level4">
 <h4 class="anchored" data-anchor-id="income-statement">Income Statement</h4>
-<p>(work in progress …)</p>
+<p>he following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).</p>
+<p>Here are a few relevant remarks regarding the standardized Income Statement:</p>
+<ul>
+<li><p>The financial data are presented on a quarterly basis only.</p></li>
+<li><p>In cases where quarterly Facts are not available, they are estimated as the difference between the yearly value and the existing quarterly values of that year, divided equally by the number of quarters that are missing. For example, if the annual revenue in the 10-K form is USD 1000 for FY20, and only the Revenue for Q1 (230 USD) and Q2 (300 USD) are available, then the Q3 and Q4 values will be estimated as (1000 - (230 + 300)) / 2 = 235. As a result, the estimated Revenue for both Q3 and Q4 of FY20 is 235 USD.</p></li>
+<li><p>The standardized Income Statement includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. In these cases, the function will estimate their values.</p></li>
+</ul>
+<p>More details on the function are included in <a href="#appendix-a-r-script-and-functions">Appendix A2</a></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve Income Statement of JAKKS Pacific Inc. in standardized format</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_std_IS <span class="ot">&lt;-</span> <span class="fu">IS_std</span>(df_Facts)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the standardized balancesheet</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>df_std_IS <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>( <span class="st">"html"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Revenue</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Cost of Revenue</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Gross Profit</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Research and development</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Sales general and administrative costs</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Other Non Operating Income (Loss) Net</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Operating Income</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Interest Income</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Interest Expense</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Other income (expense) Net</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Income Before Income Tax</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Net Income (loss)</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">cik</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">entityName</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sic</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sicDescription</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">tickers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">2023-09-30</td>
+<td style="text-align: right;">309.744</td>
+<td style="text-align: right;">202.759</td>
+<td style="text-align: right;">106.985</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">44.586</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">62.399</td>
+<td style="text-align: right;">0.384</td>
+<td style="text-align: right;">1.436</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">60.502</td>
+<td style="text-align: right;">48.132</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">2023-06-30</td>
+<td style="text-align: right;">166.933</td>
+<td style="text-align: right;">115.735</td>
+<td style="text-align: right;">51.198</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">34.750</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">16.448</td>
+<td style="text-align: right;">0.086</td>
+<td style="text-align: right;">1.302</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">7.660</td>
+<td style="text-align: right;">6.455</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">2023-03-31</td>
+<td style="text-align: right;">107.484</td>
+<td style="text-align: right;">76.047</td>
+<td style="text-align: right;">31.437</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">35.837</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-4.400</td>
+<td style="text-align: right;">0.117</td>
+<td style="text-align: right;">3.003</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-6.701</td>
+<td style="text-align: right;">-5.313</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">2022-12-31</td>
+<td style="text-align: right;">131.886</td>
+<td style="text-align: right;">103.318</td>
+<td style="text-align: right;">28.568</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">44.265</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-15.697</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">2.294</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-34.709</td>
+<td style="text-align: right;">37.969</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">2022-09-30</td>
+<td style="text-align: right;">322.998</td>
+<td style="text-align: right;">231.087</td>
+<td style="text-align: right;">91.911</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">38.170</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">53.741</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">4.350</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">42.248</td>
+<td style="text-align: right;">30.693</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">2022-06-30</td>
+<td style="text-align: right;">220.422</td>
+<td style="text-align: right;">159.532</td>
+<td style="text-align: right;">60.890</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">36.930</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">23.660</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">2.337</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">27.541</td>
+<td style="text-align: right;">26.560</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
 </section>
 <section id="cash-flow" class="level4">
 <h4 class="anchored" data-anchor-id="cash-flow">Cash Flow</h4>
