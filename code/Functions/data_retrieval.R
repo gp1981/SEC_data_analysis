@@ -3,6 +3,7 @@
 # Disclaimer: This script is intended for educational purposes only and should not be used for investment decisions. Use at your own risk.
 
 # Function to retrieve list of companies ----------------------------------
+# Function to operating companies from SEC database.
 
 retrieve_Company_List <- function(headers) {
   # Retrieve company tickers list
@@ -25,8 +26,8 @@ retrieve_Company_List <- function(headers) {
   return(company_List)
 }
 
-
 # Function to retrieve company data ---------------------------------------
+# Function to retrieve company data based on cik code from SEC database.
 
 retrieve_Company_Data <- function(headers, cik) {
   # Retrieve company metadata
@@ -72,7 +73,6 @@ retrieve_Company_Data <- function(headers, cik) {
 }
 
 # Function to create a dataframe of fundamentals  ---------------------------------------
-
 # Function to unnest list company_Facts using parallel processing. This function takes company_Data and unnests it, creating a data frame with relevant information including values, labels, descriptions, etc.
 
 Fundamentals_to_Dataframe <- function(company_Data) {
@@ -131,7 +131,7 @@ Fundamentals_to_Dataframe <- function(company_Data) {
 }
 
 # Function to rebuild the balancesheet statement ---------------------------------------
-# This function create a dataframe representative of the quarterly balance sheet of the entity. The basis for the dataframe is a standardized balance sheet (standardized_balancesheet.xlsx). 
+# Function to create a dataframe representative of the quarterly balance sheet of the entity. The basis for the dataframe is a standardized balance sheet (standardized_balancesheet.xlsx). 
 
 BS_std <- function(df_Facts) {
   # 01 - Join standardized_balancesheet ------------------------------------------------------
@@ -296,39 +296,40 @@ BS_std <- function(df_Facts) {
     )
   
   ## Step 4 - Order columns based on standardized_balancesheet_label -----------------------------------
-  custom_order <- c(
-    "Cash & Cash Equivalent",
-    "Marketable Securities Current",
-    "Total Accounts Receivable",
-    "Total Inventory",
-    "Prepaid Expenses",
-    "Other Current Assets",
-    "Total Current Assets",
-    "Marketable Securities Non Current",
-    "Property Plant and Equipment",
-    "Intangible Assets (excl. goodwill)",
-    "Goodwill",
-    "Other Non Current Assets",
-    "Total Non Current Assets",
-    "Total Assets",
-    "Accounts Payable",
-    "Tax Payable",
-    "Current Debts",
-    "Operating Lease Liability Current",
-    "Other Current Liabilities",
-    "Total Current Liabilities",
-    "Non Current Debts",
-    "Operating Lease Liability Non Current",
-    "Other Non Current Liabilities",
-    "Total Non Current Liabilities",
-    "Total Liabilities",
-    "Preferred Stock",
-    "Retained Earnings or Accumulated Deficit",
-    "Accumulated other comprehensive income (loss)",
-    "Minority interest",
-    "Total Stockholders Equity",
-    "Total Liabilities & Stockholders Equity"
-  )
+  # custom_order <- c(
+  #   "Cash & Cash Equivalent",
+  #   "Marketable Securities Current",
+  #   "Total Accounts Receivable",
+  #   "Total Inventory",
+  #   "Prepaid Expenses",
+  #   "Other Current Assets",
+  #   "Total Current Assets",
+  #   "Marketable Securities Non Current",
+  #   "Property Plant and Equipment",
+  #   "Intangible Assets (excl. goodwill)",
+  #   "Goodwill",
+  #   "Other Non Current Assets",
+  #   "Total Non Current Assets",
+  #   "Total Assets",
+  #   "Accounts Payable",
+  #   "Tax Payable",
+  #   "Current Debts",
+  #   "Operating Lease Liability Current",
+  #   "Other Current Liabilities",
+  #   "Total Current Liabilities",
+  #   "Non Current Debts",
+  #   "Operating Lease Liability Non Current",
+  #   "Other Non Current Liabilities",
+  #   "Total Non Current Liabilities",
+  #   "Total Liabilities",
+  #   "Preferred Stock",
+  #   "Retained Earnings or Accumulated Deficit",
+  #   "Accumulated other comprehensive income (loss)",
+  #   "Minority interest",
+  #   "Total Stockholders Equity",
+  #   "Total Liabilities & Stockholders Equity"
+  # )
+  custom_order <- unique(standardized_balancesheet[,1])
   
   # Reorder the columns as per standardized_balancesheet.xlsx
   df_std_BS <- df_std_BS[, c("end", custom_order)]
@@ -346,7 +347,7 @@ BS_std <- function(df_Facts) {
 }
 
 # Function to rebuild the income statement ---------------------------------------
-# This function create a dataframe representative of the quarterly income statement of the entity. The basis for the dataframe is a standardized income statement (standardized_incomestatement.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
+# Function to create a dataframe representative of the quarterly income statement of the entity. The basis for the dataframe is a standardized income statement (standardized_incomestatement.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
 
 IS_std <- function(df_Facts) {
   # 01 - Join standardized_incomestatement ------------------------------------------------------
@@ -532,7 +533,7 @@ IS_std <- function(df_Facts) {
   }
   
   # Remove rows where key financial Concepts are empty (or NA)
-  df_std_IS_1 <- df_std_IS %>%
+  df_std_IS <- df_std_IS %>%
     filter(!is.na(`Operating Income`) & `Operating Income` != "" &
              !is.na(`Gross Profit`) & `Gross Profit` != "" &
              !is.na(`Net Income (loss)`) & `Net Income (loss)` != "")
@@ -551,21 +552,27 @@ IS_std <- function(df_Facts) {
   ## Step 3 - Calculate newly added columns columns -----------------------------------
   # Evaluate expressions for key financial Concepts 
   
-  # df_std_IS <- df_std_IS %>%
-  #   mutate(end = as.Date(end))
-  # 
-  # df_std_IS <- df_std_IS %>%
-  #   mutate(
-  #     `Operating Income` = pmax(0, case_when(
-  #       is.na(`Operating Income`) ~ coalesce(`Revenue`,0) - (coalesce(`Cost of Revenue`,0) + coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Other Non Operating Income (Loss) Net`,0)),
-  #       TRUE ~ coalesce(`Operating Income`,0)
-  #     ))
-  #   )
-  # 
+  df_std_IS <- df_std_IS %>%
+    mutate(
+      `Revenue` = case_when(
+        is.na(`Revenue`) ~ coalesce(`Cost of Revenue`,0) + coalesce(`Gross Profit`,0),
+        TRUE ~ coalesce(`Revenue`,0)
+      ),
+      `Cost of Revenue` = case_when(
+        is.na(`Cost of Revenue`) ~ coalesce(`Revenue`,0) - coalesce(`Gross Profit`,0),
+        TRUE ~ coalesce(`Cost of Revenue`,0)
+      ),
+      `Other Non Operating Income (Loss) Net` = case_when(
+        is.na(`Other Non Operating Income (Loss) Net`) ~ coalesce(`Gross Profit`,0) - (coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Operating Income`,0)),
+      ),
+      `Other income (expense) Net` = case_when(
+        is.na(`Other income (expense) Net`) ~ coalesce(`Operating Income`,0) - (coalesce(`Interest Income`,0) + coalesce(`Interest Expense`,0) + coalesce(`Income Before Income Tax`,0)),
+      ),
+    ) %>% 
+    mutate_all(~round(., digits = 4))  # Adjust the number of digits as needed
   
-  
-  
-  
+  ## Step 4 - Order columns based on standardized_incomestatement_label -----------------------------------
+  custom_order <- unique(standardized_incomestatement[,1])
   # Reorder the columns as per standardized_incomestatement.xlsx
   df_std_IS <- df_std_IS[, c("end", custom_order)]
   # Add the columns with the metadata

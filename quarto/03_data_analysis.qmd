@@ -102,8 +102,9 @@ To handle this scenario, we construct a dataframe of financial data based on the
 
 #### Balance Sheet
 
-The following code will create a standardized Balance Sheet (`df_std_BS`) based on a matching table in excel (standardized_balancehseet.xlsx). The standardized Balance Sheet includes Concepts that are not necessarily present in the filing (e.g. 10-K) of all companies. In these cases the function will estimate their values. More details on the function are included in [Appendix A2](#appendix-a2-r-script-functions)
+The following code will generate a standardized Balance Sheet (df_std_BS) based on a matching table in Excel (standardized_balancehseet.xlsx). The standardized Balance Sheet includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. If financial values (Facts) are missing, they will be estimated.
 
+For more details on the function, refer to Appendix A2.
 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
@@ -116,13 +117,34 @@ df_std_BS %>% head() %>% as.data.frame() %>%
   kable( "html") %>%
   kable_styling(full_width = FALSE) %>%
   column_spec(1,width = "250px")
-
-
 ```
 
 #### Income Statement
 
-(work in progress ...)
+he following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).
+
+Here are a few relevant remarks regarding the standardized Income Statement:
+
+-   The financial data are presented on a quarterly basis only.
+
+-   In cases where quarterly Facts are not available, they are estimated as the difference between the yearly value and the existing quarterly values of that year, divided equally by the number of quarters that are missing. For example, if the annual revenue in the 10-K form is USD 1000 for FY20, and only the Revenue for Q1 (230 USD) and Q2 (300 USD) are available, then the Q3 and Q4 values will be estimated as (1000 - (230 + 300)) / 2 = 235. As a result, the estimated Revenue for both Q3 and Q4 of FY20 is 235 USD.
+
+-   The standardized Income Statement includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. In these cases, the function will estimate their values.
+
+More details on the function are included in [Appendix A2](#appendix-a-r-script-and-functions)
+
+```{r standardized_IS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Retrieve Income Statement of JAKKS Pacific Inc. in standardized format
+df_std_IS <- IS_std(df_Facts)
+
+# Print the standardized balancesheet
+df_std_IS %>% head() %>% as.data.frame() %>%
+  head() %>% as.data.frame() %>%
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1,width = "250px")
+```
 
 #### Cash Flow
 
