@@ -130,6 +130,66 @@ Fundamentals_to_Dataframe <- function(company_Data) {
   return(df_units)
 }
 
+# Function to create a dataframe of fundamentals from json SEC files ---------------------------------------
+# Function to unnest list company_Facts using parallel processing. This function takes company_Data and unnests it, creating a data frame with relevant information including values, labels, descriptions, etc.
+
+Fundamentals_to_Dataframe_multi_files <- function(company_Data,company_details_cik,company_List) {
+  
+  # # Create a vector with the modified details
+  # company_details <- c(
+  #   company_details_cik,
+  #   company_Data$company_Facts$entityName,
+  #   company_Data$company_Metadata$sic,
+  #   company_Data$company_Metadata$sicDescription,
+  #   company_details_ticker
+  # )
+  
+  # # Create a data frame with the details
+  # details_df <- as.data.frame(t(company_details))
+  # colnames(details_df) <- c("cik", "entityName", "sic", "sicDescription","tickers")
+  
+  # Retrieve company_Facts data
+  company_Facts_us_gaap <- company_Data$facts$`us-gaap`
+  
+  # Use parallel processing with future_map_dfr to apply the operation on each list concurrently
+  df_units <- furrr::future_map_dfr(names(company_Facts_us_gaap), function(list_name) {
+    # Extract the relevant information from the 'units' list and create a tibble
+    df_list <- company_Facts_us_gaap[[list_name]]$units$USD %>%
+      as_tibble() %>%
+      # Add columns with 'label', 'description', and 'us_gaap_reference'
+      mutate(
+        label = company_Facts_us_gaap[[list_name]]$label,
+        description = company_Facts_us_gaap[[list_name]]$description,
+        us_gaap_reference = list_name
+      )
+    
+    return(df_list)
+  })
+  
+  # Add the corresponding ticker to the dataframe
+  df_units <- df_units %>% 
+    mutate(
+      entityName = company_Data$entityName,
+      cik = company_details_cik,
+      tickers = company_List[company_List$cik_str == company_details_cik,]$cik_str)
+  
+  # # Replicate details_df to match the number of rows in df_units
+  # details_replicated <- details_df[rep(seq_len(nrow(details_df)), each = nrow(df_units)), ]
+  # 
+  # # Bind the two data frames together
+  # df_units <- bind_cols(df_units, details_replicated)
+  # 
+  
+  # Mutate to reduce values in millions by dividing by 1 million
+  df_units <- df_units %>%
+    mutate(
+      val = val / 1e6
+    )
+  
+  
+  return(df_units)
+}
+
 # Function to rebuild the balancesheet statement ---------------------------------------
 # Function to create a dataframe representative of the quarterly balance sheet of the entity. The basis for the dataframe is a standardized balance sheet (standardized_balancesheet.xlsx). 
 
