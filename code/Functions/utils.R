@@ -24,7 +24,8 @@ unnest_list <- function(x) {
 #'
 #' This function reads a specified number of JSON files randomly selected from
 #' a folder and combines them into a dataframe.
-#'
+#' @source("setup.qmd")           # Sourcing necessary libraries
+
 #' @param folder_path The path to the folder containing JSON files.
 #' @param num_files_to_select The number of files to randomly select and process.
 #'
@@ -37,18 +38,20 @@ unnest_list <- function(x) {
 #' 
 #' 
 # # TEMPORARY CODE (READ SETUP.R)
-# folder_path <- "~/Downloads/SEC/companyfacts_test"
-# num_files_to_select = 10
+folder_path <- "~/Downloads/SEC/companyfacts_test"
+num_files_to_select = 10
 # Currently the dataframe returned for 10k companies in company_List would ~217 GB
 
 df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
+
+  ## Step 1 - preparation of the files ---------------------------------------
   
   # List all the JSON files in the folder
   json_files <- list.files(folder_path, pattern = "*.json", full.names = TRUE)
   
-  # Shuffle the list of files
-  set.seed(123)  # Set seed for reproducibility
-  json_files <- sample(json_files)
+  # # Shuffle the list of files
+  # set.seed(123)  # Set seed for reproducibility
+  # json_files <- sample(json_files)
   
   # Check if the company_List exist
   if (!exists("company_List")) {
@@ -59,8 +62,28 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
     company_List <- retrieve_Company_List(headers)
   }
   
+  # Create a dataframe of file paths
+  files_df <- data.frame(file_path = json_files, stringsAsFactors = FALSE)
+  
+  # Extract CIK suffix from the file path
+  files_df <- files_df %>%
+    mutate(cik_suffix = sub(".*/CIK(\\d+)\\.json", "\\1", file_path))
+  
+  # Filter relevant files based on CIK suffix
+  filtered_files_df <- files_df %>%
+    filter(cik_suffix %in% company_List$cik_str)
+  
+  # Join with company_List to filter only those companies belonging to company_List
+  filtered_files_df <- filtered_files_df %>%
+    left_join(company_List, by = c("cik_suffix" = "cik_str"))
+    
+    
+    ## Step 2 - preparation of the cycle over the files ------------------------
+  
   # Initialize an empty dataframe to store the combined data
-  combined_df <- data.frame()
+  combined_df_BS <- data.frame()
+  combined_df_IS <- data.frame()
+  combined_df_CF <- data.frame()
   
   # Determine the number of files to select
   if (is.null(num_files_to_select)) {
@@ -97,7 +120,7 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
     
     # Identify the cik code of the entity and nsure cik has 10 digits
     company_details_cik <- sprintf("%010d", company_Data$cik)
-
+    
     # Check if the cik is in the company_List
     if (!company_details_cik %in% company_List$cik_str) {
       message(sprintf("Skipping file %s: CIK %s not in the list of public traded operating companies of SEC.", json_files[i], company_details_cik))
@@ -109,16 +132,17 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
                                                       company_details_cik,
                                                       company_List)
     
+    df_std_BS <- BS_std_multi_file(df_Facts)
+    df_std_IS <- IS_std_multi_file(df_Facts) <<<<<<<< >>>>>>>
+    # df_std_CS <- CS_std_multi_file(df_Facts)
+    
     # Combine the data directly
-    combined_df <- rbind(combined_df, df_Facts)
+    combined_BS_df <- rbind(combined_df, df_Facts)
     
     # Increment the progress bar
     pb$tick()
+    
+    # Return the combined dataframe
+    return(combined_df)
   }
-  
-  # Close the progress bar
-  pb$terminate()
-  
-  # Return the combined dataframe
-  return(combined_df)
 }
