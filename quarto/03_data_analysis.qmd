@@ -121,7 +121,7 @@ df_std_BS %>% head() %>% as.data.frame() %>%
 
 #### Income Statement
 
-he following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).
+The following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).
 
 Here are a few relevant remarks regarding the standardized Income Statement:
 
@@ -138,7 +138,7 @@ More details on the function are included in [Appendix A2](#appendix-a-r-script-
 # Retrieve Income Statement of JAKKS Pacific Inc. in standardized format
 df_std_IS <- IS_std(df_Facts)
 
-# Print the standardized balancesheet
+# Print the standardized income statement
 df_std_IS %>% head() %>% as.data.frame() %>%
   head() %>% as.data.frame() %>%
   kable( "html") %>%
@@ -148,4 +148,20 @@ df_std_IS %>% head() %>% as.data.frame() %>%
 
 #### Cash Flow
 
-(work in progress ...)
+Similarly to the Income Statement, the following code will create a standardized Cash Flow Statement (df_std_CF) based on a matching table in Excel (standardized_cashflow.xlsx).
+
+More details on the function are included in [Appendix A2](#appendix-a-r-script-and-functions)
+
+```{r standardized_CF, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Retrieve Cash Flow statement of JAKKS Pacific Inc. in standardized format
+df_std_CF <- CF_std(df_Facts)
+
+# Print the standardized cash flow
+df_std_CF %>% head() %>% as.data.frame() %>%
+  head() %>% as.data.frame() %>%
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1,width = "250px")
+```
+

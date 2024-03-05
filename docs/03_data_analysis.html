@@ -932,7 +932,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="income-statement" class="level4">
 <h4 class="anchored" data-anchor-id="income-statement">Income Statement</h4>
-<p>he following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).</p>
+<p>The following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).</p>
 <p>Here are a few relevant remarks regarding the standardized Income Statement:</p>
 <ul>
 <li><p>The financial data are presented on a quarterly basis only.</p></li>
@@ -946,7 +946,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve Income Statement of JAKKS Pacific Inc. in standardized format</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>df_std_IS <span class="ot">&lt;-</span> <span class="fu">IS_std</span>(df_Facts)</span>
 <span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the standardized balancesheet</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the standardized income statement</span></span>
 <span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>df_std_IS <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
 <span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>( <span class="st">"html"</span>) <span class="sc">%&gt;%</span></span>
@@ -1107,7 +1107,298 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="cash-flow" class="level4">
 <h4 class="anchored" data-anchor-id="cash-flow">Cash Flow</h4>
-<p>(work in progress …)</p>
+<p>Similarly to the Income Statement, the following code will create a standardized Cash Flow Statement (df_std_CF) based on a matching table in Excel (standardized_cashflow.xlsx).</p>
+<p>More details on the function are included in <a href="#appendix-a-r-script-and-functions">Appendix A2</a></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Retrieve Cash Flow statement of JAKKS Pacific Inc. in standardized format</span></span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>df_std_CF <span class="ot">&lt;-</span> <span class="fu">CF_std</span>(df_Facts)</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a><span class="co"># Print the standardized cash flow</span></span>
+<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>df_std_CF <span class="sc">%&gt;%</span> <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-6"><a href="#cb11-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> <span class="fu">as.data.frame</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb11-7"><a href="#cb11-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>( <span class="st">"html"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-8"><a href="#cb11-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">full_width =</span> <span class="cn">FALSE</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb11-9"><a href="#cb11-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">column_spec</span>(<span class="dv">1</span>,<span class="at">width =</span> <span class="st">"250px"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display">
+<table class="table table-sm table-striped small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">end</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Net Income (loss)</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Cash Flow Depreciation, Depletion, Ammortization</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Change in Accounts Receivable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Change in Inventory</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Change in Prepaid expenses and other assets</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Change in Accounts Payable</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Change in Reserve for Sales Return and allowances</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Deferred Income Tax</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Stock-based Compensation</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Change in Other Working Capital</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Operating Activities) Cash Flow from Operating Activities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Purchase of Property, Plant and Equipment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Proceeds from Asset Sales</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Purchase of Businesses</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Purchase of Marketable Securities and Investment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Proceeds from sale of Marketable Securities and Investment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Proceeds from maturities of Marketable Securities and Investment</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Gain (Losses) in Other Investing Activities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Investing Activities) Cash Flow from Investing Activities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Proceeds from Issuance of Stock</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Payment for Repurchase of Stock</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Proceeds from Issuance of Debt</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Payment of Debt</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Cash for Dividends</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Impact of Stock Options and Other</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">(Financing Activities) Cash Flow from Financing Activities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Effect of Exchange Rate on Cash &amp; Cash Equivalent</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Other impact from Operating, Investing, Financing Activities</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Change in Cash, Cash Equivalents</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">Cash &amp; Cash Equivalent at the beginning of the period</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">cik</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">entityName</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sic</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">sicDescription</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">tickers</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">2023-12-31</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">5.740</td>
+<td style="text-align: right;">5.5437</td>
+<td style="text-align: right;">-2.1717</td>
+<td style="text-align: right;">1.5680</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-11.0807</td>
+<td style="text-align: right;">-0.4007</td>
+<td style="text-align: right;">-1.1633</td>
+<td style="text-align: right;">-0.0060</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.3267</td>
+<td style="text-align: right;">1.1573</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13.311</td>
+<td style="text-align: right;">-0.1107</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">2023-09-30</td>
+<td style="text-align: right;">48.132</td>
+<td style="text-align: right;">0.081</td>
+<td style="text-align: right;">5.740</td>
+<td style="text-align: right;">5.5437</td>
+<td style="text-align: right;">-2.1717</td>
+<td style="text-align: right;">1.5680</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.025</td>
+<td style="text-align: right;">-13.1867</td>
+<td style="text-align: right;">-0.4007</td>
+<td style="text-align: right;">-1.1633</td>
+<td style="text-align: right;">-0.0060</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.3267</td>
+<td style="text-align: right;">1.1573</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13.311</td>
+<td style="text-align: right;">-0.1107</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">96.447</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">2023-06-30</td>
+<td style="text-align: right;">6.455</td>
+<td style="text-align: right;">0.093</td>
+<td style="text-align: right;">5.740</td>
+<td style="text-align: right;">5.5437</td>
+<td style="text-align: right;">-2.1717</td>
+<td style="text-align: right;">1.5680</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">1.856</td>
+<td style="text-align: right;">-13.0297</td>
+<td style="text-align: right;">-0.4007</td>
+<td style="text-align: right;">-1.1633</td>
+<td style="text-align: right;">-0.0060</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.3267</td>
+<td style="text-align: right;">1.1573</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">13.311</td>
+<td style="text-align: right;">-0.1107</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">32.431</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">2023-03-31</td>
+<td style="text-align: right;">-5.313</td>
+<td style="text-align: right;">0.102</td>
+<td style="text-align: right;">-17.220</td>
+<td style="text-align: right;">-16.6310</td>
+<td style="text-align: right;">6.5150</td>
+<td style="text-align: right;">-4.7040</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">2.089</td>
+<td style="text-align: right;">31.0510</td>
+<td style="text-align: right;">1.2020</td>
+<td style="text-align: right;">3.4900</td>
+<td style="text-align: right;">0.0180</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-6.9800</td>
+<td style="text-align: right;">-3.4720</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-39.933</td>
+<td style="text-align: right;">0.3320</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">38.301</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left; width: 250px;">2022-12-31</td>
+<td style="text-align: right;">37.969</td>
+<td style="text-align: right;">0.360</td>
+<td style="text-align: right;">-0.229</td>
+<td style="text-align: right;">-1.5623</td>
+<td style="text-align: right;">-3.7643</td>
+<td style="text-align: right;">-1.2427</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-14.4637</td>
+<td style="text-align: right;">1.646</td>
+<td style="text-align: right;">17.2037</td>
+<td style="text-align: right;">-2.0523</td>
+<td style="text-align: right;">2.8573</td>
+<td style="text-align: right;">0.0153</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-5.7293</td>
+<td style="text-align: right;">-2.8567</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-10.044</td>
+<td style="text-align: right;">-1.2893</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">85.490</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+<tr class="even">
+<td style="text-align: left; width: 250px;">2022-09-30</td>
+<td style="text-align: right;">30.693</td>
+<td style="text-align: right;">0.373</td>
+<td style="text-align: right;">-0.229</td>
+<td style="text-align: right;">-1.5623</td>
+<td style="text-align: right;">-3.7643</td>
+<td style="text-align: right;">-1.2427</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-14.4637</td>
+<td style="text-align: right;">1.411</td>
+<td style="text-align: right;">17.4257</td>
+<td style="text-align: right;">-2.0523</td>
+<td style="text-align: right;">2.8573</td>
+<td style="text-align: right;">0.0153</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">-5.7293</td>
+<td style="text-align: right;">-2.8567</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-10.044</td>
+<td style="text-align: right;">-1.2893</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">NA</td>
+<td style="text-align: right;">76.596</td>
+<td style="text-align: left;">0001009829</td>
+<td style="text-align: left;">JAKKS Pacific, Inc.</td>
+<td style="text-align: left;">3944</td>
+<td style="text-align: left;">Games, Toys &amp; Children's Vehicles (No Dolls &amp; Bicycles)</td>
+<td style="text-align: left;">JAKK</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
 
 
 </section>

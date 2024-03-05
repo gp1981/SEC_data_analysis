@@ -7,6 +7,7 @@ library(tidyverse)
 library(purrr)
 library(jsonlite)
 library(progress)
+library(zoo)
 
 # Function to unnest a list -----------------------------------------------
 unnest_list <- function(x) {
@@ -151,3 +152,27 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
     return(combined_df)
   }
 }
+
+# Calculate Trailing quarter values (TEMP only for Cash Flow)  ----------------------------------------
+
+# Convert the 'end' column to Date type
+df_std_CF$end <- as.Date(df_std_CF$end)
+
+# Specify the number of trailing months
+trailing_quarters <- 3
+
+# Function to calculate the sum of the trailing months
+roll_sum <- function(x) {
+  sum(tail(x, trailing_quarters), na.rm = TRUE)
+}
+
+# Apply the rolling sum function to selected numeric columns
+trailing_sum <- df_std_CF %>%
+  mutate(across(
+    where(is.numeric) & !ends_with("end"),
+    rollapply,
+    width = trailing_quarters,
+    FUN = roll_sum,
+    fill = NA,
+    align = "left"  # Adjust the alignment to sum the last two quarters
+  ))
