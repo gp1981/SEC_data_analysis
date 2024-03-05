@@ -356,39 +356,6 @@ BS_std <- function(df_Facts) {
     )
   
   ## Step 4 - Order columns based on standardized_balancesheet_label -----------------------------------
-  # custom_order <- c(
-  #   "Cash & Cash Equivalent",
-  #   "Marketable Securities Current",
-  #   "Total Accounts Receivable",
-  #   "Total Inventory",
-  #   "Prepaid Expenses",
-  #   "Other Current Assets",
-  #   "Total Current Assets",
-  #   "Marketable Securities Non Current",
-  #   "Property Plant and Equipment",
-  #   "Intangible Assets (excl. goodwill)",
-  #   "Goodwill",
-  #   "Other Non Current Assets",
-  #   "Total Non Current Assets",
-  #   "Total Assets",
-  #   "Accounts Payable",
-  #   "Tax Payable",
-  #   "Current Debts",
-  #   "Operating Lease Liability Current",
-  #   "Other Current Liabilities",
-  #   "Total Current Liabilities",
-  #   "Non Current Debts",
-  #   "Operating Lease Liability Non Current",
-  #   "Other Non Current Liabilities",
-  #   "Total Non Current Liabilities",
-  #   "Total Liabilities",
-  #   "Preferred Stock",
-  #   "Retained Earnings or Accumulated Deficit",
-  #   "Accumulated other comprehensive income (loss)",
-  #   "Minority interest",
-  #   "Total Stockholders Equity",
-  #   "Total Liabilities & Stockholders Equity"
-  # )
   custom_order <- unique(standardized_balancesheet[,1])
   
   # Reorder the columns as per standardized_balancesheet.xlsx
@@ -402,7 +369,7 @@ BS_std <- function(df_Facts) {
       sicDescription = df_Facts$sicDescription[1],
       tickers = df_Facts$tickers[1]
     )
-    
+  
   return(df_std_BS)
 }
 
@@ -506,7 +473,7 @@ IS_std <- function(df_Facts) {
       total_val_of_missing_quarters = total_val_year - total_val_quarters,
       val_missing_quarter = total_val_of_missing_quarters / total_quarters_to_add
     )    
-
+  
   # Extract the missing quarters
   missing_quarters <- df_sum_quarters_years %>%
     select(standardized_incomestatement_label,frame_year, val_missing_quarter) %>%
@@ -533,7 +500,7 @@ IS_std <- function(df_Facts) {
         frame_quarter == "4" ~ paste(frame_year, "-10-01", sep = "")
       )),
       estimated_val = "TRUE"
-      ) %>% 
+    ) %>% 
     rename(val = val_missing_quarter) %>% 
     # Ungroup missing_rows
     ungroup()

@@ -131,18 +131,23 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
     df_Facts <- Fundamentals_to_Dataframe_multi_files(company_Data,
                                                       company_details_cik,
                                                       company_List)
-    
-    df_std_BS <- BS_std_multi_file(df_Facts)
-    df_std_IS <- IS_std_multi_file(df_Facts) <<<<<<<< >>>>>>>
-    # df_std_CS <- CS_std_multi_file(df_Facts)
-    
-    # Combine the data directly
-    combined_BS_df <- rbind(combined_df, df_Facts)
-    
+  
     # Increment the progress bar
     pb$tick()
     
-    # Return the combined dataframe
+
+    
+    # df_std_BS <- BS_std_multi_file(df_Facts)
+    # df_std_IS <- IS_std_multi_file(df_Facts) #<<<<<<<< >>>>>>>
+    # df_std_CS <- CS_std_multi_file(df_Facts)
+#     
+#     # Combine the data directly
+#     combined_BS_df <- rbind(combined_df, df_Facts)
+#     
+#     # Increment the progress bar
+#     pb$tick()
+#     
+#     # Return the combined dataframe
     return(combined_df)
   }
 }
