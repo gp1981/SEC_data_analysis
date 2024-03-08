@@ -220,7 +220,7 @@ BS_std <- function(df_Facts) {
   
   df_std_BS <- df_std_BS %>%
     # Filter out rows without standardized_balancesheet_label
-    filter(!is.na(standardized_balancesheet_label)) %>% 
+    filter(!is.na(standardized_balancesheet_label) & !is.na(frame)) %>% 
     # Group by end period (end) and label
     group_by(end, label) %>%
     # Arrange by descending end date within each group
@@ -437,8 +437,8 @@ IS_std <- function(df_Facts) {
   # Split the 'frame' column into 'frame_year' and 'frame_quarter'
   df_std_IS <- df_std_IS %>%
     mutate(
-      frame_year = as.integer(substr(frame, 3, 6)),
-      frame_quarter = as.integer(substr(frame, 8, 8))
+      frame_year = lubridate::year(end),
+      frame_quarter = lubridate::quarter(end)
     )
   
   # Calculate the sum of all quarters values and the fiscal year values
@@ -682,8 +682,8 @@ CF_std <- function(df_Facts) {
   # Split the 'frame' column into 'frame_year' and 'frame_quarter'
   df_std_CF <- df_std_CF %>%
     mutate(
-      frame_year = as.integer(substr(frame, 3, 6)),
-      frame_quarter = as.integer(substr(frame, 8, 8))
+      frame_year = lubridate::year(end),
+      frame_quarter = lubridate::quarter(end)
     )
   
   # Calculate the sum of all quarters values and the fiscal year values

@@ -155,24 +155,22 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
 
 # Calculate Trailing quarter values (TEMP only for Cash Flow)  ----------------------------------------
 
-# Convert the 'end' column to Date type
-df_std_CF$end <- as.Date(df_std_CF$end)
-
-# Specify the number of trailing months
-trailing_quarters <- 3
-
-# Function to calculate the sum of the trailing months
-roll_sum <- function(x) {
-  sum(tail(x, trailing_quarters), na.rm = TRUE)
+calculate_trailing_sum <- function(data, number_of_quarters) {
+  # Function to calculate the sum of the trailing quarters
+  roll_sum <- function(x) {
+    sum(tail(x, number_of_quarters), na.rm = TRUE)
+  }
+  
+  # Apply the rolling sum function to selected numeric columns
+  trailing_sum <- data %>%
+    mutate(across(
+      where(is.numeric) & !ends_with("end"),
+      rollapply,
+      width = number_of_quarters,
+      FUN = roll_sum,
+      fill = NA,
+      align = "right"  # Adjust the alignment to sum the last two quarters
+    ))
+  
+  return(trailing_sum)
 }
-
-# Apply the rolling sum function to selected numeric columns
-trailing_sum <- df_std_CF %>%
-  mutate(across(
-    where(is.numeric) & !ends_with("end"),
-    rollapply,
-    width = trailing_quarters,
-    FUN = roll_sum,
-    fill = NA,
-    align = "left"  # Adjust the alignment to sum the last two quarters
-  ))
