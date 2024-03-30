@@ -622,6 +622,15 @@ IS_std <- function(df_Facts) {
 # Function to rebuild the Cash Flow statement ---------------------------------------
 # Function to create a dataframe representative of the quarterly Cash Flow statement of the entity. The basis for the dataframe is a standardized Cash Flow statement (standardized_cashflow.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
 
+# TO BE CALCULATED
+# (Operating Activities) Change in Other Working Capital = difference from (Operating Activities) Cash Flow from Operating Activities
+# 
+# (Investing Activities) Gain (Losses) in Other Investing Activities = difference from (Investing Activities) Cash Flow from Investing Activities
+# 
+# (Financing Activities) Impact of Stock Options and Other =difference from (Financing Activities) Cash Flow from Financing Activities
+# 
+# Other impact from Operating, Investing, Financing Activities = difference from Change in Cash, Cash Equivalents
+
 CF_std <- function(df_Facts) {
   # 01 - Join standardized_cashflow ------------------------------------------------------
   # Define the standardized cashflow file path
@@ -649,9 +658,9 @@ CF_std <- function(df_Facts) {
   
   df_std_CF <- df_std_CF %>%
     # Filter out rows without standardized_cashflow_label and no frame e.g CY2023Q3 
-    filter(!is.na(standardized_cashflow_label) & !is.na(frame)) %>% 
+    filter(!is.na(standardized_cashflow_label)) %>% 
     # Group by end period (end) and label
-    group_by(end, label) %>%
+    group_by(end, description) %>%
     # Arrange by descending end date within each group
     arrange(desc(end)) %>%
     # Add a column indicating if any row in the group has a form ending with /A
@@ -667,24 +676,31 @@ CF_std <- function(df_Facts) {
     # Arrange by descending end date
     arrange(desc(end)) %>% 
     # Remove grouping
-    ungroup() %>%
-    # Group by and arrange by descending filed date within each group
-    group_by(standardized_cashflow_label, end) %>%
-    arrange(desc(filed)) %>%
-    # Retain only the first row within each group
-    slice_head(n = 1) %>%
-    # Remove grouping
-    ungroup()
-  
-  # 03 - Handling missing quarters ------------------------------------------------------
-  # This code generates estimates of the cashflow statement Facts associated with quarters missing in the data downloaded.
+    ungroup() 
   
   # Split the 'frame' column into 'frame_year' and 'frame_quarter'
   df_std_CF <- df_std_CF %>%
     mutate(
-      frame_year = lubridate::year(end),
-      frame_quarter = lubridate::quarter(end)
+      frame_year_end = lubridate::year(end),
+      frame_quarter_end = lubridate::quarter(end),
+      frame_year_start = lubridate::year(start),
+      frame_quarter_start = lubridate::quarter(start)
     )
+  
+  # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
+  
+  df_std_CF_test <- df_std_CF %>% 
+    group_by(description,frame_year_end) %>% 
+    # arrange(desc(frame_quarter_end),desc(frame_quarter_start)) %>%
+    filter(frame_quarter_start == 1) %>% 
+    mutate(
+      Quarterly_Value = val - dplyr::lead(val)) %>% 
+    mutate(
+      Quarterly_Value = ifelse(is.na(Quarterly_Value),val,Quarterly_Value))
+
+  
+  # >>>>>>----<<<<<<<
+  
   
   # Calculate the sum of all quarters values and the fiscal year values
   df_sum_quarters_years <- df_std_CF %>%
@@ -842,7 +858,7 @@ CF_std <- function(df_Facts) {
              coalesce(`(Operating Activities) Deferred Income Tax`,0) +
              coalesce(`(Operating Activities) Stock-based Compensation`,0)
           ),
-     ),
+      ),
       
       `(Investing Activities) Gain (Losses) in Other Investing Activities` = case_when(
         is.na(`(Investing Activities) Gain (Losses) in Other Investing Activities`) ~ 
@@ -854,7 +870,7 @@ CF_std <- function(df_Facts) {
              coalesce(`(Investing Activities) Proceeds from sale of Marketable Securities and Investment`,0) +
              coalesce(`(Investing Activities) Proceeds from maturities of Marketable Securities and Investment`,0)
           ),
-     ),
+      ),
       
       `(Financing Activities) Impact of Stock Options and Other` = case_when(
         is.na(`(Financing Activities) Impact of Stock Options and Other`) ~ 
@@ -864,7 +880,7 @@ CF_std <- function(df_Facts) {
              coalesce(`(Financing Activities) Proceeds from Issuance of Debt`,0) + 
              coalesce(`(Financing Activities) Payment of Debt`,0) + 
              coalesce(`(Financing Activities) Cash for Dividends`,0) 
-           ),
+          ),
       ),
       
     ) %>% 
