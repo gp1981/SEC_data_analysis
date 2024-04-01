@@ -665,7 +665,7 @@ CF_std <- function(df_Facts) {
     arrange(desc(end)) %>%
     # Add a column indicating if any row in the group has a form ending with /A
     mutate(
-      has_form_A = any(grepl("/A$", form))
+      has_form_A = grepl("/A$", form)
     ) %>%
     # Filter rows based on the condition:
     # - Retain rows without /A
@@ -687,6 +687,18 @@ CF_std <- function(df_Facts) {
       frame_quarter_start = lubridate::quarter(start)
     )
   
+  # Add  fame_start_year and frame_start_quarter based on records with "Cash & Cash Equivalent beginning of the period" from Balance Sheet, date of the record  and form applicable.
+  df_std_CF <- df_std_CF %>% 
+    mutate(
+      frame_year_start = ifelse(is.na(frame_year_start),frame_year_end,frame_year_start),
+      frame_quarter_start = ifelse(is.na(frame_quarter_start) & 
+                                     standardized_cashflow_label == "Cash & Cash Equivalent at the beginning of the period",
+                                   frame_quarter_end, frame_quarter_start),
+      frame_quarter_start = ifelse(is.na(frame_quarter_start) & 
+                                     standardized_cashflow_label != "Cash & Cash Equivalent at the beginning of the period" & 
+                                     form == "10-K", 1,frame_quarter_start)
+    )
+  
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
   
   df_std_CF_test <- df_std_CF %>% 
@@ -697,7 +709,10 @@ CF_std <- function(df_Facts) {
       Quarterly_Value = val - dplyr::lead(val)) %>% 
     mutate(
       Quarterly_Value = ifelse(is.na(Quarterly_Value),val,Quarterly_Value))
-
+  
+  # > df_std_CF_test %>% 
+  #   +     group_by(description) %>% 
+  #   +     summarise(total_quarters_end = n_distinct(frame_quarter_end))->df
   
   # >>>>>>----<<<<<<<
   
