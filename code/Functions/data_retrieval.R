@@ -622,7 +622,7 @@ IS_std <- function(df_Facts) {
 # Function to rebuild the Cash Flow statement ---------------------------------------
 # Function to create a dataframe representative of the quarterly Cash Flow statement of the entity. The basis for the dataframe is a standardized Cash Flow statement (standardized_cashflow.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
 
-# TO BE CALCULATED
+# "OTHER" TO BE CALCULATED
 # (Operating Activities) Change in Other Working Capital = difference from (Operating Activities) Cash Flow from Operating Activities
 # 
 # (Investing Activities) Gain (Losses) in Other Investing Activities = difference from (Investing Activities) Cash Flow from Investing Activities
@@ -649,7 +649,7 @@ CF_std <- function(df_Facts) {
     select(standardized_cashflow_label, everything(), -df_Facts_us_gaap_references)
   
   # 02 - Data cleaning ------------------------------------------------------
-  # This code filters rows in df_std_CF based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
+  # This code filters rows in df_std_CF based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected.
   
   # Change format of start and end dates from characters to date
   df_std_CF <- df_std_CF %>%
@@ -687,7 +687,7 @@ CF_std <- function(df_Facts) {
       frame_quarter_start = lubridate::quarter(start)
     )
   
-  # Add  fame_start_year and frame_start_quarter based on records with "Cash & Cash Equivalent beginning of the period" from Balance Sheet, date of the record  and form applicable.
+  # Add  fame_start_year and frame_start_quarter based on records e.g. "Cash & Cash Equivalent beginning of the period" from Balance Sheet.
   df_std_CF <- df_std_CF %>% 
     mutate(
       frame_year_start = ifelse(is.na(frame_year_start),frame_year_end,frame_year_start),
@@ -703,7 +703,16 @@ CF_std <- function(df_Facts) {
   
   df_std_CF_test <- df_std_CF %>% 
     group_by(description,frame_year_end) %>% 
-    # arrange(desc(frame_quarter_end),desc(frame_quarter_start)) %>%
+    arrange(desc(frame_quarter_end),desc(frame_quarter_start)) %>%
+    mutate(
+      Cumulative = ifelse(
+        frame_year_end == frame_year_start & frame_quarter_end == frame_quarter_start, "Non Cumulative","Cumulative"
+      )
+    )
+  
+  df_std_CF_test <- df_std_CF_test %>% 
+    group_by(description,frame_year_end) %>% 
+    arrange(desc(frame_quarter_end),desc(frame_quarter_start)) %>%
     filter(frame_quarter_start == 1) %>% 
     mutate(
       Quarterly_Value = val - dplyr::lead(val)) %>% 
