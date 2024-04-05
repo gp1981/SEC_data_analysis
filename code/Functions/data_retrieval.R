@@ -679,77 +679,77 @@ CF_std <- function(df_Facts) {
     # Remove grouping
     ungroup() 
   
-  # Split the 'frame' column into 'frame_year' and 'frame_quarter'
+  # Split the 'end' column into 'year_end/start' and 'quarter_end/start'
   df_std_CF <- df_std_CF %>%
     mutate(
-      frame_year_end = lubridate::year(end),
-      frame_quarter_end = lubridate::quarter(end),
-      frame_year_start = lubridate::year(start),
-      frame_quarter_start = lubridate::quarter(start)
+      year_end = lubridate::year(end),
+      quarter_end = lubridate::quarter(end),
+      year_start = lubridate::year(start),
+      quarter_start = lubridate::quarter(start)
     )
   
   # Add  fame_start_year and frame_start_quarter based on records e.g. "Cash & Cash Equivalent beginning of the period" from Balance Sheet.
   df_std_CF <- df_std_CF %>% 
     mutate(
-      frame_year_start = ifelse(is.na(frame_year_start),frame_year_end,frame_year_start),
-      frame_quarter_start = ifelse(is.na(frame_quarter_start) & 
+      year_start = ifelse(is.na(year_start),year_end,year_start),
+      quarter_start = ifelse(is.na(quarter_start) & 
                                      standardized_cashflow_label == "Cash & Cash Equivalent at the beginning of the period",
-                                   frame_quarter_end, frame_quarter_start),
-      frame_quarter_start = ifelse(is.na(frame_quarter_start) & 
+                                   quarter_end, quarter_start),
+      quarter_start = ifelse(is.na(quarter_start) & 
                                      standardized_cashflow_label != "Cash & Cash Equivalent at the beginning of the period" & 
-                                     form == "10-K", 1,frame_quarter_start)
+                                     form == "10-K", 1,quarter_start)
     )
   
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
+     
+  # Perform additional data processing to identify cumulative values and estimate values for missing quarters.
+  # It then calculates the quarterly value by subtracting the lead value from the current value over the corresponding quarter.
+  
+ # Identify cumulative values in val
+  df_std_CF_test <- df_std_CF %>%
+    group_by(description, year_end) %>%
+    arrange(desc(quarter_end), desc(quarter_start)) %>%
+    mutate(
+      Is_Cumulative = ifelse(
+        year_end == year_start & quarter_end == quarter_start,
+        "NO", "YES")
+    )
+  
+  # Clean up duplicated val from multiple filings retaining the rows with the most recent "filed" date.
+  df_std_CF_test <- df_std_CF_test %>%
+    group_by(description, end) %>% 
+    arrange(desc(filed)) %>%  # Arrange by descending "filed" date
+    distinct(description, end, .keep_all = TRUE)  # Keep only the first occurrence of each unique combination of description and end, preserving the one with the most recent "filed" date
+  
   
   # Summarize the number of distinct quarters represented for each description
   # This step calculates the number of distinct quarters and the missing ones represented by each description in the dataset.
   
   df_std_CF_quarter_summary <- df_std_CF %>%
     group_by(description) %>%
-    summarise(total_quarters_end = n_distinct(frame_quarter_end)) %>% 
+    summarise(total_quarters_end = n_distinct(quarter_end)) %>% 
     mutate(
       "No. Quarters Missing" = ifelse(total_quarters_end == 4, 0, 4 - total_quarters_end)
     )
-     
-  # Perform additional data processing to identify cumulative values and estimate values for missing quarters
-
-  df_std_CF_test <- df_std_CF %>%
-    group_by(description, frame_year_end) %>%
-    arrange(desc(frame_quarter_end), desc(frame_quarter_start)) %>%
+  
+  df_std_CF_test <- df_std_CF_test %>% 
+    left_join(df_std_CF_quarter_summary, by = "description")
+  
+  df_std_CF_test <- df_std_CF_test %>% 
+    group_by(description, year_end) %>% 
     mutate(
-      Cumulative = ifelse(
-        frame_year_end == frame_year_start & frame_quarter_end == frame_quarter_start,
-        "Non Cumulative", "Cumulative")
+      Quarterly_val = case_when(
+        Is_Cumulative == "NO" ~ as.numeric(val),
+        Is_Cumulative == "YES" & quarter_end != quarter_start ~ as.numeric((val - dplyr::lead(val)) / (quarter_end - dplyr::lead(quarter_end))),
+        Is_Cumulative == "YES" & quarter_end == quarter_start ~ NA_real_ ,TRUE ~ NA_real_)
     ) %>% 
-    left_join(df_std_CF_quarter_summary,by = "description")
+    select(end, standardized_cashflow_label,val,Quarterly_val, description, everything())
   
-  # It then calculates the quarterly value by subtracting the lead value from the current value.
-  # If the lead value is missing (NA), it assumes the current value represents the quarterly value.
-  df_std_CF_test <- df_std_CF_test %>%
-    group_by(description, frame_year_end) %>%
-    arrange(desc(frame_quarter_end), desc(frame_quarter_start)) %>%
-    filter(frame_quarter_start == 1) %>%
-    mutate(
-      Quarterly_Value = val - dplyr::lead(val)
-    ) %>%
-    mutate(
-      Quarterly_Value = ifelse(is.na(Quarterly_Value) & Cumulative == "Non Cumulative", val, Quarterly_Value)
-    )
- 
+   # 
+
   
-  # >>>>>>----<<<<<<< TO CHECK WITH Missing quarters in Summary:
-  # Description: The cash inflow associated with the aggregate amount r
-  # Exceptions
-  # Here it processes those replicated data: specific Facts are reported multiple times in different filings. Here we take the latest based on the "Filed" column.
-  
-  df_std_CF_test <- df_std_CF_test %>%
-    group_by(description, frame_year_end, frame_quarter_end) %>%
-    arrange(desc(frame_quarter_end), desc(frame_quarter_start), desc(filed)) %>%
-    filter(row_number() == 1) %>%  # Retain only the latest record within each group
-    mutate(
-      Quarterly_Value = ifelse(fp != "FY", val,0)
-    )
+  # >>>>>>----<<<<<<< TO CHECK WITH Missing quarters
+
   
   
   
