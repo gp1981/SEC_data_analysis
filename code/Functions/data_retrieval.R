@@ -658,7 +658,7 @@ CF_std <- function(df_Facts) {
            filed = as.Date(filed))
   
   df_std_CF <- df_std_CF %>%
-    # Filter out rows without standardized_cashflow_label and no frame e.g CY2023Q3 
+    # Filter out rows without standardized_cashflow_label
     filter(!is.na(standardized_cashflow_label)) %>% 
     # Group by end period (end) and label
     group_by(end, description) %>%
@@ -735,25 +735,21 @@ CF_std <- function(df_Facts) {
   df_std_CF_test <- df_std_CF_test %>% 
     left_join(df_std_CF_quarter_summary, by = "description")
   
+  # Calculate Quarterly_val based on different conditions
   df_std_CF_test <- df_std_CF_test %>% 
-    group_by(description, year_end) %>% 
+    group_by(description, year_end) %>%  # Group the data by description and year_end
     mutate(
-      Quarterly_val = case_when(
-        Is_Cumulative == "NO" ~ as.numeric(val),
-        Is_Cumulative == "YES" & quarter_end != quarter_start ~ as.numeric((val - dplyr::lead(val)) / (quarter_end - dplyr::lead(quarter_end))),
-        Is_Cumulative == "YES" & quarter_end == quarter_start ~ NA_real_ ,TRUE ~ NA_real_)
+      Quarterly_val = case_when(  # Use case_when to define conditions for calculating Quarterly_val
+        Is_Cumulative == "NO" ~ as.numeric(val),  # If Is_Cumulative is "NO", assign val directly to Quarterly_val
+        Is_Cumulative == "YES" & quarter_end != quarter_start & n() > 1 ~ as.numeric((val - dplyr::lead(val)) / (quarter_end - dplyr::lead(quarter_end))),  # If Is_Cumulative is "YES", quarter_end is not equal to quarter_start, and there are multiple records, calculate the quarterly value using the difference between current and previous values divided by the difference in quarters
+        Is_Cumulative == "YES" & quarter_end == quarter_start ~ NA_real_,  # If Is_Cumulative is "YES" and quarter_end is equal to quarter_start, assign NA to Quarterly_val
+        Is_Cumulative == "YES" & quarter_end != quarter_start & n() == 1 ~ as.numeric(val) / (as.numeric(quarter_end) - as.numeric(quarter_start) + 1),  # If Is_Cumulative is "YES", quarter_end is not equal to quarter_start, and there is only one record, calculate Quarterly_val using the formula provided
+        TRUE ~ NA_real_  # For all other cases, assign NA to Quarterly_val
+      )
     ) %>% 
-    select(end, standardized_cashflow_label,val,Quarterly_val, description, everything())
+    select(end, standardized_cashflow_label, val, Quarterly_val, description, everything())  # Select relevant columns and retain the new Quarterly_val column
   
-   # 
-
-  
-  # >>>>>>----<<<<<<< TO CHECK WITH Missing quarters
-
-  
-  
-  
-  # >>>>>>----<<<<<<<
+  # >>>>>>----<<<<<<< LAST CONDITION NOT WORKING
   
   
   # Calculate the sum of all quarters values and the fiscal year values
