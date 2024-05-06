@@ -702,11 +702,11 @@ CF_std <- function(df_Facts) {
     )
   
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
-     
+  
   # Perform additional data processing to identify cumulative values and estimate values for missing quarters.
   # It then calculates the quarterly value by subtracting the lead value from the current value over the corresponding quarter.
   
- # Identify cumulative values in val
+  # Identify cumulative values in val
   df_std_CF <- df_std_CF %>%
     group_by(description, year_end) %>%
     arrange(desc(quarter_end), desc(quarter_start)) %>%
@@ -753,7 +753,7 @@ CF_std <- function(df_Facts) {
     ) %>% 
     ungroup() %>% 
     select(end, standardized_cashflow_label, val, Quarterly_val, description, everything())  
-
+  
   
   # 03 - Pivot df_std_CF in a dataframe format ------------------------------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
@@ -884,7 +884,8 @@ IS_CF_std <- function(df_Facts) {
   df_std_IS_CF <- df_std_IS_CF %>%
     mutate(end = as.Date(end),
            start = as.Date(start),
-           filed = as.Date(filed))
+           filed = as.Date(filed),
+           val = as.numeric(val))
   
   df_std_IS_CF <- df_std_IS_CF %>%
     # Filter out rows without standardized_label
@@ -908,45 +909,36 @@ IS_CF_std <- function(df_Facts) {
     # Remove grouping
     ungroup() 
   
-  # Split the 'end' column into 'year_end/start' and 'quarter_end/start'
+  # Split the 'end' and 'start' columns into 'year_end/start' and 'quarter_end/start'
   df_std_IS_CF <- df_std_IS_CF %>%
     mutate(
       year_end = as.integer(lubridate::year(end)),
       quarter_end = as.integer(lubridate::quarter(end)),
-      year_start = as.integer(lubridate::year(start)),
-      quarter_start = as.integer(lubridate::quarter(start))
-    )
-  
-  # Add  fame_start_year and frame_start_quarter and quarter_start and quarter_end
-  df_std_IS_CF <- df_std_IS_CF %>% 
-    mutate(
-      year_start = ifelse(is.na(year_start),year_end,year_start),
+      year_start = case_when(
+        Financial.Report == "BS" & is.na(as.integer(lubridate::year(start))) ~ as.integer(lubridate::year(end)), TRUE ~ as.integer(lubridate::year(start))),               
       quarter_start = case_when(
-        is.na(quarter_start) & Aggregated == "NO" ~ as.integer(quarter_end),
-        is.na(quarter_start) & Aggregated == "YES"  & fp == "FY" ~ 1,
-        TRUE ~ as.integer(quarter_start)
-      )
-    )
+        Financial.Report == "BS" & is.na(as.integer(lubridate::quarter(start))) ~ as.integer(lubridate::quarter(end)), TRUE ~ as.integer(lubridate::quarter(start)))   
+    ) 
   
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
   
   # Perform additional data processing to identify cumulative values and estimate values for missing quarters.
   # It then calculates the quarterly value by subtracting the lead value from the current value over the corresponding quarter.
   
-  # Identify cumulative values in val
+  # Estimate cumulative values in val
   df_std_IS_CF <- df_std_IS_CF %>%
     group_by(description, year_end) %>%
     arrange(desc(quarter_end), desc(quarter_start)) %>%
     mutate(
-      Is_Cumulative = ifelse(
-        year_end == year_start & quarter_end == quarter_start,
-        "NO", "YES")
-    ) %>% 
+      Cumulative_quarters = case_when(
+        year_end == year_start & quarter_end != quarter_start ~ quarter_end - quarter_start + 1,
+        TRUE ~ 1)
+    )%>% 
     ungroup()
   
   # Clean up duplicated val from multiple filings retaining the rows with the most recent "filed" date.
   df_std_IS_CF <- df_std_IS_CF %>%
-    group_by(description, end) %>% 
+    group_by(description, quarter_end, quarter_start) %>% 
     arrange(desc(filed)) %>%  # Arrange by descending "filed" date
     distinct(description, end, .keep_all = TRUE) %>% # Keep only the first occurrence of each unique combination of description and end, preserving the one with the most recent "filed" date
     ungroup()  
@@ -962,27 +954,101 @@ IS_CF_std <- function(df_Facts) {
     ) %>% 
     ungroup()
   
+  # df_std_IS_CF <- df_std_IS_CF %>% 
+  #   left_join(df_std_IS_CF_quarter_summary, by = "description")
+  # 
+  # Calculate initial Quarterly_val based on the formula within group_by description and year_end 
   df_std_IS_CF <- df_std_IS_CF %>% 
-    left_join(df_std_IS_CF_quarter_summary, by = "description")
-  
-  # Calculate initial Quarterly_val based on the formula within group_by description and year_end >>>>>> QUARTERLY VALUE TO BE CALCULATED PROPERLY DEPENDING ON THE ROWS IN DF AND THEIR QUARTER_END - QUARTER_START <<<<<<<<<<<<<<<<<<
-  df_std_IS_CF <- df_std_IS_CF %>% 
-    group_by(description, year_end) %>%  
+    group_by(description, year_end) %>%
+    arrange(desc(Cumulative_quarters), desc(quarter_end),) %>% 
     mutate(
-      Quarterly_val = as.numeric(val) / (as.numeric(quarter_end) - as.numeric(quarter_start) + 1)
-    )
+      Quarterly_val = val / Cumulative_quarters,
+      Count_rows = n()
+    ) %>% 
+    ungroup()
   
-  # Adjust Quarterly_val based on esistance of cumulative values
+  # Adjust Quarterly_val based on existing of cumulative values
   df_std_IS_CF <- df_std_IS_CF %>% 
-    group_by(description, year_end) %>%  
+    group_by(description, year_end) %>% 
+    arrange(desc(Cumulative_quarters), desc(quarter_end),) %>% 
     mutate(
+      Count_rows = n(),
       Quarterly_val = case_when(  
-        Is_Cumulative == "YES" & Aggregated == "YES" & quarter_end != quarter_start & !is.na(dplyr::lead(val))  ~ as.numeric((val - dplyr::lead(val)) / (quarter_end - dplyr::lead(quarter_end))),  
-        TRUE ~ Quarterly_val  # For all other cases, retain the initial Quarterly_val
-      )
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == quarter_start + 3 &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == 1 & 
+          lead(quarter_start) == 1 ~ val - lead(val),
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == quarter_start + 2 &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == 1 & 
+          lead(quarter_start) == 1 ~ val - lead(val),
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == quarter_start +1 &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == 1 & 
+          lead(quarter_start) == 1 ~ val - lead(val),
+        Cumulative_quarters == 1 ~ Quarterly_val,
+        TRUE ~ Quarterly_val),
+    ) %>% 
+    ungroup() 
+  
+  # Detect Quarterly_val modified based on existing of cumulative values
+  df_std_IS_CF <- df_std_IS_CF %>% 
+    group_by(description, year_end) %>% 
+    arrange(desc(Cumulative_quarters), desc(quarter_end),) %>% 
+    mutate(
+      Count_rows = n(),
+      Modified_Quarterly_val = case_when(  
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == quarter_start + 3 &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == 1 & 
+          lead(quarter_start) == 1 ~ TRUE,
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == quarter_start + 2 &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == 1 & 
+          lead(quarter_start) == 1 ~ TRUE,
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == quarter_start +1 &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == 1 & 
+          lead(quarter_start) == 1 ~ TRUE,
+        Cumulative_quarters == 1 ~ FALSE,
+        TRUE ~ FALSE),
     ) %>% 
     ungroup() %>% 
-    select(end, standardized_label, val, Quarterly_val, description, everything())  
+    select(end, standardized_label, val, Quarterly_val, year_end, quarter_end, quarter_start, everything())  
+  
+ # Filter those rows where Quarterly_val has been properly calculated from cumulative val
+  df_std_IS_CF <- df_std_IS_CF %>% 
+    group_by(description, year_end) %>% 
+    arrange(desc(Cumulative_quarters), desc(quarter_end),) %>% 
+    filter((Cumulative_quarters ==1 & !Modified_Quarterly_val) | (Cumulative_quarters !=1 & Modified_Quarterly_val))
+  
+  # Prepare dataframe for pivot
+  df_std_IS_CF_pivot <- df_std_IS_CF %>%
+    distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
   
   
   # 03 - Pivot df_std_CF in a dataframe format ------------------------------------------------------
