@@ -1029,10 +1029,19 @@ IS_CF_std <- function(df_Facts) {
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
     distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
   
+  df_std_IS_CF_pivot <- df_std_IS_CF %>%
+    group_by(end,standardized_label,year_end,quarter_end,accn,form,cik,entityName,sic,sicDescription,tickers,Financial.Report) %>% 
+    summarise(
+      Quarterly_val= sum(Quarterly_val)
+    ) %>%
+    ungroup() %>% 
+    select(end, standardized_label, Quarterly_val, year_end, quarter_end, everything())
+    
+  # >>>>> CHECK WITH SEC FILING <<<<
   
-  # 03 - Cash Flow - Pivot df_std_CF in a dataframe format ------>>>> TO CHECK <<<<<---------------------
+  # 03 - Cash Flow - Pivot df_std_IS_CF in a dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
-  df_std_CF <- df_std_IS_CF %>%
+  df_std_CF <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "CF") %>% 
     select(end,standardized_label,Quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
