@@ -1037,7 +1037,7 @@ IS_CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, Quarterly_val, year_end, quarter_end, everything())
     
-  # >>>>> CHECK WITH SEC FILING <<<<
+  # >>>>> CHECK WITH SEC FILING <<<< REVENUE 2012 include 2 items. Filtering to be included
   
   # 03 - Cash Flow - Pivot df_std_IS_CF in a dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
