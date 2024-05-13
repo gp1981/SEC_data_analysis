@@ -619,8 +619,8 @@ IS_std <- function(df_Facts) {
   return(df_std_IS)
 }
 
-# Function to rebuild the Cash Flow statement ---------------------------------------
-# Function to create a dataframe representative of the quarterly Cash Flow statement of the entity. The basis for the dataframe is a standardized Cash Flow statement (standardized_cashflow.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
+# Function to rebuild the Income and Cash Flow statements ---------------------------------------
+# Function to create a dataframe representative of the quarterly Income and Cash Flow statement of the entity. The basis for the dataframe is a standardized Income and Cash Flow statement (standardized_IS_CF.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarters is then allocated equally to the missing quarters.
 
 # <<<<<<<<<>>>>>>>>
 # "OTHER" TO BE CALCULATED
@@ -632,233 +632,6 @@ IS_std <- function(df_Facts) {
 # 
 # Other impact from Operating, Investing, Financing Activities = difference from Change in Cash, Cash Equivalents
 # <<<<<<<<<>>>>>>>>
-
-CF_std <- function(df_Facts) {
-  # 01 - Join standardized_cashflow ------------------------------------------------------
-  # Define the standardized cashflow file path
-  cashflow_path <- here(data_dir, "standardized_cashflow.xlsx")
-  
-  # Read the standardized_cashflow.xlsx file
-  standardized_cashflow <- read.xlsx(cashflow_path, sheet = "Sheet1")
-  
-  # Rename standardized_cashflow column df_Fact_Description to perform left_join
-  standardized_cashflow <- standardized_cashflow %>%
-    rename(description = df_Facts_Description)
-  
-  # Merge df_Facts with standardized_incomestatement based on description and period
-  df_std_CF <- df_Facts %>%
-    left_join(standardized_cashflow, by = "description") %>%
-    select(standardized_cashflow_label, everything(), -df_Facts_us_gaap_references)
-  
-  # 02 - Data cleaning ------------------------------------------------------
-  # This code filters rows in df_std_CF based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected.
-  
-  # Change format of start and end dates from characters to date
-  df_std_CF <- df_std_CF %>%
-    mutate(end = as.Date(end),
-           start = as.Date(start),
-           filed = as.Date(filed))
-  
-  df_std_CF <- df_std_CF %>%
-    # Filter out rows without standardized_cashflow_label
-    filter(!is.na(standardized_cashflow_label)) %>% 
-    # Group by end period (end) and label
-    group_by(end, description) %>%
-    # Arrange by descending end date within each group
-    arrange(desc(end)) %>%
-    # Add a column indicating if any row in the group has a form ending with /A
-    mutate(
-      has_form_A = grepl("/A$", form)
-    ) %>%
-    # Filter rows based on the condition:
-    # - Retain rows without /A
-    # - Retain rows with /A if there's at least one row with /A in the group
-    filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
-    # Select relevant columns
-    select(end, standardized_cashflow_label, everything(),-has_form_A) %>%
-    # Arrange by descending end date
-    arrange(desc(end)) %>% 
-    # Remove grouping
-    ungroup() 
-  
-  # Split the 'end' column into 'year_end/start' and 'quarter_end/start'
-  df_std_CF <- df_std_CF %>%
-    mutate(
-      year_end = as.integer(lubridate::year(end)),
-      quarter_end = as.integer(lubridate::quarter(end)),
-      year_start = as.integer(lubridate::year(start)),
-      quarter_start = as.integer(lubridate::quarter(start))
-    )
-  
-  # Add  fame_start_year and frame_start_quarter and quarter_start and quarter_end
-  df_std_CF <- df_std_CF %>% 
-    mutate(
-      year_start = ifelse(is.na(year_start),year_end,year_start),
-      quarter_start = case_when(
-        is.na(quarter_start) & To.Aggregate == "NO" ~ as.integer(quarter_end),
-        is.na(quarter_start) & To.Aggregate == "YES"  & fp == "FY" ~ 1,
-        TRUE ~ as.integer(quarter_start)
-      )
-    )
-  
-  # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
-  
-  # Perform additional data processing to identify cumulative values and estimate values for missing quarters.
-  # It then calculates the quarterly value by subtracting the lead value from the current value over the corresponding quarter.
-  
-  # Identify cumulative values in val
-  df_std_CF <- df_std_CF %>%
-    group_by(description, year_end) %>%
-    arrange(desc(quarter_end), desc(quarter_start)) %>%
-    mutate(
-      Is_Cumulative = ifelse(
-        year_end == year_start & quarter_end == quarter_start,
-        "NO", "YES")
-    )
-  
-  # Clean up duplicated val from multiple filings retaining the rows with the most recent "filed" date.
-  df_std_CF <- df_std_CF %>%
-    group_by(description, end) %>% 
-    arrange(desc(filed)) %>%  # Arrange by descending "filed" date
-    distinct(description, end, .keep_all = TRUE)  # Keep only the first occurrence of each unique combination of description and end, preserving the one with the most recent "filed" date
-  
-  # Summarize the number of distinct quarters represented for each description
-  # This step calculates the number of distinct quarters and the missing ones represented by each description in the dataset.
-  
-  df_std_CF_quarter_summary <- df_std_CF %>%
-    group_by(description) %>%
-    summarise(total_quarters_end = n_distinct(quarter_end)) %>% 
-    mutate(
-      "No. Quarters Missing" = ifelse(total_quarters_end == 4, 0, 4 - total_quarters_end)
-    )
-  
-  df_std_CF <- df_std_CF %>% 
-    left_join(df_std_CF_quarter_summary, by = "description")
-  
-  # Calculate initial Quarterly_val based on the formula within group_by description and year_end
-  df_std_CF <- df_std_CF %>% 
-    group_by(description, year_end) %>%  
-    mutate(
-      Quarterly_val = as.numeric(val) / (as.numeric(quarter_end) - as.numeric(quarter_start) + 1)
-    )
-  
-  # Adjust Quarterly_val based on esistance of cumulative values
-  df_std_CF <- df_std_CF %>% 
-    group_by(description, year_end) %>%  
-    mutate(
-      Quarterly_val = case_when(  
-        Is_Cumulative == "YES" & To.Aggregate == "YES" & quarter_end != quarter_start & !is.na(dplyr::lead(val))  ~ as.numeric((val - dplyr::lead(val)) / (quarter_end - dplyr::lead(quarter_end))),  
-        TRUE ~ Quarterly_val  # For all other cases, retain the initial Quarterly_val
-      )
-    ) %>% 
-    ungroup() %>% 
-    select(end, standardized_cashflow_label, val, Quarterly_val, description, everything())  
-  
-  
-  # 03 - Pivot df_std_CF in a dataframe format ------------------------------------------------------
-  # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
-  #>>>><<<<< CHECK UNIQUE VALUES
-  df_std_CF <- df_std_CF %>%
-    select(end,standardized_cashflow_label,Quarterly_val) %>% 
-    # Pivot the data using standardized_cashflow_label as column names
-    pivot_wider(
-      names_from = standardized_cashflow_label,
-      values_from = Quarterly_val
-    ) %>%
-    # Arrange the dataframe in descending order based on the 'end' column
-    arrange(desc(end))
-  
-  # 04 - Add new columns for standardization -----------------------------------
-  # This code add the missing columns to the df_std_CF based on the standardized_cashflow.xls and perform checks
-  
-  ## Step 1 - Check key financial Concepts -----------------------------------
-  # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
-  if (!("Net Income (loss)" %in% colnames(df_std_CF)) || !("(Operating Activities) Cash Flow from Operating Activities" %in% colnames(df_std_CF)) || !("(Investing Activities) Cash Flow from Investing Activities" %in% colnames(df_std_CF)) || !("(Financing Activities) Cash Flow from Financing Activities" %in% colnames(df_std_CF))) {
-    stop("Cash Flow from Operating activities or Investing activities or Financing activities is missing. The entity is not adequate for financial analysis.")
-  }
-  
-  # Remove rows where key financial Concepts are empty (or NA)
-  df_std_CF <- df_std_CF %>%
-    filter(
-      any(!is.na(`Net Income (loss)`) | `Net Income (loss)` != ""),
-      any(!is.na(`(Operating Activities) Cash Flow from Operating Activities`) | `(Operating Activities) Cash Flow from Operating Activities` != ""),
-      any(!is.na(`(Investing Activities) Cash Flow from Investing Activities`) | `(Investing Activities) Cash Flow from Investing Activities` != ""),
-      any(!is.na(`(Financing Activities) Cash Flow from Financing Activities`) | `(Financing Activities) Cash Flow from Financing Activities` != "")
-    )
-  
-  ## Step 2 - Add missing columns -----------------------------------
-  # It checks which columns from columns_to_add are not already present in df_std_CF
-  columns_to_add <- setdiff(standardized_cashflow$standardized_cashflow_label,colnames(df_std_CF)) 
-  
-  #It then adds only the missing columns to df_std_CF and initializes them with NA.
-  if (length(columns_to_add) > 0) {
-    
-    # Add columns to the dataframe
-    df_std_CF[,columns_to_add] <- NA
-  }
-  
-  ## Step 3 - Calculate newly added columns columns -----------------------------------
-  # Evaluate expressions for key financial Concepts 
-  
-  df_std_CF <- df_std_CF %>%
-    mutate(
-      `(Operating Activities) Change in Other Working Capital` = case_when(
-        is.na(`(Operating Activities) Change in Other Working Capital`) ~ 
-          coalesce(`(Operating Activities) Cash Flow from Operating Activities`,0) - 
-          (coalesce(`(Operating Activities) Cash Flow Depreciation, Depletion, Ammortization`,0) +
-             coalesce(`(Operating Activities) Change in Accounts Receivable`,0) +
-             coalesce(`(Operating Activities) Change in Inventory`,0) +
-             coalesce(`(Operating Activities) Change in Prepaid expenses and other assets`,0) +
-             coalesce(`(Operating Activities) Change in Accounts Payable`,0) +
-             coalesce(`(Operating Activities) Change in Reserve for Sales Return and allowances`,0) +
-             coalesce(`(Operating Activities) Deferred Income Tax`,0) +
-             coalesce(`(Operating Activities) Stock-based Compensation`,0)
-          ),
-      ),
-      
-      `(Investing Activities) Gain (Losses) in Other Investing Activities` = case_when(
-        is.na(`(Investing Activities) Gain (Losses) in Other Investing Activities`) ~ 
-          coalesce(`(Investing Activities) Cash Flow from Investing Activities`,0) - 
-          (coalesce(`(Investing Activities) Purchase of Property, Plant and Equipment`,0) + 
-             coalesce(`(Investing Activities) Proceeds from Asset Sales`,0) +
-             coalesce(`(Investing Activities) Purchase of Businesses`,0) +
-             coalesce(`(Investing Activities) Purchase of Marketable Securities and Investment`,0) +
-             coalesce(`(Investing Activities) Proceeds from sale of Marketable Securities and Investment`,0) +
-             coalesce(`(Investing Activities) Proceeds from maturities of Marketable Securities and Investment`,0)
-          ),
-      ),
-      
-      `(Financing Activities) Impact of Stock Options and Other` = case_when(
-        is.na(`(Financing Activities) Impact of Stock Options and Other`) ~ 
-          coalesce(`(Financing Activities) Impact of Stock Options and Other`,0) - 
-          (coalesce(`(Financing Activities) Proceeds from Issuance of Stock`,0) + 
-             coalesce(`(Financing Activities) Payment for Repurchase of Stock`,0) + 
-             coalesce(`(Financing Activities) Proceeds from Issuance of Debt`,0) + 
-             coalesce(`(Financing Activities) Payment of Debt`,0) + 
-             coalesce(`(Financing Activities) Cash for Dividends`,0) 
-          ),
-      ),
-      
-    ) %>% 
-    mutate_all(~round(., digits = 4))  # Adjust the number of digits as needed
-  
-  ## Step 4 - Order columns based on standardized_cashflow_label -----------------------------------
-  custom_order <- unique(standardized_cashflow[,1])
-  # Reorder the columns as per standardized_cashflow.xlsx
-  df_std_CF <- df_std_CF[, c("end", custom_order)]
-  # Add the columns with the metadata
-  df_std_CF <- df_std_CF %>% 
-    mutate(
-      cik = df_Facts$cik[1],
-      entityName = df_Facts$entityName[1],
-      sic = df_Facts$sic[1],
-      sicDescription = df_Facts$sicDescription[1],
-      tickers = df_Facts$tickers[1]
-    )
-  
-  
-  return(df_std_CF)
-}
 
 IS_CF_std <- function(df_Facts) {
   # 01 - Join standardized Income Statement (IS) and Cashflow (CF) ------------------------------------------------------
@@ -940,7 +713,14 @@ IS_CF_std <- function(df_Facts) {
   df_std_IS_CF <- df_std_IS_CF %>%
     group_by(description, quarter_end, quarter_start) %>% 
     arrange(desc(filed)) %>%  # Arrange by descending "filed" date
-    distinct(description, end, .keep_all = TRUE) %>% # Keep only the first occurrence of each unique combination of description and end, preserving the one with the most recent "filed" date
+    distinct(description, end, .keep_all = TRUE) %>% # Keep only the first occurrence of each unique combination of description and end date, preserving the one with the most recent "filed" date
+    ungroup()  
+  
+  # Clean up duplicated val from multiple Concepts in the filing retaining the row with the largest val (yearly data)
+  df_std_IS_CF <- df_std_IS_CF %>%
+    group_by(end, standardized_label, Cumulative_quarters) %>% 
+    arrange(desc(val)) %>%  # Arrange by descending val
+    filter(row_number() == 1) %>%  # Filter out duplicates for specific condition
     ungroup()  
   
   # Summarize the number of distinct quarters represented for each description
@@ -970,7 +750,7 @@ IS_CF_std <- function(df_Facts) {
   # Adjust Quarterly_val based on existing of cumulative values
   df_std_IS_CF <- df_std_IS_CF %>% 
     group_by(description, year_end) %>% 
-    arrange(desc(Cumulative_quarters), desc(quarter_end),) %>% 
+    arrange(desc(Cumulative_quarters), desc(quarter_end), quarter_start) %>% 
     mutate(
       Count_rows = n(),
       Quarterly_val = case_when(  
@@ -992,7 +772,13 @@ IS_CF_std <- function(df_Facts) {
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 3 &
-          quarter_start == lead(quarter_start) ~ val - lead(val) - 2*Quarterly_val,
+          quarter_start == lead(quarter_start) ~ val - lead(val) - 2 * Quarterly_val,
+        Cumulative_quarters >= 2 & 
+          Count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end)&
+          quarter_start == lead(quarter_start) + 1 ~ val - lead(val),
         TRUE ~ Quarterly_val),
       
       # Detect Quarterly_val modified based on existing of cumulative values    
@@ -1025,10 +811,10 @@ IS_CF_std <- function(df_Facts) {
   df_std_IS_CF <- df_std_IS_CF %>% 
     filter((Cumulative_quarters ==1 & !Modified_Quarterly_val) | (Cumulative_quarters !=1 & Modified_Quarterly_val))
   
-  # Prepare dataframe for pivot
-  df_std_IS_CF_pivot <- df_std_IS_CF %>%
-    distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
-  
+  # # Prepare dataframe for pivot
+  # df_std_IS_CF_pivot <- df_std_IS_CF %>%
+  #   distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
+  # 
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
     group_by(end,standardized_label,year_end,quarter_end,accn,form,cik,entityName,sic,sicDescription,tickers,Financial.Report) %>% 
     summarise(
