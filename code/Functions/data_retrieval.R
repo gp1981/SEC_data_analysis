@@ -811,10 +811,10 @@ IS_CF_std <- function(df_Facts) {
   df_std_IS_CF <- df_std_IS_CF %>% 
     filter((Cumulative_quarters ==1 & !Modified_Quarterly_val) | (Cumulative_quarters !=1 & Modified_Quarterly_val))
   
-  # # Prepare dataframe for pivot
-  # df_std_IS_CF_pivot <- df_std_IS_CF %>%
-  #   distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
-  # 
+  # Prepare dataframe for pivot ---->>>> TO CHECK - Cost of Revenue <<<<<
+  df_std_IS_CF_pivot <- df_std_IS_CF %>%
+    distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
+
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
     group_by(end,standardized_label,year_end,quarter_end,accn,form,cik,entityName,sic,sicDescription,tickers,Financial.Report) %>% 
     summarise(
