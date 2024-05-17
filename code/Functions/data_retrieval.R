@@ -811,8 +811,9 @@ IS_CF_std <- function(df_Facts) {
   df_std_IS_CF <- df_std_IS_CF %>% 
     filter((Cumulative_quarters ==1 & !Modified_Quarterly_val) | (Cumulative_quarters !=1 & Modified_Quarterly_val))
   
-  # Prepare dataframe for pivot ---->>>> TO CHECK - Cost of Revenue <<<<<
+  # Prepare dataframe for pivot ---->>>> TO CHECK - Net Income Loss <<<<<
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
+    arrange(desc(quarter_end), desc(quarter_start)) %>% 
     distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
 
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
@@ -823,12 +824,21 @@ IS_CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, Quarterly_val, year_end, quarter_end, everything())
     
-  # >>>>> CHECK WITH SEC FILING <<<< REVENUE 2012 include 2 items. Filtering to be included
-  
-  # 03 - Cash Flow - Pivot df_std_IS_CF in a dataframe format
+  # 03 - Cash Flow & Income Statement - Pivot df_std_IS_CF in CF and IS dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   df_std_CF <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "CF") %>% 
+    select(end,standardized_label,Quarterly_val) %>% 
+    # Pivot the data using standardized_cashflow_label as column names
+    pivot_wider(
+      names_from = standardized_label,
+      values_from = Quarterly_val
+    ) %>%
+    # Arrange the dataframe in descending order based on the 'end' column
+    arrange(desc(end))
+  
+  df_std_IS <- df_std_IS_CF_pivot %>%
+    filter(Financial.Report == "IS") %>% 
     select(end,standardized_label,Quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
