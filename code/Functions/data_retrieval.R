@@ -703,7 +703,7 @@ IS_CF_std <- function(df_Facts) {
     group_by(description, year_end) %>%
     arrange(desc(quarter_end), desc(quarter_start)) %>%
     mutate(
-      Cumulative_quarters = case_when(
+      cumulative_quarters = case_when(
         year_end == year_start & quarter_end != quarter_start ~ quarter_end - quarter_start + 1,
         TRUE ~ 1)
     )%>% 
@@ -718,7 +718,7 @@ IS_CF_std <- function(df_Facts) {
   
   # Clean up duplicated val from multiple Concepts in the filing retaining the row with the largest val (yearly data)
   df_std_IS_CF <- df_std_IS_CF %>%
-    group_by(end, standardized_label, Cumulative_quarters) %>% 
+    group_by(end, standardized_label, cumulative_quarters) %>% 
     arrange(desc(val)) %>%  # Arrange by descending val
     filter(row_number() == 1) %>%  # Filter out duplicates for specific condition
     ungroup()  
@@ -737,67 +737,67 @@ IS_CF_std <- function(df_Facts) {
   # df_std_IS_CF <- df_std_IS_CF %>% 
   #   left_join(df_std_IS_CF_quarter_summary, by = "description")
   # 
-  # Calculate initial Quarterly_val based on the formula within group_by description and year_end 
+  # Calculate initial quarterly_val based on the formula within group_by description and year_end 
   df_std_IS_CF <- df_std_IS_CF %>% 
     group_by(description, year_end) %>%
-    arrange(desc(Cumulative_quarters), desc(quarter_end),) %>% 
+    arrange(desc(cumulative_quarters), desc(quarter_end),) %>% 
     mutate(
-      Quarterly_val = val / Cumulative_quarters,
-      Count_rows = n()
+      quarterly_val = val / cumulative_quarters,
+      count_rows = n()
     ) %>% 
     ungroup()
   
-  # Adjust Quarterly_val based on existing of cumulative values
+  # Adjust quarterly_val based on existing of cumulative values
   df_std_IS_CF <- df_std_IS_CF %>% 
     group_by(description, year_end) %>% 
-    arrange(desc(Cumulative_quarters), desc(quarter_end), quarter_start) %>% 
+    arrange(desc(cumulative_quarters), desc(quarter_end), quarter_start) %>% 
     mutate(
-      Count_rows = n(),
-      Quarterly_val = case_when(  
-        Cumulative_quarters == 1 ~ Quarterly_val,
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+      count_rows = n(),
+      quarterly_val = case_when(  
+        cumulative_quarters == 1 ~ quarterly_val,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 1 &
           quarter_start == lead(quarter_start) ~ val - lead(val),
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 2 &
-          quarter_start == lead(quarter_start) ~ val - lead(val) - Quarterly_val,
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+          quarter_start == lead(quarter_start) ~ val - lead(val) - quarterly_val,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 3 &
-          quarter_start == lead(quarter_start) ~ val - lead(val) - 2 * Quarterly_val,
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+          quarter_start == lead(quarter_start) ~ val - lead(val) - 2 * quarterly_val,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end)&
           quarter_start == lead(quarter_start) + 1 ~ val - lead(val),
-        TRUE ~ Quarterly_val),
+        TRUE ~ quarterly_val),
       
-      # Detect Quarterly_val modified based on existing of cumulative values    
-      Modified_Quarterly_val = case_when(
-        Cumulative_quarters == 1 ~ FALSE,
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+      # Detect quarterly_val modified based on existing of cumulative values    
+      modified_quarterly_val = case_when(
+        cumulative_quarters == 1 ~ FALSE,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 1 &
           quarter_start == lead(quarter_start) ~ TRUE,
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 2 &
           quarter_start == lead(quarter_start) ~ TRUE,
-        Cumulative_quarters >= 2 & 
-          Count_rows > 1 &
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
           !is.na(lead(quarter_end)) &
           !is.na(lead(quarter_start)) &
           quarter_end == lead(quarter_end) + 3 &
@@ -805,49 +805,55 @@ IS_CF_std <- function(df_Facts) {
         TRUE ~ FALSE)  
     ) %>% 
     ungroup() %>% 
-    select(end, standardized_label, val, Quarterly_val, year_end, quarter_end, quarter_start, everything())  
+    select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
-  # Filter those rows where Quarterly_val has been properly calculated from cumulative val
-  df_std_IS_CF <- df_std_IS_CF %>% 
-    filter((Cumulative_quarters ==1 & !Modified_Quarterly_val) | (Cumulative_quarters !=1 & Modified_Quarterly_val))
-  
-  # Prepare dataframe for pivot ---->>>> TO CHECK - Net Income Loss <<<<<
-  df_std_IS_CF_pivot <- df_std_IS_CF %>%
-    arrange(desc(quarter_end), desc(quarter_start)) %>% 
-    distinct(description, year_end, quarter_end, Quarterly_val, .keep_all = TRUE)
+  # Filter those rows where quarterly_val has been properly calculated from cumulative val
 
-  df_std_IS_CF_pivot <- df_std_IS_CF %>%
+  df_std_IS_CF1 <- df_std_IS_CF %>% 
+    arrange(desc(quarter_end), desc(quarter_start)) %>%
+    group_by(standardized_label, year_end, quarter_end) %>% 
+    filter(
+      (cumulative_quarters == 1 ) | 
+        (cumulative_quarters > 1 & 
+           n() == 1) |
+        (cumulative_quarters > 1 &
+           n() > 1 &
+           quarterly_val == lead(quarterly_val)
+           )) %>% 
+  ungroup()
+  
+  df_std_IS_CF_pivot <- df_std_IS_CF1 %>%
     group_by(end,standardized_label,year_end,quarter_end,accn,form,cik,entityName,sic,sicDescription,tickers,Financial.Report) %>% 
     summarise(
-      Quarterly_val= sum(Quarterly_val)
+      quarterly_val= sum(quarterly_val)
     ) %>%
     ungroup() %>% 
-    select(end, standardized_label, Quarterly_val, year_end, quarter_end, everything())
-    
+    select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
+  
   # 03 - Cash Flow & Income Statement - Pivot df_std_IS_CF in CF and IS dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   df_std_CF <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "CF") %>% 
-    select(end,standardized_label,Quarterly_val) %>% 
+    select(end,standardized_label,quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
       names_from = standardized_label,
-      values_from = Quarterly_val
+      values_from = quarterly_val
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
   
   df_std_IS <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "IS") %>% 
-    select(end,standardized_label,Quarterly_val) %>% 
+    select(end,standardized_label,quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
       names_from = standardized_label,
-      values_from = Quarterly_val
+      values_from = quarterly_val
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
-  
+  # ---->>>> TO CHECK  against filing <<<<<<< -----
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_CF based on the standardized_cashflow.xls and perform checks
   

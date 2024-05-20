@@ -4,6 +4,8 @@
 
 # Import required libraries
 library(tidyverse)
+library(openxlsx)
+library(lubridate)
 library(purrr)
 library(jsonlite)
 library(progress)
@@ -173,4 +175,33 @@ calculate_trailing_sum <- function(data, number_of_quarters) {
     ))
   
   return(trailing_sum)
+}
+
+dataframe2xlsx <- function(df,name_output) {
+  
+  ## Create workbook
+  wb <- createWorkbook()
+  
+  ## Add worksheets
+  addWorksheet(wb, "Data")
+  
+  # Write df to "Data" worksheet if provided
+  
+  writeDataTable(
+    wb,
+    "Data",
+    x = as.data.frame(df),
+    colNames = TRUE,
+    tableStyle = "TableStyleLight9",
+    tableName = "Data_Full_List"
+  )
+  
+  # Format the date without hyphens
+  formatted_date <- format(lubridate::today(), "%Y%m%d")
+  
+  # Save workbook
+  saveWorkbook(wb,
+               file = paste0("output/",name_output, "_", formatted_date, ".xlsx"),
+               overwrite = TRUE)
+  # Check https://cran.r-project.org/web/packages/openxlsx/openxlsx.pdf
 }
