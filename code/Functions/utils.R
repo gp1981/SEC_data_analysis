@@ -177,6 +177,8 @@ calculate_trailing_sum <- function(data, number_of_quarters) {
   return(trailing_sum)
 }
 
+# Export dataframe to excel  ----------------------------------------
+
 dataframe2xlsx <- function(df,name_output) {
   
   ## Create workbook
@@ -205,3 +207,49 @@ dataframe2xlsx <- function(df,name_output) {
                overwrite = TRUE)
   # Check https://cran.r-project.org/web/packages/openxlsx/openxlsx.pdf
 }
+
+
+# Calculate Cumulative Values and Transpose DataFrame --------------------
+
+calculate_cumulative <- function(data, months) {
+  data %>%
+    group_by(year = year(end)) %>%
+    mutate(across(where(is.numeric), ~ rollsumr(.x, months, fill = NA, align = "right"))) %>%
+    ungroup() %>%
+    select(-year)
+}
+
+calculate_cumulative_values <- function(df) {
+  # Ensure date is sorted
+  df <- df %>% arrange(end)
+  
+  # Calculate cumulative values for 6, 9, and 12 months
+  df_6m <- calculate_cumulative(df, 6)
+  df_9m <- calculate_cumulative(df, 9)
+  df_12m <- calculate_cumulative(df, 12)
+  
+  # Add suffix to column names to differentiate
+  colnames(df_6m) <- paste0(colnames(df), "_6m")
+  colnames(df_9m) <- paste0(colnames(df), "_9m")
+  colnames(df_12m) <- paste0(colnames(df), "_12m")
+  
+  # Combine the original and cumulative data frames
+  combined_df <- bind_cols(df, df_6m, df_9m, df_12m)
+  
+  return(combined_df)
+}
+
+# Transpose DataFrame for easy comparison
+transpose_df <- function(df) {
+  df_t <- df %>%
+    pivot_longer(cols = -end, names_to = "Metric", values_to = "Value") %>%
+    pivot_wider(names_from = end, values_from = Value)
+  return(df_t)
+}
+
+# Example usage with your df_std_IS_CF
+df_std_IS_CF <- calculate_cumulative_values(df_std_IS_CF)
+df_std_IS_CF_t <- transpose_df(df_std_IS_CF)
+
+# Display transposed dataframe
+print(df_std_IS_CF_t)
