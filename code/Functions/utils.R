@@ -248,8 +248,8 @@ transpose_df <- function(df) {
 }
 
 # Example usage with your df_std_IS_CF
-df_std_IS_CF <- calculate_cumulative_values(df_std_IS_CF)
-df_std_IS_CF_t <- transpose_df(df_std_IS_CF)
-
-# Display transposed dataframe
-print(df_std_IS_CF_t)
+# df_std_IS_CF <- calculate_cumulative_values(df_std_IS_CF)
+# df_std_IS_CF_t <- transpose_df(df_std_IS_CF)
+# 
+# # Display transposed dataframe
+# print(df_std_IS_CF_t)

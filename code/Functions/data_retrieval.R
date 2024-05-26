@@ -695,10 +695,9 @@ IS_CF_std <- function(df_Facts) {
   
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
   
-  # Perform additional data processing to identify cumulative values and estimate values for missing quarters.
-  # It then calculates the quarterly value by subtracting the lead value from the current value over the corresponding quarter.
+  # Perform additional data processing to clean data set and estimate cumulative values from existing data
   
-  # Estimate cumulative values in val
+  # Estimate number of quarters underlying a Fact of financial item i.e. val
   df_std_IS_CF <- df_std_IS_CF %>%
     group_by(description, year_end) %>%
     arrange(desc(quarter_end), desc(quarter_start)) %>%
@@ -709,40 +708,42 @@ IS_CF_std <- function(df_Facts) {
     )%>% 
     ungroup()
   
-  # Clean up duplicated val from multiple filings retaining the rows with the most recent "filed" date.
+  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date.
   df_std_IS_CF <- df_std_IS_CF %>%
-    group_by(description, quarter_end, quarter_start) %>% 
-    arrange(desc(filed)) %>%  # Arrange by descending "filed" date
-    distinct(description, end, .keep_all = TRUE) %>% # Keep only the first occurrence of each unique combination of description and end date, preserving the one with the most recent "filed" date
-    ungroup()  
+    group_by(year_end, description, quarter_end, quarter_start) %>% 
+    # Arrange by descending "filed" date
+    arrange(desc(filed)) %>%
+    # Retain the first in the group ordered by "filed" date
+    distinct(description, end, .keep_all = TRUE) %>% 
+    # Keep only the first occurrence of each unique combination of description and end date
+    ungroup()
   
   # Clean up duplicated val from multiple Concepts in the filing retaining the row with the largest val (yearly data)
-  df_std_IS_CF <- df_std_IS_CF %>%
-    group_by(end, standardized_label, cumulative_quarters) %>% 
-    arrange(desc(val)) %>%  # Arrange by descending val
-    filter(row_number() == 1) %>%  # Filter out duplicates for specific condition
-    ungroup()  
+  # df_std_IS_CF <- df_std_IS_CF %>%
+  #   group_by(end, standardized_label, cumulative_quarters) %>% 
+  #   arrange(desc(val)) %>%  # Arrange by descending val
+  #   filter(row_number() == 1) %>%  # Filter out duplicates for specific condition
+  #   ungroup()  
   
-  # Summarize the number of distinct quarters represented for each description
   # This step calculates the number of distinct quarters and the missing ones represented by each description in the dataset.
-  
   df_std_IS_CF_quarter_summary <- df_std_IS_CF %>%
     group_by(description) %>%
+    # Summarize the number of distinct quarters represented for each description
     summarise(total_quarters_end = n_distinct(quarter_end)) %>% 
+    # Calculate number of quarters missing in the grouping
     mutate(
       "No. Quarters Missing" = ifelse(total_quarters_end == 4, 0, 4 - total_quarters_end)
     ) %>% 
     ungroup()
-  
-  # df_std_IS_CF <- df_std_IS_CF %>% 
-  #   left_join(df_std_IS_CF_quarter_summary, by = "description")
-  # 
-  # Calculate initial quarterly_val based on the formula within group_by description and year_end 
+
+  # Calculate initial quarterly_val based on the number of quarters within group_by description and year_end 
   df_std_IS_CF <- df_std_IS_CF %>% 
+    # Group by year and description
     group_by(description, year_end) %>%
-    arrange(desc(cumulative_quarters), desc(quarter_end),) %>% 
+    # Calculate quarterly_Val based on the number of cumulative quarters
     mutate(
       quarterly_val = val / cumulative_quarters,
+      # Calculate the number of rows in the group_by
       count_rows = n()
     ) %>% 
     ungroup()
@@ -808,7 +809,7 @@ IS_CF_std <- function(df_Facts) {
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
   # Filter those rows where quarterly_val has been properly calculated from cumulative val
-
+  
   df_std_IS_CF1 <- df_std_IS_CF %>% 
     arrange(desc(quarter_end), desc(quarter_start)) %>%
     group_by(standardized_label, year_end, quarter_end) %>% 
@@ -819,8 +820,8 @@ IS_CF_std <- function(df_Facts) {
         (cumulative_quarters > 1 &
            n() > 1 &
            quarterly_val == lead(quarterly_val)
-           )) %>% 
-  ungroup()
+        )) %>% 
+    ungroup()
   
   df_std_IS_CF_pivot <- df_std_IS_CF1 %>%
     group_by(end,standardized_label,year_end,quarter_end,accn,form,cik,entityName,sic,sicDescription,tickers,Financial.Report) %>% 
