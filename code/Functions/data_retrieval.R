@@ -41,7 +41,7 @@ retrieve_Company_Data <- function(headers, cik) {
   # Process and adjust JSON data
   company_Metadata <- fromJSON(httr::content(company_Metadata, as = "text"))
   
-  # Retrieve company facts
+  # Retrieve company Facts
   company_Facts <- GET(paste0("https://data.sec.gov/api/xbrl/companyfacts/CIK", cik, ".json"), add_headers(headers))
   
   # Check for HTTP errors in company_Facts request
@@ -52,7 +52,7 @@ retrieve_Company_Data <- function(headers, cik) {
   # Process and adjust JSON data
   company_Facts <- fromJSON(httr::content(company_Facts, as = "text"))
   
-  # Retrieve company facts
+  # Retrieve company Concepts
   company_Concept <- GET(paste0("https://data.sec.gov/api/xbrl/companyconcept/CIK", cik, "/us-gaap/Assets.json"), add_headers(headers))
   
   # Check for HTTP errors in company_Concept request
@@ -718,13 +718,6 @@ IS_CF_std <- function(df_Facts) {
     # Keep only the first occurrence of each unique combination of description and end date
     ungroup()
   
-  # Clean up duplicated val from multiple Concepts in the filing retaining the row with the largest val (yearly data)
-  # df_std_IS_CF <- df_std_IS_CF %>%
-  #   group_by(end, standardized_label, cumulative_quarters) %>% 
-  #   arrange(desc(val)) %>%  # Arrange by descending val
-  #   filter(row_number() == 1) %>%  # Filter out duplicates for specific condition
-  #   ungroup()  
-  
   # This step calculates the number of distinct quarters and the missing ones represented by each description in the dataset.
   df_std_IS_CF_quarter_summary <- df_std_IS_CF %>%
     group_by(description) %>%
@@ -750,10 +743,14 @@ IS_CF_std <- function(df_Facts) {
   
   # Adjust quarterly_val based on existing of cumulative values
   df_std_IS_CF <- df_std_IS_CF %>% 
-    group_by(description, year_end) %>% 
+    # Group by description and year_end
+    group_by(description, year_end) %>%
+    # Arrange the dataframe to properly position lead() values
     arrange(desc(cumulative_quarters), desc(quarter_end), quarter_start) %>% 
     mutate(
+      # Column to count the records in the group
       count_rows = n(),
+      # Recalculate quarterly_val for specific cases as differences from lead() values
       quarterly_val = case_when(  
         cumulative_quarters == 1 ~ quarterly_val,
         cumulative_quarters >= 2 & 
@@ -782,7 +779,7 @@ IS_CF_std <- function(df_Facts) {
           quarter_start == lead(quarter_start) + 1 ~ val - lead(val),
         TRUE ~ quarterly_val),
       
-      # Detect quarterly_val modified based on existing of cumulative values    
+      # Detect quarterly_val modified   
       modified_quarterly_val = case_when(
         cumulative_quarters == 1 ~ FALSE,
         cumulative_quarters >= 2 & 
@@ -808,11 +805,13 @@ IS_CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
-  # Filter those rows where quarterly_val has been properly calculated from cumulative val
-  
-  df_std_IS_CF1 <- df_std_IS_CF %>% 
+  # Filter those rows where quarterly_val is properly estimated from val or quarterly_val
+  df_std_IS_CF <- df_std_IS_CF %>% 
+    # Arrange to by quarters end and starts to check via lead()
     arrange(desc(quarter_end), desc(quarter_start)) %>%
+    # Group by the standardized label for the same year and same quarter
     group_by(standardized_label, year_end, quarter_end) %>% 
+    # Filter based on the whether val is already cumulative val or proper quarterly_val 
     filter(
       (cumulative_quarters == 1 ) | 
         (cumulative_quarters > 1 & 
@@ -823,16 +822,30 @@ IS_CF_std <- function(df_Facts) {
         )) %>% 
     ungroup()
   
-  df_std_IS_CF_pivot <- df_std_IS_CF1 %>%
-    group_by(end,standardized_label,year_end,quarter_end,accn,form,cik,entityName,sic,sicDescription,tickers,Financial.Report) %>% 
+  # Filter out those rows where val is applied to the same standardized_label and most recent filing
+  df_std_IS_CF <- df_std_IS_CF %>% 
+    # Group by the standardized label for the same year and same quarter
+    group_by(standardized_label, year_end, quarter_end) %>% 
+    # Arrange to by quarters_end and descending date "filed"
+    arrange(desc(quarter_end),desc(filed)) %>%
+    # Keep only the first occurrence of 'val' within each group
+    filter(!duplicated(standardized_label,val)) %>% 
+    ungroup()
+  
+    # Prepare dataframe for pivot
+  df_std_IS_CF_pivot <- df_std_IS_CF %>%
+    # Group by standardized_lable and fiscal period
+    group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
+    # Sum Quarterly_val within the group
     summarise(
       quarterly_val= sum(quarterly_val)
     ) %>%
     ungroup() %>% 
     select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
   
-  # 03 - Cash Flow & Income Statement - Pivot df_std_IS_CF in CF and IS dataframe format
+  # 04 - Cash Flow & Income Statement - Pivot df_std_IS_CF in CF and IS dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
+  
   df_std_CF <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "CF") %>% 
     select(end,standardized_label,quarterly_val) %>% 
@@ -843,7 +856,7 @@ IS_CF_std <- function(df_Facts) {
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
-  
+
   df_std_IS <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "IS") %>% 
     select(end,standardized_label,quarterly_val) %>% 
@@ -854,7 +867,7 @@ IS_CF_std <- function(df_Facts) {
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
-  # ---->>>> TO CHECK  against filing <<<<<<< -----
+
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_CF based on the standardized_cashflow.xls and perform checks
   

@@ -239,14 +239,27 @@ calculate_cumulative_values <- function(df) {
   return(combined_df)
 }
 
-# Transpose DataFrame for easy comparison
-transpose_df <- function(df) {
+# Function to transpose DataFrame with column ordering based on another DataFrame
+transpose_df <- function(df, order_df) {
+  # Filter applicable records from order_df
+  applicable_labels <- unique(order_df$standardized_label) %>% as.data.frame() %>% 
+    `colnames<-`("standardized_label")
+  
+  # Transpose DataFrame
   df_t <- df %>%
-    pivot_longer(cols = -end, names_to = "Metric", values_to = "Value") %>%
-    pivot_wider(names_from = end, values_from = Value)
+    pivot_longer(cols = -end, names_to = "Concept", values_to = "Value") %>%
+    pivot_wider(names_from = end, values_from = Value) 
+  
+  # Filter and reorder df_t$Concept based on applicable_labels
+  col_order <- applicable_labels[applicable_labels$standardized_label %in% df_t$Concept, "standardized_label"]
+  
+  
+  # Reorder rows in df_t based on col_order
+  df_t <- df_t %>%
+    arrange(match(Concept, col_order))
+  
   return(df_t)
 }
-
 # Example usage with your df_std_IS_CF
 # df_std_IS_CF <- calculate_cumulative_values(df_std_IS_CF)
 # df_std_IS_CF_t <- transpose_df(df_std_IS_CF)

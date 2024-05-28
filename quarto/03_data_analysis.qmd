@@ -25,7 +25,7 @@ The use of specific labels to indicate financial report items is regulated by ac
 
 Different companies may use different reporting styles to indicate Facts in different ways. The use of different labels however affect our ability to efficiently retrieve the appropriate financial data.
 
-The objective here is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow that so that we can use the same label to perform specific calculation across all companies.
+The objective here is to generate standardized financial reports of Balance sheet, Income Statement, Cash Flow so that we can use the same label to perform specific calculation across all companies.
 
 Let's create now a dataframe including the data retrieved from `` company_Facts$facts$`us-gaap` ``.
 

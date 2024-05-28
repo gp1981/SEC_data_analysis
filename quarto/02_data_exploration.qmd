@@ -16,7 +16,7 @@ In this section, we delve into the structure of the SEC data obtained from the A
 
 ### Key Elements of XBRL in SEC Data
 
-Within the SEC data retrieved through the API, XBRL is utilized to structure financial information. .
+Within the SEC data retrieved through the API, XBRL is utilized to structure financial information.
 
 A basic understanding XBRL[^02_data_exploration-1] is necessary for navigating and interpreting the structured financial data retrieved from the SEC. It ensures a standardized approach to financial reporting, facilitating meaningful analysis and comparison.
 
@@ -105,8 +105,11 @@ For our purpose, the most relevant information of `company_Metadata` are:
 1.  `cik`, as described above.
 2.  `sic`, standard industrial classification. The SIC codes were used to classify companies into specific industry segments based on their primary business activities. Each four-digit SIC code represented a different industry or sector.
 3.  `sicDescription` the description of the standard industrial classification
-4.  `name`, name of the company 5 `tickers`, identifier a publicly traded company's stock on a particular stock market
-5.  `filing` which includes the filing attributes. Here the structure of `company_Metadata`:
+4.  `name`, name of the company 
+5.  `tickers`, identifier a publicly traded company's stock on a particular stock market
+6.  `filing` which includes the filing attributes. 
+
+Here the structure of `company_Metadata`:
 
 ```{r str_company_Metadata_Filing, eval=TRUE, warning=FALSE, message=FALSE, class.output="custom-str-output"}
 # Visualize structure of the company_Metadata
