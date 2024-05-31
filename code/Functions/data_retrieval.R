@@ -624,13 +624,7 @@ IS_std <- function(df_Facts) {
 
 # <<<<<<<<<>>>>>>>>
 # "OTHER" TO BE CALCULATED
-# (Operating Activities) Change in Other Working Capital = difference from (Operating Activities) Cash Flow from Operating Activities
-# 
-# (Investing Activities) Gain (Losses) in Other Investing Activities = difference from (Investing Activities) Cash Flow from Investing Activities
-# 
-# (Financing Activities) Impact of Stock Options and Other =difference from (Financing Activities) Cash Flow from Financing Activities
-# 
-# Other impact from Operating, Investing, Financing Activities = difference from Change in Cash, Cash Equivalents
+# https://github.com/gp1981/SEC_data_analysis/issues/13#issue-2328617938
 # <<<<<<<<<>>>>>>>>
 
 IS_CF_std <- function(df_Facts) {
@@ -728,7 +722,7 @@ IS_CF_std <- function(df_Facts) {
       "No. Quarters Missing" = ifelse(total_quarters_end == 4, 0, 4 - total_quarters_end)
     ) %>% 
     ungroup()
-
+  
   # Calculate initial quarterly_val based on the number of quarters within group_by description and year_end 
   df_std_IS_CF <- df_std_IS_CF %>% 
     # Group by year and description
@@ -823,16 +817,21 @@ IS_CF_std <- function(df_Facts) {
     ungroup()
   
   # Filter out those rows where val is applied to the same standardized_label and most recent filing
-  df_std_IS_CF <- df_std_IS_CF %>% 
+  df_std_IS_CF <- df_std_IS_CF %>%
     # Group by the standardized label for the same year and same quarter
-    group_by(standardized_label, year_end, quarter_end) %>% 
+    group_by(standardized_label, year_end, quarter_end) %>%
     # Arrange to by quarters_end and descending date "filed"
     arrange(desc(quarter_end),desc(filed)) %>%
     # Keep only the first occurrence of 'val' within each group
-    filter(!duplicated(standardized_label,val)) %>% 
+    filter(!duplicated(standardized_label,val)) %>%
     ungroup()
   
-    # Prepare dataframe for pivot
+  # <<<<<<<<<>>>>>>>> 
+  # TO FIX DUPLICATES
+  # https://github.com/gp1981/SEC_data_analysis/issues/12#issue-2328611037
+  # <<<<<<<<<>>>>>>>>
+  
+  # Prepare dataframe for pivot
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
     # Group by standardized_lable and fiscal period
     group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
@@ -856,7 +855,7 @@ IS_CF_std <- function(df_Facts) {
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
-
+  
   df_std_IS <- df_std_IS_CF_pivot %>%
     filter(Financial.Report == "IS") %>% 
     select(end,standardized_label,quarterly_val) %>% 
@@ -867,7 +866,7 @@ IS_CF_std <- function(df_Facts) {
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
-
+  
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_CF based on the standardized_cashflow.xls and perform checks
   
