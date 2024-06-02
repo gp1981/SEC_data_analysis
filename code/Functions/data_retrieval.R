@@ -702,11 +702,11 @@ IS_CF_std <- function(df_Facts) {
     )%>% 
     ungroup()
   
-  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date.
+  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date with the largest number of quarters covered (as per CF)
   df_std_IS_CF <- df_std_IS_CF %>%
-    group_by(year_end, description, quarter_end, quarter_start) %>% 
-    # Arrange by descending "filed" date
-    arrange(desc(filed)) %>%
+    group_by( description, year_end, quarter_end) %>% 
+    # Arrange by descending "filed" date and cumulative quarters (as per CF)
+    arrange(desc(filed), desc(cumulative_quarters)) %>%
     # Retain the first in the group ordered by "filed" date
     distinct(description, end, .keep_all = TRUE) %>% 
     # Keep only the first occurrence of each unique combination of description and end date
@@ -734,6 +734,11 @@ IS_CF_std <- function(df_Facts) {
       count_rows = n()
     ) %>% 
     ungroup()
+  
+  # <<<<<<<<<>>>>>>>> 
+  # TO FIX DUPLICATES
+  # https://github.com/gp1981/SEC_data_analysis/issues/12#issue-2328611037
+  # <<<<<<<<<>>>>>>>>
   
   # Adjust quarterly_val based on existing of cumulative values
   df_std_IS_CF <- df_std_IS_CF %>% 
@@ -799,21 +804,14 @@ IS_CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
-  # Filter those rows where quarterly_val is properly estimated from val or quarterly_val
-  df_std_IS_CF <- df_std_IS_CF %>% 
-    # Arrange to by quarters end and starts to check via lead()
-    arrange(desc(quarter_end), desc(quarter_start)) %>%
+  # Filter those rows with the largest val, i.e. as per CF cumulative values in the filing
+  df_std_IS_CF <- df_std_IS_CF %>%
     # Group by the standardized label for the same year and same quarter
-    group_by(standardized_label, year_end, quarter_end) %>% 
-    # Filter based on the whether val is already cumulative val or proper quarterly_val 
-    filter(
-      (cumulative_quarters == 1 ) | 
-        (cumulative_quarters > 1 & 
-           n() == 1) |
-        (cumulative_quarters > 1 &
-           n() > 1 &
-           quarterly_val == lead(quarterly_val)
-        )) %>% 
+    group_by(standardized_label, year_end, quarter_end) %>%
+    # Arrange to by quarters end and starts to check via lead()
+    arrange(desc(quarter_end), desc(quarter_start), desc(val)) %>%
+   # Filter based on the whether val is already cumulative val or proper quarterly_val
+    distinct(standardized_label, end,.keep_all = TRUE) %>% 
     ungroup()
   
   # Filter out those rows where val is applied to the same standardized_label and most recent filing
@@ -825,11 +823,7 @@ IS_CF_std <- function(df_Facts) {
     # Keep only the first occurrence of 'val' within each group
     filter(!duplicated(standardized_label,val)) %>%
     ungroup()
-  
-  # <<<<<<<<<>>>>>>>> 
-  # TO FIX DUPLICATES
-  # https://github.com/gp1981/SEC_data_analysis/issues/12#issue-2328611037
-  # <<<<<<<<<>>>>>>>>
+
   
   # Prepare dataframe for pivot
   df_std_IS_CF_pivot <- df_std_IS_CF %>%
