@@ -196,7 +196,7 @@ Fundamentals_to_Dataframe_multi_files <- function(company_Data,company_details_c
 BS_std <- function(df_Facts) {
   # 01 - Join standardized_balancesheet ------------------------------------------------------
   # Define the standardized balancesheet file path
-  balancesheet_path <- here(data_dir, "standardized_balancesheet.xlsx")
+  balancesheet_path <- here(data_dir, "standardized_BS.xlsx")
   
   # Read the standardized_balancesheet.xlsx file
   standardized_balancesheet <- read.xlsx(balancesheet_path, sheet = "Sheet1")
@@ -620,41 +620,41 @@ IS_std <- function(df_Facts) {
 }
 
 # Function to rebuild the Income and Cash Flow statements ---------------------------------------
-# Function to create a dataframe representative of the quarterly Income and Cash Flow statement of the entity. The basis for the dataframe is a standardized Income and Cash Flow statement (standardized_IS_CF.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarters is then allocated equally to the missing quarters.
+# Function to create a dataframe representative of the quarterly Cash Flow statement of the entity. The basis for the dataframe is a Cash Flow statement (standardized_CF.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarters is then allocated equally to the missing quarters.
 
 # <<<<<<<<<>>>>>>>>
 # "OTHER" TO BE CALCULATED
 # https://github.com/gp1981/SEC_data_analysis/issues/13#issue-2328617938
 # <<<<<<<<<>>>>>>>>
 
-IS_CF_std <- function(df_Facts) {
-  # 01 - Join standardized Income Statement (IS) and Cashflow (CF) ------------------------------------------------------
-  # Define the standardized IS_CF file path
-  IS_CF_path <- here(data_dir, "standardized_IS_CF.xlsx")
+CF_std <- function(df_Facts) {
+  # 01 - Join standardized Cashflow (CF) ------------------------------------------------------
+  # Define the standardized CF file path
+  CF_path <- here(data_dir, "standardized_CF.xlsx")
   
-  # Read the standardized_IS_CF.xlsx file
-  standardized_IS_CF <- read.xlsx(IS_CF_path, sheet = "Sheet1")
+  # Read the standardized_CF.xlsx file
+  standardized_CF <- read.xlsx(CF_path, sheet = "Sheet1")
   
   # Rename standardized_label column df_Fact_Description to perform left_join
-  standardized_IS_CF <- standardized_IS_CF %>%
+  standardized_CF <- standardized_CF %>%
     rename(description = df_Facts_Description)
   
-  # Merge df_Facts with standardized_IS_CF based on description and period
-  df_std_IS_CF <- df_Facts %>%
-    left_join(standardized_IS_CF, by = "description") %>%
+  # Merge df_Facts with standardized_CF based on description and period
+  df_std_CF <- df_Facts %>%
+    left_join(standardized_CF, by = "description") %>%
     select(standardized_label, everything(), -df_Facts_us_gaap_references)
   
   # 02 - Data cleaning ------------------------------------------------------
-  # This code filters rows in df_std_CF based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected.
+  # This code filters rows based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected.
   
   # Change format of start and end dates from characters to date
-  df_std_IS_CF <- df_std_IS_CF %>%
+  df_std_CF <- df_std_CF %>%
     mutate(end = as.Date(end),
            start = as.Date(start),
            filed = as.Date(filed),
            val = as.numeric(val))
   
-  df_std_IS_CF <- df_std_IS_CF %>%
+  df_std_CF <- df_std_CF %>%
     # Filter out rows without standardized_label
     filter(!is.na(standardized_label)) %>% 
     # Group by end period (end) and label
@@ -677,7 +677,7 @@ IS_CF_std <- function(df_Facts) {
     ungroup() 
   
   # Split the 'end' and 'start' columns into 'year_end/start' and 'quarter_end/start'
-  df_std_IS_CF <- df_std_IS_CF %>%
+  df_std_CF <- df_std_CF %>%
     mutate(
       year_end = as.integer(lubridate::year(end)),
       quarter_end = as.integer(lubridate::quarter(end)),
@@ -692,7 +692,7 @@ IS_CF_std <- function(df_Facts) {
   # Perform additional data processing to clean data set and estimate cumulative values from existing data
   
   # Estimate number of quarters underlying a Fact of financial item i.e. val
-  df_std_IS_CF <- df_std_IS_CF %>%
+  df_std_CF <- df_std_CF %>%
     group_by(description, year_end) %>%
     arrange(desc(quarter_end), desc(quarter_start)) %>%
     mutate(
@@ -702,18 +702,18 @@ IS_CF_std <- function(df_Facts) {
     )%>% 
     ungroup()
   
-  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date with the largest number of quarters covered (as per CF)
-  df_std_IS_CF <- df_std_IS_CF %>%
+  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date with the largest number of quarters covered
+  df_std_CF <- df_std_CF %>%
     group_by( description, year_end, quarter_end) %>% 
-    # Arrange by descending "filed" date and cumulative quarters (as per CF)
+    # Arrange by descending "filed" date and cumulative quarters
     arrange(desc(filed), desc(cumulative_quarters)) %>%
     # Retain the first in the group ordered by "filed" date
     distinct(description, end, .keep_all = TRUE) %>% 
     # Keep only the first occurrence of each unique combination of description and end date
     ungroup()
   
-  # This step calculates the number of distinct quarters and the missing ones represented by each description in the dataset.
-  df_std_IS_CF_quarter_summary <- df_std_IS_CF %>%
+  # Calculate the number of distinct quarters and the missing ones represented by each description in the dataset.
+  df_std_CF_quarter_summary <- df_std_CF %>%
     group_by(description) %>%
     # Summarize the number of distinct quarters represented for each description
     summarise(total_quarters_end = n_distinct(quarter_end)) %>% 
@@ -723,8 +723,8 @@ IS_CF_std <- function(df_Facts) {
     ) %>% 
     ungroup()
   
-  # Calculate initial quarterly_val based on the number of quarters within group_by description and year_end 
-  df_std_IS_CF <- df_std_IS_CF %>% 
+  # Calculate preliminary quarterly_val based on the number of quarters within group_by description and year_end 
+  df_std_CF <- df_std_CF %>% 
     # Group by year and description
     group_by(description, year_end) %>%
     # Calculate quarterly_Val based on the number of cumulative quarters
@@ -741,7 +741,7 @@ IS_CF_std <- function(df_Facts) {
   # <<<<<<<<<>>>>>>>>
   
   # Adjust quarterly_val based on existing of cumulative values
-  df_std_IS_CF <- df_std_IS_CF %>% 
+  df_std_CF <- df_std_CF %>% 
     # Group by description and year_end
     group_by(description, year_end) %>%
     # Arrange the dataframe to properly position lead() values
@@ -804,18 +804,8 @@ IS_CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
-  # Filter those rows with the largest val, i.e. as per CF cumulative values in the filing
-  df_std_IS_CF <- df_std_IS_CF %>%
-    # Group by the standardized label for the same year and same quarter
-    group_by(standardized_label, year_end, quarter_end) %>%
-    # Arrange to by quarters end and starts to check via lead()
-    arrange(desc(quarter_end), desc(quarter_start), desc(val)) %>%
-   # Filter based on the whether val is already cumulative val or proper quarterly_val
-    distinct(standardized_label, end,.keep_all = TRUE) %>% 
-    ungroup()
-  
-  # Filter out those rows where val is applied to the same standardized_label and most recent filing
-  df_std_IS_CF <- df_std_IS_CF %>%
+  # Filter out rows with duplicated val for the same standardized label
+  df_std_CF <- df_std_CF %>%
     # Group by the standardized label for the same year and same quarter
     group_by(standardized_label, year_end, quarter_end) %>%
     # Arrange to by quarters_end and descending date "filed"
@@ -823,10 +813,10 @@ IS_CF_std <- function(df_Facts) {
     # Keep only the first occurrence of 'val' within each group
     filter(!duplicated(standardized_label,val)) %>%
     ungroup()
-
+  
   
   # Prepare dataframe for pivot
-  df_std_IS_CF_pivot <- df_std_IS_CF %>%
+  df_std_CF_pivot <- df_std_CF %>%
     # Group by standardized_lable and fiscal period
     group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
     # Sum Quarterly_val within the group
@@ -836,22 +826,11 @@ IS_CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
   
-  # 04 - Cash Flow & Income Statement - Pivot df_std_IS_CF in CF and IS dataframe format
+  # 04 - Cash Flow - Pivot df_std_CF in horizontal format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
-  df_std_CF <- df_std_IS_CF_pivot %>%
+  df_std_CF1 <- df_std_CF_pivot %>%
     filter(Financial.Report == "CF") %>% 
-    select(end,standardized_label,quarterly_val) %>% 
-    # Pivot the data using standardized_cashflow_label as column names
-    pivot_wider(
-      names_from = standardized_label,
-      values_from = quarterly_val
-    ) %>%
-    # Arrange the dataframe in descending order based on the 'end' column
-    arrange(desc(end))
-  
-  df_std_IS <- df_std_IS_CF_pivot %>%
-    filter(Financial.Report == "IS") %>% 
     select(end,standardized_label,quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
