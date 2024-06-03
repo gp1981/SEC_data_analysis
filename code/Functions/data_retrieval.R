@@ -378,93 +378,103 @@ BS_std <- function(df_Facts) {
 # Function to create a dataframe representative of the quarterly income statement of the entity. The basis for the dataframe is a standardized income statement (standardized_incomestatement.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
 
 IS_std <- function(df_Facts) {
-  # 01 - Join standardized_incomestatement ------------------------------------------------------
+  # 01 - Join standardized_IS ------------------------------------------------------
   # Define the standardized incomestatement file path
-  incomestatement_path <- here(data_dir, "standardized_incomestatement.xlsx")
+  IS_path <- here(data_dir, "standardized_IS.xlsx")
   
-  # Read the standardized_incomestatement.xlsx file
-  standardized_incomestatement <- read.xlsx(incomestatement_path, sheet = "Sheet1")
+  # Read the standardized_IS.xlsx file
+  standardized_IS <- read.xlsx(IS_path, sheet = "Sheet1")
   
-  # Rename standardized_incomestatement column df_Fact_Description to perform left_join
-  standardized_incomestatement <- standardized_incomestatement %>%
+  # Rename standardized_IS column df_Fact_Description to perform left_join
+  standardized_IS <- standardized_IS %>%
     rename(description = df_Facts_Description)
   
-  # Merge df_Facts with standardized_incomestatement based on description and period
+  # Merge df_Facts with standardized_IS based on description and period
   df_std_IS <- df_Facts %>%
-    left_join(standardized_incomestatement, by = "description") %>%
-    select(standardized_incomestatement_label, everything(), -df_Facts_us_gaap_references)
+    left_join(standardized_IS, by = "description") %>%
+    select(standardized_label, everything(), -df_Facts_us_gaap_references)
   
   # 02 - Data cleaning ------------------------------------------------------
-  # This code filters rows in df_std_IS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
+  # This code filters rows in df_std_IS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected.
   
   # Change format of start and end dates from characters to date
   df_std_IS <- df_std_IS %>%
     mutate(end = as.Date(end),
-           start = as.Date(start))
+           start = as.Date(start),
+           filed = as.Date(filed),
+           val = as.numeric(val))
   
   df_std_IS <- df_std_IS %>%
-    # Filter out rows without standardized_incomestatement_label and no frame e.g CY2023Q3 
-    filter(!is.na(standardized_incomestatement_label) & !is.na(frame)) %>% 
+    # Filter out rows without standardized_label
+    filter(!is.na(standardized_label)) %>% 
     # Group by end period (end) and label
-    group_by(end, label) %>%
+    group_by(end, description) %>%
     # Arrange by descending end date within each group
     arrange(desc(end)) %>%
     # Add a column indicating if any row in the group has a form ending with /A
     mutate(
-      has_form_A = any(grepl("/A$", form))
+      has_form_A = grepl("/A$", form)
     ) %>%
     # Filter rows based on the condition:
     # - Retain rows without /A
     # - Retain rows with /A if there's at least one row with /A in the group
     filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
     # Select relevant columns
-    select(end, standardized_incomestatement_label, everything(),-has_form_A) %>%
+    select(end, standardized_label, everything(),-has_form_A) %>%
     # Arrange by descending end date
     arrange(desc(end)) %>% 
     # Remove grouping
-    ungroup() %>%
-    # Group by and arrange by descending filed date within each group
-    group_by(standardized_incomestatement_label, end) %>%
-    arrange(desc(filed)) %>%
-    # Retain only the first row within each group
-    slice_head(n = 1) %>%
-    # Remove grouping
-    ungroup()
+    ungroup() 
   
-  # 03 - Handling missing quarters ------------------------------------------------------
-  # This code generates estimates of the Income Statement Facts associated with quarters missing in the data downloaded.
-  
-  # Split the 'frame' column into 'frame_year' and 'frame_quarter'
+  # Split the 'end' and 'start' columns into 'year_end/start' and 'quarter_end/start'
   df_std_IS <- df_std_IS %>%
     mutate(
-      frame_year = lubridate::year(end),
-      frame_quarter = lubridate::quarter(end)
-    )
+      year_end = as.integer(lubridate::year(end)),
+      quarter_end = as.integer(lubridate::quarter(end)),
+      year_start = case_when(
+        Financial.Report == "BS" & is.na(as.integer(lubridate::year(start))) ~ as.integer(lubridate::year(end)), TRUE ~ as.integer(lubridate::year(start))),               
+      quarter_start = case_when(
+        Financial.Report == "BS" & is.na(as.integer(lubridate::quarter(start))) ~ as.integer(lubridate::quarter(end)), TRUE ~ as.integer(lubridate::quarter(start)))   
+    ) 
   
-  # Calculate the sum of all quarters values and the fiscal year values
-  df_sum_quarters_years <- df_std_IS %>%
-    group_by(standardized_incomestatement_label, frame_year) %>%
+  # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
+  
+  # Perform additional data processing to clean data set and estimate cumulative values from existing data
+  
+  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date 
+  df_std_IS <- df_std_IS %>%
+    group_by(description, year_end, quarter_end) %>% 
+    # Arrange by descending "filed" date and cumulative quarters
+    arrange(desc(filed)) %>%
+    # Retain the first in the group ordered by "filed" date
+    distinct(description, end, .keep_all = TRUE) %>% 
+    # Keep only the first occurrence of each unique combination of description and end date
+    ungroup()
+ 
+   # Calculate the sum of all quarters values and the fiscal year values
+  dt_std_IS_quarter_summary <- df_std_IS %>%
+    group_by(standardized_label, year_end) %>%
     summarise(
       # Calculate the total number of distinct quarters in the group, excluding NA values
-      total_quarters = n_distinct(frame_quarter) - sum(is.na(frame_quarter)),
+      total_quarters = n_distinct(quarter_end) - sum(is.na(quarter_end)),
       # Calculate the sum of values for quarters without NA values
-      total_val_quarters = sum(val[!is.na(frame_quarter)]),
+      total_val_quarters = sum(val[!is.na(quarter_end)]),
       # Calculate the sum of values for quarters with NA values, representing the fiscal year total
-      total_val_year = sum(val[is.na(frame_quarter)])
+      total_val_year = sum(val[is.na(quarter_end)])
     ) %>% 
     ungroup()
   
   # Create the row_not_to_add column based on specified criteria. This column marks those years where there is no need to estimate the val of quarters since these are related to the quarters of the ongoing year or not yet filed.
-  df_sum_quarters_years <- df_sum_quarters_years %>% 
+  dt_std_IS_quarter_summary <- dt_std_IS_quarter_summary %>% 
     mutate(
       row_not_to_add = 
         total_val_year == 0 & 
         total_quarters == 3 & 
-        as.integer(frame_year) >= (as.integer(format(Sys.Date(), "%Y")) - 1)
+        as.integer(year_end) >= (as.integer(format(Sys.Date(), "%Y")) - 1)
     )  
   
   # Calculate the difference between the sum of the val of the fiscal years and the sum of the val of the quarters. The two sums are different for those past years where only some quarters are included in the "df_std_IS" dataframe. The records marked with "quarter_not_to_add" as FALSE are related to those quarters to be added to the  dataframe df_std_IS. Those marked TRUE are removed since these are related to the quarters of the ongoing year or not yet filed.
-  df_sum_quarters_years <- df_sum_quarters_years %>% 
+  dt_std_IS_quarter_summary <- dt_std_IS_quarter_summary %>% 
     # Calculate the number of quarters to add
     mutate(total_quarters_to_add = 4 - total_quarters) %>%
     # Remove the rows that are not representative of missing quarters.
@@ -476,29 +486,29 @@ IS_std <- function(df_Facts) {
     )    
   
   # Extract the missing quarters
-  missing_quarters <- df_sum_quarters_years %>%
-    select(standardized_incomestatement_label,frame_year, val_missing_quarter) %>%
+  missing_quarters <- dt_std_IS_quarter_summary %>%
+    select(standardized_label,year_end, val_missing_quarter) %>%
     # Duplicate each row four times to represent the four quarters in a year
     slice(rep(1:n(), each = 4)) %>%
-    # Create a new column 'frame_quarter' based on the duplicated rows
-    mutate(frame_quarter = as.integer(rep(c("1", "2", "3", "4"), n() / 4)))  
+    # Create a new column 'quarter_end' based on the duplicated rows
+    mutate(quarter_end = as.integer(rep(c("1", "2", "3", "4"), n() / 4)))  
   
   # Create the missing rows for the missing quarters
   rows_to_add <- missing_quarters %>%
-    anti_join(df_std_IS, by = c("standardized_incomestatement_label","frame_year","frame_quarter")) %>%
+    anti_join(df_std_IS, by = c("standardized_label","year_end","quarter_end")) %>%
     mutate(
-      # Set end and start dates based on frame_quarter
+      # Set end and start dates based on quarter_end
       end = as.Date(case_when(
-        frame_quarter == "1" ~ paste(frame_year, "-03-31", sep = ""),
-        frame_quarter == "2" ~ paste(frame_year, "-06-30", sep = ""),
-        frame_quarter == "3" ~ paste(frame_year, "-09-30", sep = ""),
-        frame_quarter == "4" ~ paste(frame_year, "-12-31", sep = "")
+        quarter_end == "1" ~ paste(year_end, "-03-31", sep = ""),
+        quarter_end == "2" ~ paste(year_end, "-06-30", sep = ""),
+        quarter_end == "3" ~ paste(year_end, "-09-30", sep = ""),
+        quarter_end == "4" ~ paste(year_end, "-12-31", sep = "")
       )),
       start = as.Date(case_when(
-        frame_quarter == "1" ~ paste(frame_year, "-01-01", sep = ""),
-        frame_quarter == "2" ~ paste(frame_year, "-04-01", sep = ""),
-        frame_quarter == "3" ~ paste(frame_year, "-07-01", sep = ""),
-        frame_quarter == "4" ~ paste(frame_year, "-10-01", sep = "")
+        quarter_end == "1" ~ paste(year_end, "-01-01", sep = ""),
+        quarter_end == "2" ~ paste(year_end, "-04-01", sep = ""),
+        quarter_end == "3" ~ paste(year_end, "-07-01", sep = ""),
+        quarter_end == "4" ~ paste(year_end, "-10-01", sep = "")
       )),
       estimated_val = "TRUE"
     ) %>% 
@@ -509,7 +519,7 @@ IS_std <- function(df_Facts) {
   # Bind the rows to df_std_IS and fill in NA in added columns
   df_std_IS <- df_std_IS %>% 
     bind_rows(rows_to_add) %>% 
-    group_by(standardized_incomestatement_label) %>%
+    group_by(standardized_label) %>%
     mutate(
       # Fill in missing values in the added rows for description, label, and us_gaap_reference
       description = first(description),
@@ -521,22 +531,29 @@ IS_std <- function(df_Facts) {
     ungroup()  %>% 
     mutate(
       # Fill in missing values based on conditions for fy, fp, form, filed, and frame
-      fy = ifelse(estimated_val == "TRUE", frame_year, df_std_IS$fy),
-      fp = ifelse(estimated_val == "TRUE", paste0("Q", frame_quarter), df_std_IS$fp),
+      fy = ifelse(estimated_val == "TRUE", year_end, df_std_IS$fy),
+      fp = ifelse(estimated_val == "TRUE", paste0("Q", quarter_end), df_std_IS$fp),
       form = ifelse(estimated_val == "TRUE", NA, df_std_IS$form),
       filed = ifelse(estimated_val == "TRUE", NA, df_std_IS$filed),
-      frame = ifelse(estimated_val == "TRUE", paste0("CY", frame_year, "Q", frame_quarter), df_std_IS$frame)
+      frame = ifelse(estimated_val == "TRUE", paste0("CY", year_end, "Q", quarter_end), df_std_IS$frame)
     ) %>% 
     fill(
       # Fill missing values downward for selected columns
       accn, cik, entityName, sic, sicDescription, tickers,
       .direction = "down"
     ) %>% 
-    arrange(desc(end), standardized_incomestatement_label) 
+    arrange(desc(end), standardized_label) 
   
   # Filter all rows that include the result of the fiscal year, retaining the ones that include only the results of the fiscal quarters.
   df_std_IS <- df_std_IS %>% 
-    filter(!is.na(frame_quarter))
+    filter(!is.na(quarter_end))
+  
+  
+  # <<<<<<<<<>>>>>>>> 
+  # TO VALIDATE df_std_IS
+  # https://github.com/gp1981/SEC_data_analysis/issues/14#issue-2331796763
+  # <<<<<<<<<>>>>>>>>
+  
   
   # 03 - Pivot df_std_IS in a dataframe format ------------------------------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
@@ -621,11 +638,6 @@ IS_std <- function(df_Facts) {
 
 # Function to rebuild the Income and Cash Flow statements ---------------------------------------
 # Function to create a dataframe representative of the quarterly Cash Flow statement of the entity. The basis for the dataframe is a Cash Flow statement (standardized_CF.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarters is then allocated equally to the missing quarters.
-
-# <<<<<<<<<>>>>>>>>
-# "OTHER" TO BE CALCULATED
-# https://github.com/gp1981/SEC_data_analysis/issues/13#issue-2328617938
-# <<<<<<<<<>>>>>>>>
 
 CF_std <- function(df_Facts) {
   # 01 - Join standardized Cashflow (CF) ------------------------------------------------------
@@ -734,12 +746,7 @@ CF_std <- function(df_Facts) {
       count_rows = n()
     ) %>% 
     ungroup()
-  
-  # <<<<<<<<<>>>>>>>> 
-  # TO FIX DUPLICATES
-  # https://github.com/gp1981/SEC_data_analysis/issues/12#issue-2328611037
-  # <<<<<<<<<>>>>>>>>
-  
+
   # Adjust quarterly_val based on existing of cumulative values
   df_std_CF <- df_std_CF %>% 
     # Group by description and year_end
