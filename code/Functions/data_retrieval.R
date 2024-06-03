@@ -829,7 +829,7 @@ CF_std <- function(df_Facts) {
   # 04 - Cash Flow - Pivot df_std_CF in horizontal format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
-  df_std_CF1 <- df_std_CF_pivot %>%
+  df_std_CF <- df_std_CF_pivot %>%
     filter(Financial.Report == "CF") %>% 
     select(end,standardized_label,quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
@@ -845,14 +845,13 @@ CF_std <- function(df_Facts) {
   
   ## Step 1 - Check key financial Concepts -----------------------------------
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
-  if (!("Net Income (loss)" %in% colnames(df_std_CF)) || !("(Operating Activities) Cash Flow from Operating Activities" %in% colnames(df_std_CF)) || !("(Investing Activities) Cash Flow from Investing Activities" %in% colnames(df_std_CF)) || !("(Financing Activities) Cash Flow from Financing Activities" %in% colnames(df_std_CF))) {
+  if (!("(Operating Activities) Cash Flow from Operating Activities" %in% colnames(df_std_CF)) || !("(Investing Activities) Cash Flow from Investing Activities" %in% colnames(df_std_CF)) || !("(Financing Activities) Cash Flow from Financing Activities" %in% colnames(df_std_CF))) {
     stop("Cash Flow from Operating activities or Investing activities or Financing activities is missing. The entity is not adequate for financial analysis.")
   }
   
   # Remove rows where key financial Concepts are empty (or NA)
   df_std_CF <- df_std_CF %>%
     filter(
-      any(!is.na(`Net Income (loss)`) | `Net Income (loss)` != ""),
       any(!is.na(`(Operating Activities) Cash Flow from Operating Activities`) | `(Operating Activities) Cash Flow from Operating Activities` != ""),
       any(!is.na(`(Investing Activities) Cash Flow from Investing Activities`) | `(Investing Activities) Cash Flow from Investing Activities` != ""),
       any(!is.na(`(Financing Activities) Cash Flow from Financing Activities`) | `(Financing Activities) Cash Flow from Financing Activities` != "")
@@ -860,9 +859,9 @@ CF_std <- function(df_Facts) {
   
   ## Step 2 - Add missing columns -----------------------------------
   # It checks which columns from columns_to_add are not already present in df_std_CF
-  columns_to_add <- setdiff(standardized_cashflow$standardized_cashflow_label,colnames(df_std_CF)) 
+  columns_to_add <- setdiff(standardized_CF$standardized_label,colnames(df_std_CF)) 
   
-  #It then adds only the missing columns to df_std_CF and initializes them with NA.
+  #Adds only the missing columns to df_std_CF and initializes them with NA.
   if (length(columns_to_add) > 0) {
     
     # Add columns to the dataframe
@@ -874,49 +873,44 @@ CF_std <- function(df_Facts) {
   
   df_std_CF <- df_std_CF %>%
     mutate(
-      `(Operating Activities) Change in Other Working Capital` = case_when(
-        is.na(`(Operating Activities) Change in Other Working Capital`) ~ 
-          coalesce(`(Operating Activities) Cash Flow from Operating Activities`,0) - 
-          (coalesce(`(Operating Activities) Cash Flow Depreciation, Depletion, Ammortization`,0) +
-             coalesce(`(Operating Activities) Change in Accounts Receivable`,0) +
-             coalesce(`(Operating Activities) Change in Inventory`,0) +
-             coalesce(`(Operating Activities) Change in Prepaid expenses and other assets`,0) +
-             coalesce(`(Operating Activities) Change in Accounts Payable`,0) +
-             coalesce(`(Operating Activities) Change in Reserve for Sales Return and allowances`,0) +
-             coalesce(`(Operating Activities) Deferred Income Tax`,0) +
-             coalesce(`(Operating Activities) Stock-based Compensation`,0)
-          ),
-      ),
-      
-      `(Investing Activities) Gain (Losses) in Other Investing Activities` = case_when(
-        is.na(`(Investing Activities) Gain (Losses) in Other Investing Activities`) ~ 
-          coalesce(`(Investing Activities) Cash Flow from Investing Activities`,0) - 
-          (coalesce(`(Investing Activities) Purchase of Property, Plant and Equipment`,0) + 
-             coalesce(`(Investing Activities) Proceeds from Asset Sales`,0) +
-             coalesce(`(Investing Activities) Purchase of Businesses`,0) +
-             coalesce(`(Investing Activities) Purchase of Marketable Securities and Investment`,0) +
-             coalesce(`(Investing Activities) Proceeds from sale of Marketable Securities and Investment`,0) +
-             coalesce(`(Investing Activities) Proceeds from maturities of Marketable Securities and Investment`,0)
-          ),
-      ),
-      
-      `(Financing Activities) Impact of Stock Options and Other` = case_when(
-        is.na(`(Financing Activities) Impact of Stock Options and Other`) ~ 
-          coalesce(`(Financing Activities) Impact of Stock Options and Other`,0) - 
-          (coalesce(`(Financing Activities) Proceeds from Issuance of Stock`,0) + 
-             coalesce(`(Financing Activities) Payment for Repurchase of Stock`,0) + 
-             coalesce(`(Financing Activities) Proceeds from Issuance of Debt`,0) + 
-             coalesce(`(Financing Activities) Payment of Debt`,0) + 
-             coalesce(`(Financing Activities) Cash for Dividends`,0) 
-          ),
-      ),
-      
+      `(Operating Activities) Change in Other Operating Activities` =  
+        coalesce(`(Operating Activities) Cash Flow from Operating Activities`,0) - 
+        (coalesce(`(Operating Activities) Cash Flow Depreciation, Depletion, Ammortization`,0) +
+           coalesce(`(Operating Activities) Change in Accounts Receivable`,0) +
+           coalesce(`(Operating Activities) Change in Inventory`,0) +
+           coalesce(`(Operating Activities) Change in Prepaid expenses and other assets`,0) +
+           coalesce(`(Operating Activities) Change in Accounts Payable`,0) + 
+           coalesce(`(Operating Activities) Change in Accounts Taxes Payable`,0) + 
+           coalesce(`(Operating Activities) Change in Reserve for Sales Return and allowances`,0) +
+           coalesce(`(Operating Activities) Deferred Income Tax`,0) +
+           coalesce(`(Operating Activities) Stock-based Compensation`,0)
+        ),
+      ,
+      `(Investing Activities) Change in Other Investing Activities` =  
+        coalesce(`(Investing Activities) Cash Flow from Investing Activities`,0) - 
+        (coalesce(`(Investing Activities) Purchase of Property, Plant and Equipment`,0) + 
+           coalesce(`(Investing Activities) Proceeds from Asset Sales`,0) +
+           coalesce(`(Investing Activities) Purchase of Businesses`,0) +
+           coalesce(`(Investing Activities) Purchase of Marketable Securities and Investment`,0) +
+           coalesce(`(Investing Activities) Proceeds from sale or maturity of Marketable Securities and Investment`,0) +
+           coalesce(`(Investing Activities) Proceeds from maturities of Marketable Securities and Investment`,0)
+        ),
+      ,
+      `(Financing Activities) Impact of Stock Options and Other` = 
+        coalesce(`(Financing Activities) Cash Flow from Financing Activities`,0) - 
+        (coalesce(`(Financing Activities) Proceeds from Issuance of Stock`,0) + 
+           coalesce(`(Financing Activities) Payment for Repurchase of Stock`,0) + 
+           coalesce(`(Financing Activities) Proceeds from Issuance of Debt`,0) + 
+           coalesce(`(Financing Activities) Payment of Debt`,0) + 
+           coalesce(`(Financing Activities) Cash for Dividends`,0) 
+        ),
+      ,
     ) %>% 
     mutate_all(~round(., digits = 4))  # Adjust the number of digits as needed
   
   ## Step 4 - Order columns based on standardized_cashflow_label -----------------------------------
-  custom_order <- unique(standardized_cashflow[,1])
-  # Reorder the columns as per standardized_cashflow.xlsx
+  custom_order <- unique(standardized_CF[,"standardized_label"])
+  # Reorder the columns as per standardized_CF.xlsx
   df_std_CF <- df_std_CF[, c("end", custom_order)]
   # Add the columns with the metadata
   df_std_CF <- df_std_CF %>% 
