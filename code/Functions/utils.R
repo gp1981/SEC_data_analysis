@@ -245,6 +245,19 @@ transpose_df <- function(df, order_df) {
   applicable_labels <- unique(order_df$standardized_label) %>% as.data.frame() %>% 
     `colnames<-`("standardized_label")
   
+  # Select columns to remove
+  columns_to_remove <- c("cik", "entityName", "sic", "sicDescription", "tickers")
+  
+  # Check if columns exist in the dataframe
+  columns_exist <- all(columns_to_remove %in% colnames(df))
+  
+  if (columns_exist) {
+    df <- df %>%
+      select(-one_of(columns_to_remove))
+  } else {
+    message("Columns to remove do not exist in the dataframe.")
+  }
+  
   # Transpose DataFrame
   df_t <- df %>%
     pivot_longer(cols = -end, names_to = "Concept", values_to = "Value") %>%

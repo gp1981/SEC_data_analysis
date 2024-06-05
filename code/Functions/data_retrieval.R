@@ -196,75 +196,92 @@ Fundamentals_to_Dataframe_multi_files <- function(company_Data,company_details_c
 BS_std <- function(df_Facts) {
   # 01 - Join standardized_balancesheet ------------------------------------------------------
   # Define the standardized balancesheet file path
-  balancesheet_path <- here(data_dir, "standardized_BS.xlsx")
+  BS_path <- here(data_dir, "standardized_BS.xlsx")
   
   # Read the standardized_balancesheet.xlsx file
-  standardized_balancesheet <- read.xlsx(balancesheet_path, sheet = "Sheet1")
+  standardized_BS <- read.xlsx(balancesheet_path, sheet = "Sheet1")
   
   # Rename standardized_balancesheet column df_Fact_Description to perform left_join
-  standardized_balancesheet <- standardized_balancesheet %>% 
+  standardized_BS <- standardized_BS %>% 
     rename(description = df_Facts_Description)
   
   # Merge df_Facts with standardized_balancesheet based on description and period
   df_std_BS <- df_Facts %>%
-    left_join(standardized_balancesheet, by = "description") %>%
-    select(standardized_balancesheet_label, everything())
+    left_join(standardized_BS, by = "description") %>%
+    filter(Financial.Report == "BS") %>% 
+    select(standardized_label, everything())
   
   # 02 - Data cleaning ------------------------------------------------------
-  # This code filters rows in df_std_BS based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected, the data is arranged by descending 'end' date,  and for each unique 'val', the row with the most recent 'end' date is kept.
+  # This code filters rows based on whether there's a "/A" in the 'form' column. Rows with "/A" are retained if any row in their group contains it. Relevant columns are selected.
   
   # Change format of start and end dates from characters to date
   df_std_BS <- df_std_BS %>%
     mutate(end = as.Date(end),
-           start = as.Date(start))
+           start = as.Date(start),
+           filed = as.Date(filed),
+           val = as.numeric(val))
   
   df_std_BS <- df_std_BS %>%
-    # Filter out rows without standardized_balancesheet_label
-    filter(!is.na(standardized_balancesheet_label) & !is.na(frame)) %>% 
+    # Filter out rows without standardized_label
+    filter(!is.na(standardized_label)) %>% 
     # Group by end period (end) and label
-    group_by(end, label) %>%
+    group_by(end, description) %>%
     # Arrange by descending end date within each group
     arrange(desc(end)) %>%
     # Add a column indicating if any row in the group has a form ending with /A
     mutate(
-      has_form_A = any(grepl("/A$", form))
+      has_form_A = grepl("/A$", form)
     ) %>%
     # Filter rows based on the condition:
     # - Retain rows without /A
     # - Retain rows with /A if there's at least one row with /A in the group
     filter(!has_form_A | (has_form_A & grepl("/A$", form))) %>%
     # Select relevant columns
-    select(end, standardized_balancesheet_label, everything()) %>%
+    select(end, standardized_label, everything(),-has_form_A) %>%
     # Arrange by descending end date
     arrange(desc(end)) %>% 
     # Remove grouping
-    ungroup() %>%
+    ungroup() %>% 
     # Group by and arrange by descending filed date within each group
-    group_by(label, end) %>%
-    arrange(desc(filed)) %>%
-    # Retain only the first row within each group
-    slice_head(n = 1) %>%
+    group_by(standardized_label, end) %>% 
+    # Arrange by filed date
+    arrange(desc(filed)) %>% 
+    # Retain only the first row i.e.. most recent by "filed" date
+    slice_head(n = 1) %>% 
     # Remove grouping
     ungroup()
   
-  # Sum the "val" values for rows with the same standardized_balancesheet_label
+  # Split the 'end' column into 'year_end' and 'quarter_end'
   df_std_BS <- df_std_BS %>%
-    group_by(end,standardized_balancesheet_label) %>%
-    arrange(desc(fy), desc(fp)) %>%  # Arrange by descending fy and fp within each group
-    filter(row_number() == 1) %>%    # Keep only the first row within each group
-    summarise(val = sum(val, na.rm = TRUE),
-              description = paste(description, collapse = "\n")) %>%
-    ungroup()
+    mutate(
+      year_end = as.integer(lubridate::year(end)),
+      quarter_end = as.integer(lubridate::quarter(end)),
+      year_start = case_when(
+        Financial.Report == "BS" & is.na(as.integer(lubridate::year(start))) ~ as.integer(lubridate::year(end)), TRUE ~ as.integer(lubridate::year(start))),               
+      quarter_start = case_when(
+        Financial.Report == "BS" & is.na(as.integer(lubridate::quarter(start))) ~ as.integer(lubridate::quarter(end)), TRUE ~ as.integer(lubridate::quarter(start)))   
+    ) 
+  
+  # Prepare dataframe for pivot
+  df_std_BS_pivot <- df_std_BS %>%
+    # Group by standardized_lable and fiscal period
+    group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
+    # Sum Quarterly_val within the group
+    summarise(
+      quarterly_val= sum(val)
+    ) %>%
+    ungroup() %>% 
+    select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
   
   # 03 - Pivot df_std_BS in a dataframe format ------------------------------------------------------
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
-  df_std_BS <- df_std_BS %>%
-    select(end,standardized_balancesheet_label,val) %>% 
-    # Pivot the data using standardized_balancesheet_label as column names
+  df_std_BS <- df_std_BS_pivot %>%
+    select(end,standardized_label,quarterly_val) %>% 
+    # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
-      names_from = standardized_balancesheet_label,
-      values_from = val
+      names_from = standardized_label,
+      values_from = quarterly_val
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
@@ -392,6 +409,7 @@ IS_std <- function(df_Facts) {
   # Merge df_Facts with standardized_IS based on description and period
   df_std_IS <- df_Facts %>%
     left_join(standardized_IS, by = "description") %>%
+    filter(Financial.Report == "IS") %>% 
     select(standardized_label, everything(), -df_Facts_us_gaap_references)
   
   # 02 - Data cleaning ------------------------------------------------------
@@ -438,132 +456,147 @@ IS_std <- function(df_Facts) {
     ) 
   
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
-  
+
   # Perform additional data processing to clean data set and estimate cumulative values from existing data
   
-  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date 
+  # Estimate number of quarters underlying a Fact of financial item i.e. val
+  df_std_IS <- df_std_IS %>%
+    group_by(description, year_end) %>%
+    arrange(desc(quarter_end), desc(quarter_start)) %>%
+    mutate(
+      cumulative_quarters = case_when(
+        year_end == year_start & quarter_end != quarter_start ~ quarter_end - quarter_start + 1,
+        TRUE ~ 1)
+    )%>% 
+    ungroup()
+  
+  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date with the largest number of quarters covered
   df_std_IS <- df_std_IS %>%
     group_by(description, year_end, quarter_end) %>% 
     # Arrange by descending "filed" date and cumulative quarters
-    arrange(desc(filed)) %>%
+    arrange(desc(filed), desc(cumulative_quarters)) %>%
     # Retain the first in the group ordered by "filed" date
     distinct(description, end, .keep_all = TRUE) %>% 
     # Keep only the first occurrence of each unique combination of description and end date
     ungroup()
  
-   # Calculate the sum of all quarters values and the fiscal year values
-  dt_std_IS_quarter_summary <- df_std_IS %>%
-    group_by(standardized_label, year_end) %>%
+  # Calculate the number of distinct quarters and the missing ones represented by each description in the dataset.
+  df_std_IS_quarter_summary <- df_std_IS %>%
+    group_by(description) %>%
+    # Summarize the number of distinct quarters represented for each description
+    summarise(total_quarters_end = n_distinct(quarter_end)) %>% 
+    # Calculate number of quarters missing in the grouping
+    mutate(
+      "No. Quarters Missing" = ifelse(total_quarters_end == 4, 0, 4 - total_quarters_end)
+    ) %>% 
+    ungroup()
+  
+  # Calculate preliminary quarterly_val based on the number of quarters within group_by description and year_end 
+  df_std_IS <- df_std_IS %>% 
+    # Group by year and description
+    group_by(description, year_end) %>%
+    # Calculate quarterly_Val based on the number of cumulative quarters
+    mutate(
+      quarterly_val = val / cumulative_quarters,
+      # Calculate the number of rows in the group_by
+      count_rows = n()
+    ) %>% 
+    ungroup()
+  
+  # Adjust quarterly_val based on existing of cumulative values
+  df_std_IS <- df_std_IS %>% 
+    # Group by description and year_end
+    group_by(description, year_end) %>%
+    # Arrange the dataframe to properly position lead() values
+    arrange(desc(cumulative_quarters), desc(quarter_end), quarter_start) %>% 
+    mutate(
+      # Column to count the records in the group
+      count_rows = n(),
+      # Recalculate quarterly_val for specific cases as differences from lead() values
+      quarterly_val = case_when(  
+        cumulative_quarters == 1 ~ quarterly_val,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == lead(quarter_start) ~ val - lead(val),
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end) + 2 &
+          quarter_start == lead(quarter_start) ~ val - lead(val) - quarterly_val,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end) + 3 &
+          quarter_start == lead(quarter_start) ~ val - lead(val) - 2 * quarterly_val,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end)&
+          quarter_start == lead(quarter_start) + 1 ~ val - lead(val),
+        TRUE ~ quarterly_val),
+      
+      # Detect quarterly_val modified   
+      modified_quarterly_val = case_when(
+        cumulative_quarters == 1 ~ FALSE,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end) + 1 &
+          quarter_start == lead(quarter_start) ~ TRUE,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end) + 2 &
+          quarter_start == lead(quarter_start) ~ TRUE,
+        cumulative_quarters >= 2 & 
+          count_rows > 1 &
+          !is.na(lead(quarter_end)) &
+          !is.na(lead(quarter_start)) &
+          quarter_end == lead(quarter_end) + 3 &
+          quarter_start == lead(quarter_start) ~ TRUE,
+        TRUE ~ FALSE)  
+    ) %>% 
+    ungroup() %>% 
+    select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
+  
+  # Filter out rows with duplicated val for the same standardized label
+  df_std_IS <- df_std_IS %>%
+    # Group by the standardized label for the same year and same quarter
+    group_by(standardized_label, year_end, quarter_end) %>%
+    # Arrange to by quarters_end and descending date "filed"
+    arrange(desc(quarter_end),desc(filed)) %>%
+    # Keep only the first occurrence of 'val' within each group
+    filter(!duplicated(standardized_label,val)) %>%
+    ungroup()
+  
+  # Prepare dataframe for pivot
+  df_std_IS_pivot <- df_std_IS %>%
+    # Group by standardized_lable and fiscal period
+    group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
+    # Sum Quarterly_val within the group
     summarise(
-      # Calculate the total number of distinct quarters in the group, excluding NA values
-      total_quarters = n_distinct(quarter_end) - sum(is.na(quarter_end)),
-      # Calculate the sum of values for quarters without NA values
-      total_val_quarters = sum(val[!is.na(quarter_end)]),
-      # Calculate the sum of values for quarters with NA values, representing the fiscal year total
-      total_val_year = sum(val[is.na(quarter_end)])
-    ) %>% 
-    ungroup()
-  
-  # Create the row_not_to_add column based on specified criteria. This column marks those years where there is no need to estimate the val of quarters since these are related to the quarters of the ongoing year or not yet filed.
-  dt_std_IS_quarter_summary <- dt_std_IS_quarter_summary %>% 
-    mutate(
-      row_not_to_add = 
-        total_val_year == 0 & 
-        total_quarters == 3 & 
-        as.integer(year_end) >= (as.integer(format(Sys.Date(), "%Y")) - 1)
-    )  
-  
-  # Calculate the difference between the sum of the val of the fiscal years and the sum of the val of the quarters. The two sums are different for those past years where only some quarters are included in the "df_std_IS" dataframe. The records marked with "quarter_not_to_add" as FALSE are related to those quarters to be added to the  dataframe df_std_IS. Those marked TRUE are removed since these are related to the quarters of the ongoing year or not yet filed.
-  dt_std_IS_quarter_summary <- dt_std_IS_quarter_summary %>% 
-    # Calculate the number of quarters to add
-    mutate(total_quarters_to_add = 4 - total_quarters) %>%
-    # Remove the rows that are not representative of missing quarters.
-    filter(row_not_to_add == FALSE & total_quarters_to_add > 0) %>% 
-    # Calculate the total and quarterly value of missing quarters
-    mutate(
-      total_val_of_missing_quarters = total_val_year - total_val_quarters,
-      val_missing_quarter = total_val_of_missing_quarters / total_quarters_to_add
-    )    
-  
-  # Extract the missing quarters
-  missing_quarters <- dt_std_IS_quarter_summary %>%
-    select(standardized_label,year_end, val_missing_quarter) %>%
-    # Duplicate each row four times to represent the four quarters in a year
-    slice(rep(1:n(), each = 4)) %>%
-    # Create a new column 'quarter_end' based on the duplicated rows
-    mutate(quarter_end = as.integer(rep(c("1", "2", "3", "4"), n() / 4)))  
-  
-  # Create the missing rows for the missing quarters
-  rows_to_add <- missing_quarters %>%
-    anti_join(df_std_IS, by = c("standardized_label","year_end","quarter_end")) %>%
-    mutate(
-      # Set end and start dates based on quarter_end
-      end = as.Date(case_when(
-        quarter_end == "1" ~ paste(year_end, "-03-31", sep = ""),
-        quarter_end == "2" ~ paste(year_end, "-06-30", sep = ""),
-        quarter_end == "3" ~ paste(year_end, "-09-30", sep = ""),
-        quarter_end == "4" ~ paste(year_end, "-12-31", sep = "")
-      )),
-      start = as.Date(case_when(
-        quarter_end == "1" ~ paste(year_end, "-01-01", sep = ""),
-        quarter_end == "2" ~ paste(year_end, "-04-01", sep = ""),
-        quarter_end == "3" ~ paste(year_end, "-07-01", sep = ""),
-        quarter_end == "4" ~ paste(year_end, "-10-01", sep = "")
-      )),
-      estimated_val = "TRUE"
-    ) %>% 
-    rename(val = val_missing_quarter) %>% 
-    # Ungroup missing_rows
-    ungroup()
-  
-  # Bind the rows to df_std_IS and fill in NA in added columns
-  df_std_IS <- df_std_IS %>% 
-    bind_rows(rows_to_add) %>% 
-    group_by(standardized_label) %>%
-    mutate(
-      # Fill in missing values in the added rows for description, label, and us_gaap_reference
-      description = first(description),
-      label = first(label),
-      us_gaap_reference = first(us_gaap_reference),
-      # Convert NA to FALSE in the estimated_val column
-      estimated_val = ifelse(is.na(estimated_val), FALSE, estimated_val)
+      quarterly_val= sum(quarterly_val)
     ) %>%
-    ungroup()  %>% 
-    mutate(
-      # Fill in missing values based on conditions for fy, fp, form, filed, and frame
-      fy = ifelse(estimated_val == "TRUE", year_end, df_std_IS$fy),
-      fp = ifelse(estimated_val == "TRUE", paste0("Q", quarter_end), df_std_IS$fp),
-      form = ifelse(estimated_val == "TRUE", NA, df_std_IS$form),
-      filed = ifelse(estimated_val == "TRUE", NA, df_std_IS$filed),
-      frame = ifelse(estimated_val == "TRUE", paste0("CY", year_end, "Q", quarter_end), df_std_IS$frame)
-    ) %>% 
-    fill(
-      # Fill missing values downward for selected columns
-      accn, cik, entityName, sic, sicDescription, tickers,
-      .direction = "down"
-    ) %>% 
-    arrange(desc(end), standardized_label) 
+    ungroup() %>% 
+    select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
   
-  # Filter all rows that include the result of the fiscal year, retaining the ones that include only the results of the fiscal quarters.
-  df_std_IS <- df_std_IS %>% 
-    filter(!is.na(quarter_end))
-  
-  
-  # <<<<<<<<<>>>>>>>> 
-  # TO VALIDATE df_std_IS
-  # https://github.com/gp1981/SEC_data_analysis/issues/14#issue-2331796763
-  # <<<<<<<<<>>>>>>>>
-  
-  
-  # 03 - Pivot df_std_IS in a dataframe format ------------------------------------------------------
+  # 03 - Pivot df_std_IS in a dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
-  df_std_IS <- df_std_IS %>%
-    select(end,standardized_incomestatement_label,val) %>% 
-    # Pivot the data using standardized_incomestatement_label as column names
+  df_std_IS <- df_std_IS_pivot %>%
+    select(end,standardized_label,quarterly_val) %>% 
+    # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
-      names_from = standardized_incomestatement_label,
-      values_from = val
+      names_from = standardized_label,
+      values_from = quarterly_val
     ) %>%
     # Arrange the dataframe in descending order based on the 'end' column
     arrange(desc(end))
@@ -580,14 +613,14 @@ IS_std <- function(df_Facts) {
   # Remove rows where key financial Concepts are empty (or NA)
   df_std_IS <- df_std_IS %>%
     filter(
-      any(!is.na(`Operating Income`) | `Operating Income` != ""),
       any(!is.na(`Gross Profit`) | `Gross Profit` != ""),
+      any(!is.na(`Operating Income`) | `Operating Income` != ""),
       any(!is.na(`Net Income (loss)`) | `Net Income (loss)` != "")
     )
   
   ## Step 2 - Add missing columns -----------------------------------
   # It checks which columns from columns_to_add are not already present in df_std_IS
-  columns_to_add <- setdiff(standardized_incomestatement$standardized_incomestatement_label,colnames(df_std_IS)) 
+  columns_to_add <- setdiff(standardized_IS$standardized_label,colnames(df_std_IS)) 
   
   #It then adds only the missing columns to df_std_IS and initializes them with NA.
   if (length(columns_to_add) > 0) {
@@ -619,7 +652,7 @@ IS_std <- function(df_Facts) {
     mutate_all(~round(., digits = 4))  # Adjust the number of digits as needed
   
   ## Step 4 - Order columns based on standardized_incomestatement_label -----------------------------------
-  custom_order <- unique(standardized_incomestatement[,1])
+  custom_order <- unique(standardized_IS[,1])
   # Reorder the columns as per standardized_incomestatement.xlsx
   df_std_IS <- df_std_IS[, c("end", custom_order)]
   # Add the columns with the metadata
@@ -654,6 +687,7 @@ CF_std <- function(df_Facts) {
   # Merge df_Facts with standardized_CF based on description and period
   df_std_CF <- df_Facts %>%
     left_join(standardized_CF, by = "description") %>%
+    filter(Financial.Report == "CF") %>% 
     select(standardized_label, everything(), -df_Facts_us_gaap_references)
   
   # 02 - Data cleaning ------------------------------------------------------
@@ -837,7 +871,6 @@ CF_std <- function(df_Facts) {
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
   
   df_std_CF <- df_std_CF_pivot %>%
-    filter(Financial.Report == "CF") %>% 
     select(end,standardized_label,quarterly_val) %>% 
     # Pivot the data using standardized_cashflow_label as column names
     pivot_wider(
