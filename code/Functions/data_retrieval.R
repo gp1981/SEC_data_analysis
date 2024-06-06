@@ -199,7 +199,7 @@ BS_std <- function(df_Facts) {
   BS_path <- here(data_dir, "standardized_BS.xlsx")
   
   # Read the standardized_balancesheet.xlsx file
-  standardized_BS <- read.xlsx(balancesheet_path, sheet = "Sheet1")
+  standardized_BS <- read.xlsx(BS_path, sheet = "Sheet1")
   
   # Rename standardized_balancesheet column df_Fact_Description to perform left_join
   standardized_BS <- standardized_BS %>% 
@@ -288,8 +288,8 @@ BS_std <- function(df_Facts) {
   
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
-  
-  ## Step 1 - Check key financial Concepts -----------------------------------
+ 
+   ## Step 1 - Check key financial Concepts -----------------------------------
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
@@ -299,12 +299,12 @@ BS_std <- function(df_Facts) {
     stop("Total Liabilities & Stockholders Equity is missing. The entity is not adequate for financial analysis.")
   }
   
-  if (!("Total Current Assets" %in% colnames(df_std_BS)) && !("Total Non Current Assets" %in% colnames(df_std_BS))) {
-    stop("Both Total Current Assets and Total Non Current Assets are missing. The entity is not adequate for financial analysis.")
+  if (!("Total Current Assets" %in% colnames(df_std_BS))) {
+    stop("Total Current Assets is missing. The entity is not adequate for financial analysis.")
   }
   
-  if (!("Total Current Liabilities" %in% colnames(df_std_BS)) && !("Total Non Current Liabilities" %in% colnames(df_std_BS))) {
-    stop("Both Total Current Liabilities and Total Non Current Liabilities are missing. The entity is not adequate for financial analysis.")
+  if (!("Total Current Liabilities" %in% colnames(df_std_BS))) {
+    stop("Both Total Current Liabilities is missing. The entity is not adequate for financial analysis.")
   }
   
   # Remove rows where key financial Concepts are empty (or NA)
@@ -317,7 +317,7 @@ BS_std <- function(df_Facts) {
   
   ## Step 2 - Add missing columns -----------------------------------
   # It checks which columns from columns_to_add are not already present in df_std_BS
-  columns_to_add <- setdiff(standardized_balancesheet$standardized_balancesheet_label,colnames(df_std_BS)) 
+  columns_to_add <- setdiff(standardized_BS$standardized_label,colnames(df_std_BS)) 
   
   #It then adds only the missing columns to df_std_BS and initializes them with NA.
   if (length(columns_to_add) > 0) {
@@ -351,10 +351,6 @@ BS_std <- function(df_Facts) {
         is.na(`Other Non Current Assets`) ~ coalesce(`Total Non Current Assets`,0) - (coalesce(`Marketable Securities Non Current`,0) + coalesce(`Property Plant and Equipment`,0) + coalesce(`Intangible Assets (excl. goodwill)`,0) + coalesce(`Goodwill`,0)),
         TRUE ~ coalesce(`Other Non Current Assets`,0)
       )),
-      `Total Current Liabilities` = pmax(0, case_when(
-        is.na(`Total Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Non Current Liabilities`,0),
-        TRUE ~ coalesce(`Total Current Liabilities`,0)
-      )),
       `Total Non Current Liabilities` = pmax(0, case_when(
         is.na(`Total Non Current Liabilities`) ~ coalesce(`Total Liabilities`,0) - coalesce(`Total Current Liabilities`,0),
         TRUE ~ coalesce(`Total Non Current Liabilities`,0)
@@ -374,7 +370,7 @@ BS_std <- function(df_Facts) {
     )
   
   ## Step 4 - Order columns based on standardized_balancesheet_label -----------------------------------
-  custom_order <- unique(standardized_balancesheet[,1])
+  custom_order <- unique(standardized_BS[,1])
   
   # Reorder the columns as per standardized_balancesheet.xlsx
   df_std_BS <- df_std_BS[, c("end", custom_order)]
