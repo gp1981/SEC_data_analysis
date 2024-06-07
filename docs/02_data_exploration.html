@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.3.450">
+<meta name="generator" content="quarto-1.4.553">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Unlocking Financial Insights: A Guide to SEC Data Analysis with R – data_exploration</title>
+<title>Unlocking Financial Insights: A Guide to SEC Data Analysis with R</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -22,7 +22,7 @@ ul.task-list li input[type="checkbox"] {
 }
 /* CSS for syntax highlighting */
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -81,7 +81,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   "collapse-after": 3,
   "panel-placement": "end",
   "type": "overlay",
-  "limit": 20,
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
   "language": {
     "search-no-results-text": "No results",
     "search-matching-documents-text": "matching documents",
@@ -90,6 +96,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-more-match-text": "more match in this document",
     "search-more-matches-text": "more matches in this document",
     "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
     "search-detached-cancel-button-title": "Cancel",
     "search-submit-button-title": "Submit",
     "search-label": "Search"
@@ -104,19 +111,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
-    <nav class="navbar navbar-expand-lg navbar-dark ">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
       <div class="navbar-container container-fluid">
-      <div class="navbar-brand-container">
+      <div class="navbar-brand-container mx-auto">
     <a class="navbar-brand" href="./index.html">
     <span class="navbar-title">Unlocking Financial Insights: A Guide to SEC Data Analysis with R</span>
     </a>
   </div>
-        <div class="quarto-navbar-tools ms-auto">
+        <div class="quarto-navbar-tools tools-end">
     <div class="dropdown">
       <a href="" title="" id="quarto-navigation-tool-dropdown-0" class="quarto-navigation-tool dropdown-toggle px-1" data-bs-toggle="dropdown" aria-expanded="false" aria-label=""><i class="bi bi-github"></i></a>
       <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="quarto-navigation-tool-dropdown-0">
           <li>
-            <a class="dropdown-item quarto-navbar-tools ms-auto-item" href="https://github.com/gp1981/SEC_data_analysis">
+            <a class="dropdown-item quarto-navbar-tools-item" href="https://github.com/gp1981/SEC_data_analysis">
             Source code
             </a>
           </li>
@@ -128,12 +135,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-      <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><strong>Basics</strong></a></li><li class="breadcrumb-item"><a href="./02_data_exploration.html">Explore data retrieved from SEC</a></li></ol></nav>
-      <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
-      </a>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html"><strong>Basics</strong></a></li><li class="breadcrumb-item"><a href="./02_data_exploration.html">Explore data retrieved from SEC</a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
@@ -143,7 +150,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <!-- content -->
 <div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
 <!-- sidebar -->
-  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal sidebar-navigation docked overflow-auto">
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation docked overflow-auto">
         <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
         <div id="quarto-search" class="" title="Search"></div>
@@ -252,7 +259,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     </ul>
     </div>
 </nav>
-<div id="quarto-sidebar-glass" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar,#quarto-sidebar-glass"></div>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
         <nav id="TOC" role="doc-toc" class="toc-active">
@@ -276,6 +283,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
+
 <section id="explore-data-retrieved-from-sec" class="level1">
 <h1>Explore data retrieved from SEC</h1>
 <p>In this section, we delve into the structure of the SEC data obtained from the API. The data follows a structured format in compliance with SEC reporting standards, utilizing XBRL (eXtensible Business Reporting Language). XBRL is a standardized language designed to enhance the accuracy and reliability of financial reporting.</p>
@@ -292,19 +300,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="key-elements-of-xbrl-in-sec-data" class="level3">
 <h3 class="anchored" data-anchor-id="key-elements-of-xbrl-in-sec-data">Key Elements of XBRL in SEC Data</h3>
-<p>Within the SEC data retrieved through the API, XBRL is utilized to structure financial information. .</p>
+<p>Within the SEC data retrieved through the API, XBRL is utilized to structure financial information.</p>
 <p>A basic understanding XBRL<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> is necessary for navigating and interpreting the structured financial data retrieved from the SEC. It ensures a standardized approach to financial reporting, facilitating meaningful analysis and comparison.</p>
 <p>First, we load the required libraries and files.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">source</span>(<span class="st">"setup.qmd"</span>)          </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>Now, let’s retrieve the necessary objects for data exploration:</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Load company_data</span></span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>company_data <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"company_data.RDS"</span>)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>cik <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"cik.RDS"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -333,8 +341,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h3 class="anchored" data-anchor-id="understanding-the-dataset">Understanding the dataset</h3>
 <p>Let’s start by exploring the structure of <strong><code>company_data</code></strong>:</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_data </span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_data, <span class="at">max.level =</span> <span class="dv">1</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -364,8 +372,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>To access the lists we use the symbol <code>$</code> in after the object e.g.&nbsp;<code>company_data$company_Metadata</code>.</p>
 <p>Next, we split the <code>company_data</code> into separate lists: <strong><code>company_Metadata</code></strong>, <strong><code>company_Facts</code></strong>, <strong><code>company_Concept</code></strong>.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Split the lists in company_data</span></span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>company_Metadata <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Metadata</span>
 <span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>company_Facts <span class="ot">&lt;-</span> company_data<span class="sc">$</span>company_Facts</span>
@@ -377,8 +385,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="company-metadata">Company Metadata</h4>
 <p>Let’s start with <code>company_Metadata</code> which includes 22 elements: characters, integer, sub-list (or nested list), etc.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Metadata</span></span>
 <span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Metadata, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -397,7 +405,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ description                      : chr ""
  $ website                          : chr ""
  $ investorWebsite                  : chr ""
- $ category                         : chr "Non-accelerated filer&lt;br&gt;Smaller reporting company"
+ $ category                         : chr "Accelerated filer&lt;br&gt;Smaller reporting company"
  $ fiscalYearEnd                    : chr "1231"
  $ stateOfIncorporation             : chr "DE"
  $ stateOfIncorporationDescription  : chr "DE"
@@ -413,37 +421,39 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <li><code>cik</code>, as described above.</li>
 <li><code>sic</code>, standard industrial classification. The SIC codes were used to classify companies into specific industry segments based on their primary business activities. Each four-digit SIC code represented a different industry or sector.</li>
 <li><code>sicDescription</code> the description of the standard industrial classification</li>
-<li><code>name</code>, name of the company 5 <code>tickers</code>, identifier a publicly traded company’s stock on a particular stock market</li>
-<li><code>filing</code> which includes the filing attributes. Here the structure of <code>company_Metadata</code>:</li>
+<li><code>name</code>, name of the company</li>
+<li><code>tickers</code>, identifier a publicly traded company’s stock on a particular stock market</li>
+<li><code>filing</code> which includes the filing attributes.</li>
 </ol>
+<p>Here the structure of <code>company_Metadata</code>:</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Metadata</span></span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Metadata<span class="sc">$</span>filing, <span class="at">max.level =</span> <span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre class="custom-str-output"><code>List of 2
  $ recent:List of 14
-  ..$ accessionNumber      : chr [1:1000] "0001185185-24-000028" "0001185185-24-000026" "0001185185-24-000024" "0001185185-23-001335" ...
-  ..$ filingDate           : chr [1:1000] "2024-01-03" "2024-01-03" "2024-01-03" "2023-12-21" ...
-  ..$ reportDate           : chr [1:1000] "2023-11-17" "2023-11-20" "2024-01-01" "2023-12-15" ...
-  ..$ acceptanceDateTime   : chr [1:1000] "2024-01-03T21:40:15.000Z" "2024-01-03T21:24:31.000Z" "2024-01-03T21:22:43.000Z" "2023-12-21T16:07:57.000Z" ...
-  ..$ act                  : chr [1:1000] "" "" "" "34" ...
-  ..$ form                 : chr [1:1000] "4" "4" "4" "8-K" ...
-  ..$ fileNumber           : chr [1:1000] "" "" "" "001-35448" ...
-  ..$ filmNumber           : chr [1:1000] "" "" "" "231505376" ...
-  ..$ items                : chr [1:1000] "" "" "" "5.03,5.07,9.01" ...
-  ..$ size                 : int [1:1000] 6585 23553 29169 195910 9905 6541114 885640 871257 872244 6302419 ...
-  ..$ isXBRL               : int [1:1000] 0 0 0 1 0 1 0 0 1 1 ...
-  ..$ isInlineXBRL         : int [1:1000] 0 0 0 1 0 1 0 0 1 1 ...
-  ..$ primaryDocument      : chr [1:1000] "xslF345X05/ownership.xml" "xslF345X05/ownership.xml" "xslF345X05/ownership.xml" "jakkspacif20231220c_8k.htm" ...
-  ..$ primaryDocDescription: chr [1:1000] "" "" "" "FORM 8-K" ...
+  ..$ accessionNumber      : chr [1:1003] "0001185185-24-000477" "0001185185-24-000433" "9999999995-24-000892" "0001185185-24-000367" ...
+  ..$ filingDate           : chr [1:1003] "2024-05-08" "2024-04-25" "2024-04-08" "2024-04-08" ...
+  ..$ reportDate           : chr [1:1003] "2024-03-31" "2024-04-24" "" "2024-03-29" ...
+  ..$ acceptanceDateTime   : chr [1:1003] "2024-05-08T08:20:35.000Z" "2024-04-25T15:35:51.000Z" "2024-04-09T00:15:13.000Z" "2024-04-08T17:15:44.000Z" ...
+  ..$ act                  : chr [1:1003] "34" "34" "33" "34" ...
+  ..$ form                 : chr [1:1003] "10-Q" "8-K" "EFFECT" "8-K" ...
+  ..$ fileNumber           : chr [1:1003] "001-35448" "001-35448" "333-278220" "001-35448" ...
+  ..$ filmNumber           : chr [1:1003] "24924366" "24875827" "24831031" "24830448" ...
+  ..$ items                : chr [1:1003] "" "2.02,9.01" "S-3,,2024-04-08 16:15:00" "5.02" ...
+  ..$ size                 : int [1:1003] 5719341 656430 1732 176775 7831 9913 190682 43835 220773 11376283 ...
+  ..$ isXBRL               : int [1:1003] 1 1 0 1 0 0 0 0 0 1 ...
+  ..$ isInlineXBRL         : int [1:1003] 1 1 0 1 0 0 0 0 0 1 ...
+  ..$ primaryDocument      : chr [1:1003] "jakkspacif20240331_10q.htm" "jakkspacif20240424_8k.htm" "xslEFFECTX01/primary_doc.xml" "jakkspacif20240408_8k.htm" ...
+  ..$ primaryDocDescription: chr [1:1003] "FORM 10-Q" "FORM 8-K" "" "FORM 8-K" ...
  $ files :'data.frame': 1 obs. of  4 variables:
   ..$ name       : chr "CIK0001009829-submissions-001.json"
-  ..$ filingCount: int 127
+  ..$ filingCount: int 140
   ..$ filingFrom : chr "1996-06-07"
-  ..$ filingTo   : chr "2002-10-29"</code></pre>
+  ..$ filingTo   : chr "2003-07-02"</code></pre>
 </div>
 </div>
 <p>The format of the dataset as printed is not very useful. We see that there are useful information on the forms (e.g.&nbsp;10K) and dates (e.g.&nbsp;filing dates).</p>
@@ -453,8 +463,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="company-facts">Company Facts</h4>
 <p><code>company_Facts</code> is relatively simple and is a list of 3 elements.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -467,21 +477,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>For our purpose, the last element <code>company_Facts$facts</code> is the most relevant one.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
 <span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts<span class="sc">$</span>facts, <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre class="custom-str-output"><code>List of 2
  $ dei    :List of 2
- $ us-gaap:List of 487</code></pre>
+ $ us-gaap:List of 508</code></pre>
 </div>
 </div>
 <p>The <strong><code>us-gaap</code></strong> list includes relevant Facts, containing 487 nested elements. Let’s examine the first five.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
 <span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>Facts_us_gaap <span class="ot">&lt;-</span> <span class="fu">str</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>[<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>], <span class="at">max.level =</span> <span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -496,8 +506,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <p>These elements, to which we will refer as <code>us_gaap_reference</code>, include essential fundamentals of the company and are themselves nested lists. Let’s explore the structure of the first one.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Facts</span></span>
 <span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Facts<span class="sc">$</span>facts<span class="sc">$</span><span class="st">`</span><span class="at">us-gaap</span><span class="st">`</span>[<span class="dv">1</span>], <span class="at">max.level =</span> <span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -507,15 +517,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   ..$ label      : chr "Accounts Payable, Current"
   ..$ description: chr "Carrying value as of the balance sheet date of liabilities incurred (and for which invoices have typically been"| __truncated__
   ..$ units      :List of 1
-  .. ..$ USD:'data.frame':  102 obs. of  8 variables:
-  .. .. ..$ end  : chr [1:102] "2010-12-31" "2010-12-31" "2010-12-31" "2011-06-30" ...
-  .. .. ..$ val  : int [1:102] 35886000 35886000 35886000 51537000 85352000 26430000 26430000 26430000 26430000 26430000 ...
-  .. .. ..$ accn : chr [1:102] "0001157523-11-004475" "0001157523-11-006668" "0001157523-12-001404" "0001157523-11-004475" ...
-  .. .. ..$ fy   : int [1:102] 2011 2011 2011 2011 2011 2011 2012 2012 2012 2012 ...
-  .. .. ..$ fp   : chr [1:102] "Q2" "Q3" "FY" "Q2" ...
-  .. .. ..$ form : chr [1:102] "10-Q" "10-Q" "10-K" "10-Q" ...
-  .. .. ..$ filed: chr [1:102] "2011-08-01" "2011-11-09" "2012-03-15" "2011-08-01" ...
-  .. .. ..$ frame: chr [1:102] NA NA "CY2010Q4I" "CY2011Q2I" ...</code></pre>
+  .. ..$ USD:'data.frame':  106 obs. of  8 variables:
+  .. .. ..$ end  : chr [1:106] "2010-12-31" "2010-12-31" "2010-12-31" "2011-06-30" ...
+  .. .. ..$ val  : int [1:106] 35886000 35886000 35886000 51537000 85352000 26430000 26430000 26430000 26430000 26430000 ...
+  .. .. ..$ accn : chr [1:106] "0001157523-11-004475" "0001157523-11-006668" "0001157523-12-001404" "0001157523-11-004475" ...
+  .. .. ..$ fy   : int [1:106] 2011 2011 2011 2011 2011 2011 2012 2012 2012 2012 ...
+  .. .. ..$ fp   : chr [1:106] "Q2" "Q3" "FY" "Q2" ...
+  .. .. ..$ form : chr [1:106] "10-Q" "10-Q" "10-K" "10-Q" ...
+  .. .. ..$ filed: chr [1:106] "2011-08-01" "2011-11-09" "2012-03-15" "2011-08-01" ...
+  .. .. ..$ frame: chr [1:106] NA NA "CY2010Q4I" "CY2011Q2I" ...</code></pre>
 </div>
 </div>
 <p>The output presents the structure of the information related to the first element: <code>AccountsPayable</code></p>
@@ -548,8 +558,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h4 class="anchored" data-anchor-id="company-concept">Company Concept</h4>
 <p>Finally, let’s examine the structure associated with the company’s Concept.</p>
 <div class="cell">
-<details>
-<summary>Code</summary>
+<details class="code-fold">
+<summary>Show the code</summary>
 <div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Visualize structure of the company_Concepts</span></span>
 <span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a><span class="fu">str</span>(company_Concept, <span class="at">max.level =</span> <span class="dv">3</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
@@ -562,15 +572,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
  $ description: chr "Sum of the carrying amounts as of the balance sheet date of all assets that are recognized. Assets are probable"| __truncated__
  $ entityName : chr "JAKKS Pacific, Inc."
  $ units      :List of 1
-  ..$ USD:'data.frame': 103 obs. of  8 variables:
-  .. ..$ end  : chr [1:103] "2010-12-31" "2010-12-31" "2010-12-31" "2011-06-30" ...
-  .. ..$ val  : int [1:103] 633406000 633406000 633406000 614892000 707611000 615234000 615234000 615234000 615234000 615234000 ...
-  .. ..$ accn : chr [1:103] "0001157523-11-004475" "0001157523-11-006668" "0001157523-12-001404" "0001157523-11-004475" ...
-  .. ..$ fy   : int [1:103] 2011 2011 2011 2011 2011 2011 2012 2012 2012 2012 ...
-  .. ..$ fp   : chr [1:103] "Q2" "Q3" "FY" "Q2" ...
-  .. ..$ form : chr [1:103] "10-Q" "10-Q" "10-K" "10-Q" ...
-  .. ..$ filed: chr [1:103] "2011-08-01" "2011-11-09" "2012-03-15" "2011-08-01" ...
-  .. ..$ frame: chr [1:103] NA NA "CY2010Q4I" "CY2011Q2I" ...</code></pre>
+  ..$ USD:'data.frame': 107 obs. of  8 variables:
+  .. ..$ end  : chr [1:107] "2010-12-31" "2010-12-31" "2010-12-31" "2011-06-30" ...
+  .. ..$ val  : int [1:107] 633406000 633406000 633406000 614892000 707611000 615234000 615234000 615234000 615234000 615234000 ...
+  .. ..$ accn : chr [1:107] "0001157523-11-004475" "0001157523-11-006668" "0001157523-12-001404" "0001157523-11-004475" ...
+  .. ..$ fy   : int [1:107] 2011 2011 2011 2011 2011 2011 2012 2012 2012 2012 ...
+  .. ..$ fp   : chr [1:107] "Q2" "Q3" "FY" "Q2" ...
+  .. ..$ form : chr [1:107] "10-Q" "10-Q" "10-K" "10-Q" ...
+  .. ..$ filed: chr [1:107] "2011-08-01" "2011-11-09" "2012-03-15" "2011-08-01" ...
+  .. ..$ frame: chr [1:107] NA NA "CY2010Q4I" "CY2011Q2I" ...</code></pre>
 </div>
 </div>
 <p>The output shows the structure associated with the <code>Asset</code> of the company under the taxonomy of <code>us-gaap</code>.</p>
@@ -668,10 +678,27 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     // clear code selection
     e.clearSelection();
   });
-  function tippyHover(el, contentFn) {
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
     const config = {
       allowHTML: true,
-      content: contentFn,
       maxWidth: 500,
       delay: 100,
       arrow: false,
@@ -681,8 +708,17 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       interactive: true,
       interactiveBorder: 10,
       theme: 'quarto',
-      placement: 'bottom-start'
+      placement: 'bottom-start',
     };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
     window.tippy(el, config); 
   }
   const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
@@ -694,7 +730,130 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       try { href = new URL(href).hash; } catch {}
       const id = href.replace(/^#\/?/, "");
       const note = window.document.getElementById(id);
-      return note.innerHTML;
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
     });
   }
       let selectedAnnoteEl;
@@ -738,6 +897,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             }
             div.style.top = top - 2 + "px";
             div.style.height = height + 4 + "px";
+            div.style.left = 0;
             let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
             if (gutterDiv === null) {
               gutterDiv = window.document.createElement("div");
@@ -763,6 +923,32 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
         });
         selectedAnnoteEl = undefined;
       };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
       // Attach click handler to the DT
       const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
       for (const annoteDlNode of annoteDls) {
@@ -824,17 +1010,18 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./01_data_retrieval.html" class="pagination-link">
+      <a href="./01_data_retrieval.html" class="pagination-link" aria-label="Data Retrieval">
         <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Data Retrieval</span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./03_data_analysis.html" class="pagination-link">
+      <a href="./03_data_analysis.html" class="pagination-link" aria-label="Data Analysis">
         <span class="nav-page-text">Data Analysis</span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
 </div> <!-- /content -->
+
 
 
 

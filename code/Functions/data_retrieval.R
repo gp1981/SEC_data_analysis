@@ -198,14 +198,14 @@ BS_std <- function(df_Facts) {
   # Define the standardized balancesheet file path
   BS_path <- here(data_dir, "standardized_BS.xlsx")
   
-  # Read the standardized_balancesheet.xlsx file
+  # Read the standardized_BS.xlsx file
   standardized_BS <- read.xlsx(BS_path, sheet = "Sheet1")
   
-  # Rename standardized_balancesheet column df_Fact_Description to perform left_join
+  # Rename standardized_BS column df_Fact_Description to perform left_join
   standardized_BS <- standardized_BS %>% 
     rename(description = df_Facts_Description)
   
-  # Merge df_Facts with standardized_balancesheet based on description and period
+  # Merge df_Facts with standardized_BS based on description and period
   df_std_BS <- df_Facts %>%
     left_join(standardized_BS, by = "description") %>%
     filter(Financial.Report == "BS") %>% 
@@ -589,7 +589,7 @@ IS_std <- function(df_Facts) {
   
   df_std_IS <- df_std_IS_pivot %>%
     select(end,standardized_label,quarterly_val) %>% 
-    # Pivot the data using standardized_cashflow_label as column names
+    # Pivot the data using standardized_label as column
     pivot_wider(
       names_from = standardized_label,
       values_from = quarterly_val

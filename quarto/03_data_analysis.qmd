@@ -48,7 +48,7 @@ df_Facts %>% select(-c(description,accn)) %>%
   kable_styling(full_width = FALSE)
 ```
 
-*Note that `df_Facts$val` is expressed in million.*
+Note that `df_Facts$val` is expressed in million.
 
 The data in this dataframe is organized to facilitate analysis and comparison of financial information over different periods. Each row corresponds to a specific financial Concept (e.g. Accounts Payable) reported by the company, and the columns provide details about the reporting period, values, and other relevant attributes.
 
@@ -85,7 +85,7 @@ df_Facts %>%  select(-c(description,accn)) %>%
   column_spec(1,width = "250px")
 ```
 
-The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) Cash Flow (CF).
+The next step is to filter the relevant Concepts associated with each key financial statement: Balance Sheet (BS), Income Statement (IS) and Cash Flow (CF).
 
 ::: {.Note .custom-note}
 
@@ -102,9 +102,7 @@ To handle this scenario, we construct a dataframe of financial data based on the
 
 #### Balance Sheet
 
-The following code will generate a standardized Balance Sheet (df_std_BS) based on a matching table in Excel (standardized_balancehseet.xlsx). The standardized Balance Sheet includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. If financial values (Facts) are missing, they will be estimated.
-
-For more details on the function, refer to Appendix A2.
+The following code will generate a standardized Balance Sheet (df_std_BS) based on a matching table in Excel (standardized_BS.xlsx). The standardized Balance Sheet includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. If financial values (Facts) are missing, they will be estimated.
 
 ```{r standardized_BS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
@@ -121,17 +119,13 @@ df_std_BS %>% head() %>% as.data.frame() %>%
 
 #### Income Statement
 
-The following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_incomestatement.xlsx).
+The following code will create a standardized Income Statement (df_std_IS) based on a matching table in Excel (standardized_IS.xlsx).
 
-Here are a few relevant remarks regarding the standardized Income Statement:
+Here few relevant remarks regarding the standardized Income Statement:
 
 -   The financial data are presented on a quarterly basis only.
 
--   In cases where quarterly Facts are not available, they are estimated as the difference between the yearly value and the existing quarterly values of that year, divided equally by the number of quarters that are missing. For example, if the annual revenue in the 10-K form is USD 1000 for FY20, and only the Revenue for Q1 (230 USD) and Q2 (300 USD) are available, then the Q3 and Q4 values will be estimated as (1000 - (230 + 300)) / 2 = 235. As a result, the estimated Revenue for both Q3 and Q4 of FY20 is 235 USD.
-
--   The standardized Income Statement includes Concepts that may not be present in the filings (e.g., 10-K) of all companies. In these cases, the function will estimate their values.
-
-More details on the function are included in [Appendix A2](#appendix-a-r-script-and-functions)
+-   In cases where quarterly not  all Facts are available, these are estimated as the difference between the yearly value and the existing quarterly values of that year, divided equally by the number of quarters that are missing. 
 
 ```{r standardized_IS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
@@ -148,9 +142,7 @@ df_std_IS %>% head() %>% as.data.frame() %>%
 
 #### Cash Flow
 
-Similarly to the Income Statement, the following code will create a standardized Cash Flow Statement (df_std_CF) based on a matching table in Excel (standardized_cashflow.xlsx).
-
-More details on the function are included in [Appendix A2](#appendix-a-r-script-and-functions)
+Similarly to the Income Statement, the following code will create a standardized Cash Flow Statement (df_std_CF) based on a matching table in Excel (standardized_CF.xlsx).
 
 ```{r standardized_CF, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
@@ -165,3 +157,67 @@ df_std_CF %>% head() %>% as.data.frame() %>%
   column_spec(1,width = "250px")
 ```
 
+## Quarterly format
+
+Finally, we can transpose the dataframes of the financial statements to improve the readability.
+
+**Balance Sheet**
+
+```{r BS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+library(kableExtra)
+
+# Define the standardized Balance Sheet file path
+BS_path <- here(data_dir, "standardized_BS.xlsx")
+
+# Read the standardized_BS.xlsx file
+standardized_BS <- read.xlsx(BS_path, sheet = "Sheet1")
+
+# Transpose the Balanche Sheet statement of JAKKS Pacific Inc. in standardized format
+df_std_BS_t <- transpose_df(df_std_BS, standardized_BS)
+
+# Print the standardized Balance Sheet in standardized format
+df_std_BS_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+**Income Statement**
+
+```{r IS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Define the standardized Income Statement file path
+IS_path <- here(data_dir, "standardized_IS.xlsx")
+
+# Read the standardized_IS.xlsx file
+standardized_IS <- read.xlsx(IS_path, sheet = "Sheet1")
+
+# Transpose the Income Statement of JAKKS Pacific Inc. in standardized format
+df_std_IS_t <- transpose_df(df_std_IS, standardized_IS)
+
+# Print the standardized Income Statement in standardized format
+df_std_IS_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+**Cash Flow Statement**
+
+```{r CF_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Define the standardized Cash Flow Statement file path
+CF_path <- here(data_dir, "standardized_CF.xlsx")
+
+# Read the standardized_CF.xlsx file
+standardized_CF <- read.xlsx(CF_path, sheet = "Sheet1")
+
+# Transpose the Cash Flow Statement of JAKKS Pacific Inc. in standardized format
+df_std_CF_t <- transpose_df(df_std_CF, standardized_IS)
+
+# Print the standardized Cash Flow Statement in standardized format
+df_std_CF_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
