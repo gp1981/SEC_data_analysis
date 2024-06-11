@@ -155,27 +155,60 @@ df_Facts_multi_files <- function(folder_path, num_files_to_select = NULL) {
   }
 }
 
-# Calculate Trailing quarter values (TEMP only for Cash Flow)  ----------------------------------------
+# Calculate Trailing quarter values ----------------------------------------
 
-calculate_trailing_sum <- function(data, number_of_quarters) {
-  # Function to calculate the sum of the trailing quarters
-  roll_sum <- function(x) {
-    sum(tail(x, number_of_quarters), na.rm = TRUE)
+# Function to Calculate Trailing Months Value
+calculate_trailing_months <- function(df, trailing_months) {
+  # Validate trailing_months input
+  if (!trailing_months %in% c(3, 6, 9, 12)) {
+    stop("Invalid value for trailing_months. Must be one of 3, 6, 9, or 12.")
   }
   
-  # Apply the rolling sum function to selected numeric columns
-  trailing_sum <- data %>%
-    mutate(across(
-      where(is.numeric) & !ends_with("end"),
-      rollapply,
-      width = number_of_quarters,
-      FUN = roll_sum,
-      fill = NA,
-      align = "right"  # Adjust the alignment to sum the last two quarters
-    ))
+  # Select columns to remove
+  columns_to_remove <- c("cik", "entityName", "sic", "sicDescription", "tickers")
   
-  return(trailing_sum)
+  # Check if columns exist in the dataframe
+  columns_exist <- all(columns_to_remove %in% colnames(df))
+  
+  if (columns_exist) {
+    df <- df %>%
+      select(-one_of(columns_to_remove))
+  } else {
+    message("Columns to remove do not exist in the dataframe.")
+  }
+  
+  # Ensure "end" column is of Date type
+  df <- df %>%
+    mutate(end = as.Date(end))
+  
+  # Sort by the "end" date
+  df <- df %>%
+    arrange(desc(end))
+  
+  # Calculate number of trailing quarters
+  trailing_quarters <- trailing_months / 3
+  
+  # Apply rolling sum for each column except "end" and rename
+  df_rolling <- df %>%
+    mutate(across(
+      .cols = -end, 
+      .fns = ~ rollapply(.x, width = trailing_quarters, FUN = sum, fill = NA, align = "left"),
+      .names = "{.col}_{trailing_months}m"
+    )) %>%
+    select(end, matches(paste0("_", trailing_months, "m$")))
+  
+  return(df_rolling)
 }
+
+# Example Usage
+# df <- data.frame(
+#   end = as.Date(c("2023-12-31",  "2023-09-30", "2023-06-30", "2023-03-31" )),
+#   revenue = c(100, 150, 120, 170),
+#   net_income = c(10, 20, 15, 25)
+# )
+# trailing_df <- trailing_months(df, 6)
+# print(trailing_df)
+
 
 # Export dataframe to excel  ----------------------------------------
 
@@ -239,8 +272,22 @@ calculate_cumulative_values <- function(df) {
   return(combined_df)
 }
 
-# Function to transpose DataFrame with column ordering based on another DataFrame
-transpose_df <- function(df, order_df) {
+# Function to transpose DataFrame with column ordering based on another standardized financial statement
+transpose_df_standardized <- function(df, order_df) {
+  # Define the standardized statement file path
+  BS_path <- here(data_dir, "standardized_BS.xlsx")
+  IS_path <- here(data_dir, "standardized_IS.xlsx")
+  CF_path <- here(data_dir, "standardized_CF.xlsx")
+  
+  # Read the appropriate standardized order file
+  order_df <- switch(order_df,
+                     "standardized_BS" = read.xlsx(BS_path, sheet = "Sheet1"),
+                     "standardized_IS" = read.xlsx(IS_path, sheet = "Sheet1"),
+                     "standardized_CF" = read.xlsx(CF_path, sheet = "Sheet1"),
+                     stop("Invalid order_df_name. Must be 'standardized_BS', 'standardized_IS', or 'standardized_CF'.")
+  )
+  
+  
   # Filter applicable records from order_df
   applicable_labels <- unique(order_df$standardized_label) %>% as.data.frame() %>% 
     `colnames<-`("standardized_label")
@@ -260,16 +307,16 @@ transpose_df <- function(df, order_df) {
   
   # Transpose DataFrame
   df_t <- df %>%
-    pivot_longer(cols = -end, names_to = "Concept", values_to = "Value") %>%
+    pivot_longer(cols = -end, names_to = "Financial Item", values_to = "Value") %>%
     pivot_wider(names_from = end, values_from = Value) 
   
   # Filter and reorder df_t$Concept based on applicable_labels
-  col_order <- applicable_labels[applicable_labels$standardized_label %in% df_t$Concept, "standardized_label"]
+  col_order <- applicable_labels[applicable_labels$standardized_label %in% df_t$`Financial Item`, "standardized_label"]
   
   
   # Reorder rows in df_t based on col_order
   df_t <- df_t %>%
-    arrange(match(Concept, col_order))
+    arrange(match("Financial Item", col_order))
   
   return(df_t)
 }
@@ -279,3 +326,22 @@ transpose_df <- function(df, order_df) {
 # 
 # # Display transposed dataframe
 # print(df_std_IS_CF_t)
+
+# Function to transpose DataFrame with column ordering based on another standardized financial statement
+transpose_df <- function(df, order_df) {
+
+  # Transpose DataFrame
+  df_t <- df %>%
+    pivot_longer(cols = -end, names_to = "Financial Item", values_to = "Value") %>%
+    pivot_wider(names_from = end, values_from = Value) 
+  
+  # Filter and reorder df_t$Concept based on applicable_labels
+  col_order <- order_df
+  
+  
+  # Reorder rows in df_t based on col_order
+  df_t <- df_t %>%
+    arrange(match("Financial Item", col_order))
+  
+  return(df_t)
+}

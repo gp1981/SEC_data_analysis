@@ -125,7 +125,7 @@ Here few relevant remarks regarding the standardized Income Statement:
 
 -   The financial data are presented on a quarterly basis only.
 
--   In cases where quarterly not  all Facts are available, these are estimated as the difference between the yearly value and the existing quarterly values of that year, divided equally by the number of quarters that are missing. 
+-   In cases where quarterly not all Facts are available, these are estimated as the difference between the yearly value and the existing quarterly values of that year, divided equally by the number of quarters that are missing.
 
 ```{r standardized_IS, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
@@ -166,14 +166,8 @@ Finally, we can transpose the dataframes of the financial statements to improve 
 ```{r BS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 library(kableExtra)
 
-# Define the standardized Balance Sheet file path
-BS_path <- here(data_dir, "standardized_BS.xlsx")
-
-# Read the standardized_BS.xlsx file
-standardized_BS <- read.xlsx(BS_path, sheet = "Sheet1")
-
-# Transpose the Balanche Sheet statement of JAKKS Pacific Inc. in standardized format
-df_std_BS_t <- transpose_df(df_std_BS, standardized_BS)
+# Transpose the Balanche Sheet statement in standardized format
+df_std_BS_t <- transpose_df_standardized(df_std_BS, "standardized_BS")
 
 # Print the standardized Balance Sheet in standardized format
 df_std_BS_t %>% 
@@ -186,14 +180,8 @@ df_std_BS_t %>%
 
 ```{r IS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
-# Define the standardized Income Statement file path
-IS_path <- here(data_dir, "standardized_IS.xlsx")
-
-# Read the standardized_IS.xlsx file
-standardized_IS <- read.xlsx(IS_path, sheet = "Sheet1")
-
-# Transpose the Income Statement of JAKKS Pacific Inc. in standardized format
-df_std_IS_t <- transpose_df(df_std_IS, standardized_IS)
+# Transpose the Income Statement  in standardized format
+df_std_IS_t <- transpose_df_standardized(df_std_IS, "standardized_IS")
 
 # Print the standardized Income Statement in standardized format
 df_std_IS_t %>% 
@@ -206,14 +194,8 @@ df_std_IS_t %>%
 
 ```{r CF_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
 
-# Define the standardized Cash Flow Statement file path
-CF_path <- here(data_dir, "standardized_CF.xlsx")
-
-# Read the standardized_CF.xlsx file
-standardized_CF <- read.xlsx(CF_path, sheet = "Sheet1")
-
 # Transpose the Cash Flow Statement of JAKKS Pacific Inc. in standardized format
-df_std_CF_t <- transpose_df(df_std_CF, standardized_IS)
+df_std_CF_t <- transpose_df_standardized(df_std_CF, "standardized_CF")
 
 # Print the standardized Cash Flow Statement in standardized format
 df_std_CF_t %>% 
@@ -221,3 +203,134 @@ df_std_CF_t %>%
   kable_styling(full_width = FALSE) %>%
   column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
 ```
+
+## Trailing Month (TM) format
+
+Finally, we will calculate the multiple trailing month value of the Income Statement and Cash Flow. These are easily comparable with the filing on SEC website.
+
+### Twelve Trailing Month (12 month)
+
+**Income Statement**
+
+```{r 12TM_IS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Calculation Trailing month
+df_std_IS_12TM <- calculate_trailing_months(df_std_IS,12)
+
+# Define the order of columns of the transposed dataframe
+order_df <- colnames(df_std_IS_12TM) %>% as.data.frame()
+
+# Transpose the Income Statement into standardized format
+df_std_IS_12TM_t <- transpose_df(df_std_IS_12TM, order_df)
+
+# Print the standardized Income Statement in standardized format
+df_std_IS_12TM_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+**Cash Flow Statement**
+
+```{r 12TM_CF_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Calculation Trailing month
+df_std_CF_12TM <- calculate_trailing_months(df_std_CF,12)
+
+# Define the order of columns of the transposed dataframe
+order_df <- colnames(df_std_CF_12TM) %>% as.data.frame()
+
+# Transpose the Income Statement into standardized format
+df_std_CF_12TM_t <- transpose_df(df_std_CF_12TM, order_df)
+
+# Print the standardized Income Statement in standardized format
+df_std_CF_12TM_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+### Nine Trailing Month (9 month)
+
+**Income Statement**
+
+```{r 9TM_IS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Calculation Trailing month
+df_std_IS_9TM <- calculate_trailing_months(df_std_IS,9)
+
+# Define the order of columns of the transposed dataframe
+order_df <- colnames(df_std_IS_9TM) %>% as.data.frame()
+
+# Transpose the Income Statement into standardized format
+df_std_IS_9TM_t <- transpose_df(df_std_IS_9TM, order_df)
+
+# Print the standardized Income Statement in standardized format
+df_std_IS_9TM_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+**Cash Flow Statement**
+
+```{r 9TM_CF_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Calculation Trailing month
+df_std_CF_9TM <- calculate_trailing_months(df_std_CF,9)
+
+# Define the order of columns of the transposed dataframe
+order_df <- colnames(df_std_CF_9TM) %>% as.data.frame()
+
+# Transpose the Income Statement into standardized format
+df_std_CF_9TM_t <- transpose_df(df_std_CF_9TM, order_df)
+
+# Print the standardized Income Statement in standardized format
+df_std_CF_9TM_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+### Six Trailing Month (6 month)
+
+**Income Statement**
+
+```{r 6TM_IS_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Calculation Trailing month
+df_std_IS_6TM <- calculate_trailing_months(df_std_IS,6)
+
+# Define the order of columns of the transposed dataframe
+order_df <- colnames(df_std_IS_6TM) %>% as.data.frame()
+
+# Transpose the Income Statement into standardized format
+df_std_IS_6TM_t <- transpose_df(df_std_IS_6TM, order_df)
+
+# Print the standardized Income Statement in standardized format
+df_std_IS_6TM_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+
+**Cash Flow Statement**
+
+```{r 6TM_CF_transpose, message=FALSE, warning=FALSE, message=FALSE, class.output="custom-table"}
+
+# Calculation Trailing month
+df_std_CF_6TM <- calculate_trailing_months(df_std_CF,6)
+
+# Define the order of columns of the transposed dataframe
+order_df <- colnames(df_std_CF_6TM) %>% as.data.frame()
+
+# Transpose the Income Statement into standardized format
+df_std_CF_6TM_t <- transpose_df(df_std_CF_6TM, order_df)
+
+# Print the standardized Income Statement in standardized format
+df_std_CF_6TM_t %>% 
+  kable( "html") %>%
+  kable_styling(full_width = FALSE) %>%
+  column_spec(1, width = "30em", extra_css = "white-space: nowrap;")
+```
+

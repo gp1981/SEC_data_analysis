@@ -388,7 +388,7 @@ BS_std <- function(df_Facts) {
 }
 
 # Function to rebuild the income statement ---------------------------------------
-# Function to create a dataframe representative of the quarterly income statement of the entity. The basis for the dataframe is a standardized income statement (standardized_incomestatement.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
+# Function to create a dataframe representative of the quarterly income statement of the entity. The basis for the dataframe is a standardized income statement (standardized_IS.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarter is then allocated equally to the missing quarters.
 
 IS_std <- function(df_Facts) {
   # 01 - Join standardized_IS ------------------------------------------------------
@@ -665,7 +665,7 @@ IS_std <- function(df_Facts) {
   return(df_std_IS)
 }
 
-# Function to rebuild the Income and Cash Flow statements ---------------------------------------
+# Function to rebuild the Cash Flow statements ---------------------------------------
 # Function to create a dataframe representative of the quarterly Cash Flow statement of the entity. The basis for the dataframe is a Cash Flow statement (standardized_CF.xlsx). In case of quarters that are missing the data (Facts) are estimated. The estimate of the data of the missing quarters is calculated based on the yearly data available. The difference between the yearly data and the data from the available quarters is then allocated equally to the missing quarters.
 
 CF_std <- function(df_Facts) {
