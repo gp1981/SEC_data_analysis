@@ -109,6 +109,11 @@ The following code will generate a standardized Balance Sheet (df_std_BS) based 
 # Retrieve balance sheet of JAKKS Pacific Inc. in standardized format
 df_std_BS <- BS_std(df_Facts)
 
+# Format numeric columns to 2 decimal places
+df_std_BS <- df_std_BS %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
+
 # Print the standardized balancesheet
 df_std_BS %>% head() %>% as.data.frame() %>%
   head() %>% as.data.frame() %>%
@@ -132,6 +137,10 @@ Here few relevant remarks regarding the standardized Income Statement:
 # Retrieve Income Statement of JAKKS Pacific Inc. in standardized format
 df_std_IS <- IS_std(df_Facts)
 
+# Format numeric columns to 2 decimal places
+df_std_IS <- df_std_IS %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
 # Print the standardized income statement
 df_std_IS %>% head() %>% as.data.frame() %>%
   head() %>% as.data.frame() %>%
@@ -148,6 +157,10 @@ Similarly to the Income Statement, the following code will create a standardized
 
 # Retrieve Cash Flow statement of JAKKS Pacific Inc. in standardized format
 df_std_CF <- CF_std(df_Facts)
+
+# Format numeric columns to 2 decimal places
+df_std_CF <- df_std_CF %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
 
 # Print the standardized cash flow
 df_std_CF %>% head() %>% as.data.frame() %>%
@@ -169,6 +182,10 @@ library(kableExtra)
 # Transpose the Balanche Sheet statement in standardized format
 df_std_BS_t <- transpose_df_standardized(df_std_BS, "standardized_BS")
 
+# Format numeric columns to 2 decimal places
+df_std_BS_t <- df_std_BS_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
 # Print the standardized Balance Sheet in standardized format
 df_std_BS_t %>% 
   kable( "html") %>%
@@ -183,6 +200,10 @@ df_std_BS_t %>%
 # Transpose the Income Statement  in standardized format
 df_std_IS_t <- transpose_df_standardized(df_std_IS, "standardized_IS")
 
+# Format numeric columns to 2 decimal places
+df_std_IS_t <- df_std_IS_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
 # Print the standardized Income Statement in standardized format
 df_std_IS_t %>% 
   kable( "html") %>%
@@ -196,6 +217,10 @@ df_std_IS_t %>%
 
 # Transpose the Cash Flow Statement of JAKKS Pacific Inc. in standardized format
 df_std_CF_t <- transpose_df_standardized(df_std_CF, "standardized_CF")
+
+# Format numeric columns to 2 decimal places
+df_std_CF_t <- df_std_CF_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
 
 # Print the standardized Cash Flow Statement in standardized format
 df_std_CF_t %>% 
@@ -223,6 +248,10 @@ order_df <- colnames(df_std_IS_12TM) %>% as.data.frame()
 # Transpose the Income Statement into standardized format
 df_std_IS_12TM_t <- transpose_df(df_std_IS_12TM, order_df)
 
+# Format numeric columns to 2 decimal places
+df_std_IS_12TM_t <- df_std_IS_12TM_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
 # Print the standardized Income Statement in standardized format
 df_std_IS_12TM_t %>% 
   kable( "html") %>%
@@ -242,6 +271,10 @@ order_df <- colnames(df_std_CF_12TM) %>% as.data.frame()
 
 # Transpose the Income Statement into standardized format
 df_std_CF_12TM_t <- transpose_df(df_std_CF_12TM, order_df)
+
+# Format numeric columns to 2 decimal places
+df_std_CF_12TM_t <- df_std_CF_12TM_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
 
 # Print the standardized Income Statement in standardized format
 df_std_CF_12TM_t %>% 
@@ -265,6 +298,10 @@ order_df <- colnames(df_std_IS_9TM) %>% as.data.frame()
 # Transpose the Income Statement into standardized format
 df_std_IS_9TM_t <- transpose_df(df_std_IS_9TM, order_df)
 
+# Format numeric columns to 2 decimal places
+df_std_IS_9TM_t <- df_std_IS_9TM_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
 # Print the standardized Income Statement in standardized format
 df_std_IS_9TM_t %>% 
   kable( "html") %>%
@@ -284,6 +321,11 @@ order_df <- colnames(df_std_CF_9TM) %>% as.data.frame()
 
 # Transpose the Income Statement into standardized format
 df_std_CF_9TM_t <- transpose_df(df_std_CF_9TM, order_df)
+
+
+# Format numeric columns to 2 decimal places
+df_std_CF_9TM_t <- df_std_CF_9TM_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
 
 # Print the standardized Income Statement in standardized format
 df_std_CF_9TM_t %>% 
@@ -307,6 +349,11 @@ order_df <- colnames(df_std_IS_6TM) %>% as.data.frame()
 # Transpose the Income Statement into standardized format
 df_std_IS_6TM_t <- transpose_df(df_std_IS_6TM, order_df)
 
+
+# Format numeric columns to 2 decimal places
+df_std_IS_6TM_t <- df_std_IS_6TM_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
+
 # Print the standardized Income Statement in standardized format
 df_std_IS_6TM_t %>% 
   kable( "html") %>%
@@ -326,6 +373,10 @@ order_df <- colnames(df_std_CF_6TM) %>% as.data.frame()
 
 # Transpose the Income Statement into standardized format
 df_std_CF_6TM_t <- transpose_df(df_std_CF_6TM, order_df)
+
+# Format numeric columns to 2 decimal places
+df_std_CF_6TM_t <- df_std_CF_6TM_t %>%
+  mutate(across(where(is.numeric), ~ round(.x,2) ))
 
 # Print the standardized Income Statement in standardized format
 df_std_CF_6TM_t %>% 
