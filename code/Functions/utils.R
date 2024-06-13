@@ -307,7 +307,7 @@ transpose_df_standardized <- function(df, order_df) {
   
   # Transpose DataFrame
   df_t <- df %>%
-    pivot_longer(cols = -end, names_to = "Financial Item", values_to = "Value") %>%
+    pivot_longer(cols = -end, names_to = "Financial Item ($ in Million)", values_to = "Value") %>%
     pivot_wider(names_from = end, values_from = Value) 
   
   # Filter and reorder df_t$Concept based on applicable_labels
