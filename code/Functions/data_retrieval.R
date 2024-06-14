@@ -604,8 +604,7 @@ IS_std <- function(df_Facts) {
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Gross Profit" %in% colnames(df_std_IS)) || 
       !("Operating Income" %in% colnames(df_std_IS)) || 
-      !("Net Income (loss) (operations)" %in% colnames(df_std_IS)) || 
-      !("Net Income (loss) to parent (incl. Non contr. Interest)" %in% colnames(df_std_IS))) {
+      !("Net Income (loss) (continous operations)" %in% colnames(df_std_IS))) {
     stop("Gross Profit or Operating Income or Net Income (loss) is missing. The entity is not adequate for financial analysis.")
   }
   
@@ -614,8 +613,7 @@ IS_std <- function(df_Facts) {
     filter(
       any(!is.na(`Gross Profit`) | `Gross Profit` != ""),
       any(!is.na(`Operating Income`) | `Operating Income` != ""),
-      any(!is.na(`Net Income (loss) (operations)`) | `Net Income (loss) (operations)` != ""),
-      any(!is.na(`Net Income (loss) to parent (incl. Non contr. Interest)`) | `Net Income (loss) to parent (incl. Non contr. Interest)` != "")
+      any(!is.na(`Net Income (loss) (continous operations)`) | `Net Income (loss) (continous operations)` != "")
     )
   
   ## Step 2 - Add missing columns -----------------------------------
