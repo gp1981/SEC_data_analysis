@@ -576,7 +576,7 @@ IS_std <- function(df_Facts) {
   # Prepare dataframe for pivot
   df_std_IS_pivot <- df_std_IS %>%
     # Group by standardized_lable and fiscal period
-    group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
+    group_by(end,standardized_label,year_end,quarter_end) %>% 
     # Sum Quarterly_val within the group
     summarise(
       quarterly_val= sum(quarterly_val)
@@ -844,26 +844,26 @@ CF_std <- function(df_Facts) {
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
   # Filter out rows with duplicated val for the same standardized label
-  df_std_CF <- df_std_CF %>%
-    # Group by the standardized label for the same year and same quarter
-    group_by(standardized_label, year_end, quarter_end) %>%
-    # Arrange to by quarters_end and descending date "filed"
-    arrange(desc(quarter_end),desc(filed)) %>%
-    # Keep only the first occurrence of 'val' within each group
-    filter(!duplicated(standardized_label,val)) %>%
-    ungroup()
+  # df_std_CF <- df_std_CF %>%
+  #   # Group by the standardized label for the same year and same quarter
+  #   group_by(standardized_label, year_end, quarter_end) %>%
+  #   # Arrange to by quarters_end and descending date "filed"
+  #   arrange(desc(quarter_end),desc(filed)) %>%
+  #   # Keep only the first occurrence of 'val' within each group
+  #   filter(!duplicated(standardized_label,val)) %>%
+  #   ungroup()
   
   
   # Prepare dataframe for pivot
   df_std_CF_pivot <- df_std_CF %>%
     # Group by standardized_lable and fiscal period
-    group_by(end,standardized_label,year_end,quarter_end, accn,cik,sic, sicDescription,tickers, Financial.Report) %>% 
+    group_by(end,standardized_label) %>% 
     # Sum Quarterly_val within the group
     summarise(
       quarterly_val= sum(quarterly_val)
     ) %>%
     ungroup() %>% 
-    select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
+    select(end, standardized_label, quarterly_val, everything())
   
   # 04 - Cash Flow - Pivot df_std_CF in horizontal format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
