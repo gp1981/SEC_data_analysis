@@ -466,16 +466,6 @@ IS_std <- function(df_Facts) {
     )%>% 
     ungroup()
   
-  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date with the largest number of quarters covered
-  df_std_IS <- df_std_IS %>%
-    group_by(description, year_end, quarter_end) %>% 
-    # Arrange by descending "filed" date and cumulative quarters
-    arrange(desc(filed), desc(cumulative_quarters)) %>%
-    # Retain the first in the group ordered by "filed" date
-    distinct(description, end, .keep_all = TRUE) %>% 
-    # Keep only the first occurrence of each unique combination of description and end date
-    ungroup()
- 
   # Calculate the number of distinct quarters and the missing ones represented by each description in the dataset.
   df_std_IS_quarter_summary <- df_std_IS %>%
     group_by(description) %>%
@@ -563,26 +553,15 @@ IS_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
-  # Filter out rows with duplicated val for the same standardized label
-  df_std_IS <- df_std_IS %>%
-    # Group by the standardized label for the same year and same quarter
-    group_by(standardized_label, year_end, quarter_end) %>%
-    # Arrange to by quarters_end and descending date "filed"
-    arrange(desc(quarter_end),desc(filed)) %>%
-    # Keep only the first occurrence of 'val' within each group
-    filter(!duplicated(standardized_label,val)) %>%
-    ungroup()
-  
   # Prepare dataframe for pivot
   df_std_IS_pivot <- df_std_IS %>%
     # Group by standardized_lable and fiscal period
-    group_by(end,standardized_label,year_end,quarter_end) %>% 
+    group_by(end,standardized_label) %>% 
     # Sum Quarterly_val within the group
     summarise(
       quarterly_val= sum(quarterly_val)
     ) %>%
-    ungroup() %>% 
-    select(end, standardized_label, quarterly_val, year_end, quarter_end, everything())
+    ungroup() 
   
   # 03 - Pivot df_std_IS in a dataframe format
   # This code transforms the data from a long format with multiple rows per observation to a wide format where each observation is represented by a single row with columns corresponding to different Concepts
