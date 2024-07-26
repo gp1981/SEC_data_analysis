@@ -288,8 +288,8 @@ BS_std <- function(df_Facts) {
   
   # 04 - Add new columns for standardization -----------------------------------
   # This code add the missing columns to the df_std_BS based on the standardized_balancesheet.xls and perform checks
- 
-   ## Step 1 - Check key financial Concepts -----------------------------------
+  
+  ## Step 1 - Check key financial Concepts -----------------------------------
   # It checks whether specific columns exist or are empty. If so it stops or remove corresponding rows
   if (!("Total Assets" %in% colnames(df_std_BS)) || !("Total Liabilities" %in% colnames(df_std_BS))) {
     stop("Total Assets or Total Liabilities is missing. The entity is not adequate for financial analysis.")
@@ -452,7 +452,7 @@ IS_std <- function(df_Facts) {
     ) 
   
   # 03 - Handling cumulative values and estimating missing quarters ------------------------------------------------------
-
+  
   # Perform additional data processing to clean data set and estimate cumulative values from existing data
   
   # Estimate number of quarters underlying a Fact of financial item i.e. val
@@ -664,7 +664,6 @@ CF_std <- function(df_Facts) {
   # Merge df_Facts with standardized_CF based on description and period
   df_std_CF <- df_Facts %>%
     left_join(standardized_CF, by = "description") %>%
-    filter(Financial.Report == "CF") %>% 
     select(standardized_label, everything(), -df_Facts_us_gaap_references)
   
   # 02 - Data cleaning ------------------------------------------------------
@@ -757,7 +756,7 @@ CF_std <- function(df_Facts) {
       count_rows = n()
     ) %>% 
     ungroup()
-
+  
   # Adjust quarterly_val based on existing of cumulative values
   df_std_CF <- df_std_CF %>% 
     # Group by description and year_end
@@ -823,14 +822,14 @@ CF_std <- function(df_Facts) {
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
   # Filter out rows with duplicated val for the same standardized label
-  # df_std_CF <- df_std_CF %>%
-  #   # Group by the standardized label for the same year and same quarter
-  #   group_by(standardized_label, year_end, quarter_end) %>%
-  #   # Arrange to by quarters_end and descending date "filed"
-  #   arrange(desc(quarter_end),desc(filed)) %>%
-  #   # Keep only the first occurrence of 'val' within each group
-  #   filter(!duplicated(standardized_label,val)) %>%
-  #   ungroup()
+  df_std_CF <- df_std_CF %>%
+    # Group by the standardized label and end date
+    group_by(standardized_label, end) %>%
+    # Arrange by descending quarter_end and filed date
+    arrange(desc(filed)) %>%
+    # Filter to keep the first occurrence of each val within each group
+    filter(!duplicated(standardized_label)) %>%
+    ungroup()
   
   
   # Prepare dataframe for pivot
