@@ -612,18 +612,15 @@ IS_std <- function(df_Facts) {
   df_std_IS <- df_std_IS %>%
     mutate(
       `Revenue` = case_when(
-        is.na(`Revenue`) ~ coalesce(`Cost of Revenue`,0) + coalesce(`Gross Profit`,0),
+        is.na(`Revenue`) ~ coalesce(`Cost of Revenue`,0) + `Gross Profit`,
         TRUE ~ coalesce(`Revenue`,0)
       ),
       `Cost of Revenue` = case_when(
-        is.na(`Cost of Revenue`) ~ coalesce(`Revenue`,0) - coalesce(`Gross Profit`,0),
-        TRUE ~ coalesce(`Cost of Revenue`,0)
+        is.na(`Cost of Revenue`) ~ coalesce(`Revenue`,0) - `Gross Profit`,
+        TRUE ~ `Cost of Revenue`
       ),
       `Other Non Operating Income (Loss) Net` = case_when(
-        is.na(`Other Non Operating Income (Loss) Net`) ~ coalesce(`Gross Profit`,0) - (coalesce(`Research and development`,0) + coalesce(`Sales general and administrative costs`,0) + coalesce(`Operating Income`,0)),
-      ),
-      `Other income (expense) Net` = case_when(
-        is.na(`Other income (expense) Net`) ~ coalesce(`Operating Income`,0) - (coalesce(`Interest Income`,0) + coalesce(`Interest Expense`,0) + coalesce(`Income Before Income Tax`,0)),
+        is.na(`Other Non Operating Income (Loss) Net`) ~ `Operating Income` - (`Interest Income` + `Interest Expense` + `Income Before Income Tax`),
       ),
     ) %>% 
     mutate_all(~round(., digits = 4))  # Adjust the number of digits as needed
