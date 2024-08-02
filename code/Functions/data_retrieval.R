@@ -721,7 +721,7 @@ CF_std <- function(df_Facts) {
     )%>% 
     ungroup()
   
-  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date with the largest number of quarters covered
+  # Remove duplicated from multiple filings retaining the rows with the most recent "filed" date 
   df_std_CF <- df_std_CF %>%
     group_by( description, year_end, quarter_end) %>% 
     # Arrange by descending "filed" date and cumulative quarters
@@ -818,15 +818,15 @@ CF_std <- function(df_Facts) {
     ungroup() %>% 
     select(end, standardized_label, val, quarterly_val, year_end, quarter_end, quarter_start, cumulative_quarters, count_rows, modified_quarterly_val, everything())  
   
-  # Filter out rows with duplicated val for the same standardized label
-  df_std_CF <- df_std_CF %>%
-    # Group by the standardized label and end date
-    group_by(standardized_label, end) %>%
-    # Arrange by descending quarter_end and filed date
-    arrange(desc(filed)) %>%
-    # Filter to keep the first occurrence of each val within each group
-    filter(!duplicated(standardized_label)) %>%
-    ungroup()
+  # # Filter out rows with duplicated val for the same standardized label
+  # df_std_CF <- df_std_CF %>%
+  #   # Group by the standardized label and end date
+  #   group_by(standardized_label, end) %>%
+  #   # Arrange by descending quarter_end and filed date
+  #   arrange(desc(filed)) %>%
+  #   # Filter to keep the first occurrence of each val within each group
+  #   filter(!duplicated(standardized_label)) %>%
+  #   ungroup()
   
   
   # Prepare dataframe for pivot
@@ -887,35 +887,35 @@ CF_std <- function(df_Facts) {
   df_std_CF <- df_std_CF %>%
     mutate(
       `(Operating Activities) Change in Other Operating Activities` =  
-        coalesce(`(Operating Activities) Cash Flow from Operating Activities`,0) - 
-        (coalesce(`(Operating Activities) Cash Flow Depreciation, Depletion, Ammortization`,0) +
-           coalesce(`(Operating Activities) Change in Accounts Receivable`,0) +
-           coalesce(`(Operating Activities) Change in Inventory`,0) +
-           coalesce(`(Operating Activities) Change in Prepaid expenses and other assets`,0) +
-           coalesce(`(Operating Activities) Change in Accounts Payable`,0) + 
-           coalesce(`(Operating Activities) Change in Accounts Taxes Payable`,0) + 
-           coalesce(`(Operating Activities) Change in Reserve for Sales Return and allowances`,0) +
+        `(Operating Activities) Cash Flow from Operating Activities` - 
+        (`(Operating Activities) Cash Flow Depreciation, Depletion, Ammortization` +
+           `(Operating Activities) Change in Accounts Receivable` +
+           `(Operating Activities) Change in Inventory` +
+           `(Operating Activities) Change in Prepaid expenses and other assets` +
+           `(Operating Activities) Change in Accounts Payable` + 
+           `(Operating Activities) Change in Accounts Taxes Payable` + 
+           `(Operating Activities) Change in Reserve for Sales Return and allowances` +
            coalesce(`(Operating Activities) Deferred Income Tax`,0) +
            coalesce(`(Operating Activities) Stock-based Compensation`,0)
         ),
       ,
       `(Investing Activities) Change in Other Investing Activities` =  
-        coalesce(`(Investing Activities) Cash Flow from Investing Activities`,0) - 
-        (coalesce(`(Investing Activities) Purchase of Property, Plant and Equipment`,0) + 
-           coalesce(`(Investing Activities) Proceeds from Asset Sales`,0) +
-           coalesce(`(Investing Activities) Purchase of Businesses`,0) +
-           coalesce(`(Investing Activities) Purchase of Marketable Securities and Investment`,0) +
-           coalesce(`(Investing Activities) Proceeds from sale or maturity of Marketable Securities and Investment`,0) +
-           coalesce(`(Investing Activities) Proceeds from maturities of Marketable Securities and Investment`,0)
+        `(Investing Activities) Cash Flow from Investing Activities` - 
+        (`(Investing Activities) Purchase of Property, Plant and Equipment` + 
+           `(Investing Activities) Proceeds from Asset Sales` +
+           `(Investing Activities) Purchase of Businesses` +
+           `(Investing Activities) Purchase of Marketable Securities and Investment` +
+           `(Investing Activities) Proceeds from sale or maturity of Marketable Securities and Investment` +
+           `(Investing Activities) Proceeds from maturities of Marketable Securities and Investment`
         ),
       ,
       `(Financing Activities) Impact of Stock Options and Other` = 
-        coalesce(`(Financing Activities) Cash Flow from Financing Activities`,0) - 
-        (coalesce(`(Financing Activities) Proceeds from Issuance of Stock`,0) + 
-           coalesce(`(Financing Activities) Payment for Repurchase of Stock`,0) + 
-           coalesce(`(Financing Activities) Proceeds from Issuance of Debt`,0) + 
-           coalesce(`(Financing Activities) Payment of Debt`,0) + 
-           coalesce(`(Financing Activities) Cash for Dividends`,0) 
+       `(Financing Activities) Cash Flow from Financing Activities` - 
+        (`(Financing Activities) Proceeds from Issuance of Stock` + 
+           `(Financing Activities) Payment for Repurchase of Stock` + 
+           `(Financing Activities) Proceeds from Issuance of Debt` + 
+           `(Financing Activities) Payment of Debt` + 
+           `(Financing Activities) Cash for Dividends` 
         ),
       ,
     ) %>% 
