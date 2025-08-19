@@ -44,13 +44,13 @@ kable(head(company_List), "html", class = "custom-table custom-narrow-table")
 
 ## Selecting a Company: JAKKS Pacific Inc. (JAKK)
 
-For our analysis, we'll use JAKKS Pacific Inc. (JAKK) as the company of interest. The CIK for JAKKS Pacific Inc. is 0001009829.
+For our analysis, we'll use Janus International Group, Inc. (JBI) as the company of interest. The CIK is 0001839839.
 
 Let's now select JAKKS Pacific Inc. by its CIK and retrieve its data from the SEC. The data we retrieve will be stored in the `company_data` object for further analysis:
 
 ```{r company_selecte, eval=TRUE, warning=FALSE, message=FALSE, paged.print=TRUE}
-# Select JAKKS Pacific Inc. (AAPL) by CIK
-cik <- "0001009829"  # CIK for JAKKS Pacific Inc.
+# Select Company by CIK
+cik <- "0001839839"  # CIK for the company
 company_data <- retrieve_Company_Data(headers, cik)
 
 # this the corresponding row of the company list
